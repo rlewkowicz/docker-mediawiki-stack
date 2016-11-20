@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "grunt test",
+    "doc": "jsduck",
+    "postdoc": "grunt copy:jsduck"
+  },
+  "devDependencies": {
+    "grunt": "1.0.1",
+    "grunt-banana-checker": "0.5.0",
+    "grunt-contrib-copy": "1.0.0",
+    "grunt-contrib-jshint": "1.0.0",
+    "grunt-contrib-watch": "1.0.0",
+    "grunt-jscs": "2.8.0",
+    "grunt-jsonlint": "1.0.7",
+    "grunt-karma": "0.12.2",
+    "karma": "0.13.22",
+    "karma-chrome-launcher": "0.2.2",
+    "karma-firefox-launcher": "0.1.7",
+    "karma-qunit": "0.1.9",
+    "qunitjs": "1.22.0"
+  }
+}

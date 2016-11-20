@@ -1,0 +1,11 @@
+{
+	"@metadata": {
+		"authors": [
+			"Millosh",
+			"Rancher",
+			"Sasa Stefanovic",
+			"Сербијана"
+		]
+	},
+	"syntaxhighlight-desc": "Омогућава визуелно означавање синтаксе <code>&lt;syntaxhighlight&gt;</code> коришћењем [http://pygments.org/ Pygments хајлајтера]."
+}

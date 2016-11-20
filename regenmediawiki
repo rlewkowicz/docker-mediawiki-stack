@@ -1,0 +1,69 @@
+cd distribution-files/
+rm -rf mediawiki
+git clone --depth 1 -b REL1_27 --single-branch https://github.com/wikimedia/mediawiki-extensions-VisualEditor.git
+git clone --depth 1 -b  REL1_27 --single-branch https://github.com/wikimedia/mediawiki.git
+git clone --depth 1 -b REL1_27 --single-branch https://github.com/wikimedia/mediawiki-extensions.git
+git clone --depth 1 -b REL1_27 --single-branch https://github.com/wikimedia/mediawiki-skins-Vector.git
+cd mediawiki-extensions
+for i in `ls | egrep -vwf <(cat <<END
+Cite$
+CiteThisPage$
+ConfirmEdit$
+filelist$
+Gadgets$
+ImageMap$
+InputBox$
+Interwiki$
+LocalisationUpdate$
+Nuke$
+ParserFunctions$
+PdfHandler$
+Poem$
+Renameuser$
+SpamBlacklist$
+SyntaxHighlight_GeSHi$
+TitleBlacklist$
+WikiEditor$
+END
+)`; do sed -i "s/branch \= \./\x00/g; /\[submodule \"$i\"\]/,/[^\x00]*\x00/d; s/\x00/branch \= \./g" .gitmodules; done
+for i in `ls | egrep -vwf <(cat <<END
+Cite$
+CiteThisPage$
+ConfirmEdit$
+filelist$
+Gadgets$
+ImageMap$
+InputBox$
+Interwiki$
+LocalisationUpdate$
+Nuke$
+ParserFunctions$
+PdfHandler$
+Poem$
+Renameuser$
+SpamBlacklist$
+SyntaxHighlight_GeSHi$
+TitleBlacklist$
+WikiEditor$
+END
+)`; do rm -rf $i; done
+git add -A
+git commit . -m 'doot'
+git submodule update --init --recursive
+cd ..
+mv mediawiki-skins-Vector mediawiki/skins/Vector
+mv mediawiki-extensions-VisualEditor mediawiki-extensions/VisualEditor
+rm -rf mediawiki/extensions
+mv mediawiki-extensions mediawiki/extensions
+cd mediawiki
+composer install --no-dev
+for i in `find $(pwd)/extensions/ -type d -maxdepth 1`;do cd "$i"; composer install --no-dev;done
+for i in `find $(pwd)/../../skins/ -type d -maxdepth 1`;do cd "$i"; composer install --no-dev;done
+cd ../../..
+for i in `find $(pwd) -name '\.git*'`; do rm -rf $i; done
+cd ..
+git add -A
+git commit . -m "$(date)"
+git branch --set-upstream-to=origin/master master
+git pull --rebase -X ours
+git push --set-upstream origin master --force

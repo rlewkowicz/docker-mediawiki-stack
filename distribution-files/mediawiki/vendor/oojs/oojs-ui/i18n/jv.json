@@ -1,0 +1,25 @@
+{
+	"@metadata": {
+		"authors": [
+			"Gleki",
+			"NoiX180",
+			"Pras",
+			"Jadinegara",
+			"Meursault2004"
+		]
+	},
+	"ooui-outline-control-move-down": "Pindhahaken butir mangandhap",
+	"ooui-outline-control-move-up": "Pindhah kara menyang dhuwur",
+	"ooui-outline-control-remove": "Busak kara",
+	"ooui-toolbar-more": "Manèh",
+	"ooui-toolgroup-expand": "Manèh",
+	"ooui-toolgroup-collapse": "Suda",
+	"ooui-dialog-message-accept": "Oké",
+	"ooui-dialog-message-reject": "Batal",
+	"ooui-dialog-process-error": "Ana sing klèru",
+	"ooui-dialog-process-dismiss": "Tutup",
+	"ooui-dialog-process-retry": "Jajal manèh",
+	"ooui-dialog-process-continue": "Tutug",
+	"ooui-selectfile-not-supported": "Pilihan berkas ora disokong",
+	"ooui-selectfile-placeholder": "Ora ana berkas sing kapilih"
+}

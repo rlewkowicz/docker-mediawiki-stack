@@ -1,0 +1,35 @@
+{
+	"@metadata": {
+		"authors": [
+			"Cainamarques",
+			"Dianakc",
+			"Fúlvio",
+			"Helder.wiki",
+			"HenriqueCrang",
+			"Jaideraf",
+			"Luckas",
+			"OTAVIO1981",
+			555,
+			"He7d3r",
+			"Amire80",
+			"아라",
+			"TheEduGobi",
+			"TheGabrielZaum"
+		]
+	},
+	"tag-visualeditor": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Editor Visual]]",
+	"tag-visualeditor-description": "Edição feita utilizando o [[{{MediaWiki:visualeditor-descriptionpagelink}}|Editor Visual]]",
+	"tag-visualeditor-needcheck": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Editor Visual: Verificar]]",
+	"tag-visualeditor-needcheck-description": "Edição feita utilizando o [[{{MediaWiki:visualeditor-descriptionpagelink}}|editor visual]] em que o sistema detectou possíveis mudanças não-intencionais ao wikitexto.",
+	"tag-visualeditor-switched": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Editor Visual: Alternado]]",
+	"tag-visualeditor-switched-description": "O usuário começou a editar usando o Editor Visual, e depois alternou para o editor de código-fonte.",
+	"visualeditor-feedback-link": "Project:Editor Visual/Comentários",
+	"visualeditor-feedback-tool": "Deixar comentários sobre este software",
+	"visualeditor-help-label": "Ler o guia do usuário",
+	"visualeditor-help-link": "mw:Special:MyLanguage/Help:VisualEditor/User guide",
+	"visualeditor-help-title": "Guia para saber como usar o editor",
+	"visualeditor-welcomedialog-action": "Começar a editar",
+	"visualeditor-welcomedialog-content": "Todos podem editar, cada ajuda conta.",
+	"visualeditor-welcomedialog-content-thanks": "Obrigado por ajudar o mundo a saber mais!",
+	"visualeditor-welcomedialog-title": "{{GENDER:$1|Bem-vindo|Bem-vinda}} ao site $2"
+}

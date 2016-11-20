@@ -1,0 +1,22 @@
+{
+	"@metadata": {
+		"authors": [
+			"Gleki",
+			"NoiX180",
+			"Pras",
+			"Jadinegara",
+			"Meursault2004",
+			"Macofe"
+		]
+	},
+	"tooltip-ca-ve-edit": "Besut kaca iki",
+	"visualeditor-ca-createlocaldescriptionsource": "Tambah sumber mawa wedharan enggon-enggonan",
+	"visualeditor-ca-createsource": "Gawé sumber",
+	"visualeditor-ca-editsource": "Besut sumber",
+	"visualeditor-ca-editsource-section": "besut sumber",
+	"visualeditor-desc": "Pangowah visual kanggo MediaWiki",
+	"visualeditor-descriptionpagelink": "Project:VisualEditor",
+	"visualeditor-loadwarning": "Kasulayan nalika ngemot data saka sasana: $1. Sampéyan pingin njajal manèh?",
+	"visualeditor-saveerror": "Kasulayan nalika nyimpen data menyang sasana: $1.",
+	"visualeditor-viewpage-savewarning": "Sampéyan yakin arep bali menyang tata panyawangan tanpa nyimpen dhisik?"
+}

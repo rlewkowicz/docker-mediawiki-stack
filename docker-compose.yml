@@ -1,0 +1,35 @@
+version: '2'
+services:
+  phpfpm:
+    image: rlewkowicz/php-fpm:latest
+    volumes:
+    - "./distribution-files/etc:/usr/local/etc"
+    - "./distribution-files/mediawiki:/var/www/mediawiki"
+    - "/etc/passwd:/etc/passwd:ro"
+    - "/etc/shadow:/etc/shadow:ro"
+    - "/etc/group:/etc/group:ro"
+  nginx:
+    image: nginx:1.10
+    ports:
+    - "80:80"
+    - "443:443"
+    volumes:
+    - "./distribution-files/nginx:/etc/nginx"
+    - "./distribution-files/mediawiki:/var/www/mediawiki"
+    - "/etc/passwd:/etc/passwd:ro"
+    - "/etc/shadow:/etc/shadow:ro"
+    - "/etc/group:/etc/group:ro"
+  mysql:
+    image: mariadb:10.0
+    volumes:
+    - "./distribution-files/mysql:/var/lib/mysql"
+    environment:
+    - MYSQL_ROOT_PASSWORD=@6gRzU2k8%
+  parsoid:
+    image: rlewkowicz/parsoid:latest
+  myadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+    - "8080:80"
+    environment:
+    - PMA_HOST=mysql

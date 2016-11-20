@@ -1,0 +1,39 @@
+{
+	"@metadata": {
+		"authors": [
+			"Bluyten",
+			"Breghtje",
+			"Catrope",
+			"Flightmare",
+			"Hansmuller",
+			"Jdforrester",
+			"Keegan",
+			"Konovalov",
+			"RajeshPandey",
+			"Romaine",
+			"SPQRobin",
+			"Saruman",
+			"Siebrand",
+			"Southparkfan",
+			"सरोज कुमार ढकाल",
+			"Sjoerddebruin",
+			"Amire80"
+		]
+	},
+	"tag-visualeditor": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Visuele tekstverwerker]]",
+	"tag-visualeditor-description": "Bewerking gemaakt met behulp van de [[{{MediaWiki:visualeditor-descriptionpagelink}}|visuele tekstverwerker]]",
+	"tag-visualeditor-needcheck": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Visuele tekstverwerker: controleren]]",
+	"tag-visualeditor-needcheck-description": "Bewerking gemaakt met de [[{{MediaWiki:visualeditor-descriptionpagelink}}|visuele tekstverwerker]] waarbij het systeem gedetecteerd heeft dat de wikitekst mogelijk onbedoelde veranderingen bevat.",
+	"tag-visualeditor-switched": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Visuele tekstverwerker: omgeschakeld]]",
+	"tag-visualeditor-switched-description": "De gebruiker is begonnen met bewerken via de visuele tekstverwerker en is daarna omgeschakeld naar de wikitekstbewerker.",
+	"visualeditor-feedback-link": "Project:Visuele tekstverwerker/Terugkoppeling",
+	"visualeditor-feedback-tool": "Terugkoppeling achterlaten over deze software",
+	"visualeditor-help-label": "Gebruikershandleiding lezen",
+	"visualeditor-help-link": "mw:Special:MyLanguage/Help:VisualEditor/User guide",
+	"visualeditor-help-title": "Handleiding voor de tekstverwerker",
+	"visualeditor-welcomedialog-action": "Begin met bewerken",
+	"visualeditor-welcomedialog-content": "Iedereen kan bewerken en elke verbetering helpt.",
+	"visualeditor-welcomedialog-content-thanks": "Dank u wel. Dankzij u kan de wereld meer ontdekken!",
+	"visualeditor-welcomedialog-switch": "Wisselen naar brontekst bewerken",
+	"visualeditor-welcomedialog-title": "{{GENDER:$1|Welkom}} bij $2"
+}

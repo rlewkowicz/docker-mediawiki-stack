@@ -1,0 +1,132 @@
+/*!
+ * VisualEditor MediaWiki UserInterface education popup tool styles.
+ *
+ * @copyright 2011-2016 VisualEditor Team and others; see AUTHORS.txt
+ * @license The MIT License (MIT); see LICENSE.txt
+ */
+
+.ve-ui-pulsatingDot {
+	width: 2.5em;
+	height: 2.5em;
+	border-radius: 50%;
+	background-color: #347bff;
+	position: absolute;
+	opacity: 0;
+	-webkit-animation: pulse 3s ease-out;
+	   -moz-animation: pulse 3s ease-out;
+	        animation: pulse 3s ease-out;
+	-webkit-animation-iteration-count: infinite;
+	   -moz-animation-iteration-count: infinite;
+	        animation-iteration-count: infinite;
+}
+
+.ve-ui-stillDot {
+	width: 0.8em;
+	height: 0.8em;
+	border-radius: 50%;
+	background-color: #347bff;
+	position: absolute;
+}
+
+.ve-ui-educationPopup-shield {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+}
+
+.oo-ui-widget-disabled .ve-ui-pulsatingDot,
+.oo-ui-widget-disabled .ve-ui-stillDot {
+	display: none;
+}
+
+.ve-ui-educationPopup-dismiss {
+	margin-top: 0.5em;
+}
+
+.ve-ui-educationPopup-header {
+	margin-bottom: 1em;
+}
+
+.ve-ui-educationPopup .oo-ui-popupWidget {
+	/* Appear above local dialogs, e.g. toolbar dialog */
+	z-index: 3;
+}
+
+.ve-ui-educationPopup .oo-ui-popupWidget-body {
+	padding: 1em;
+}
+
+.ve-ui-educationPopup .oo-ui-popupWidget-body p {
+	line-height: 1.2em;
+}
+
+@-webkit-keyframes pulse {
+	0% {
+		transform: scale(0);
+		opacity: 0.0;
+	}
+	25% {
+		transform: scale(0);
+		opacity: 0.1;
+	}
+	50% {
+		transform: scale(0.1);
+		opacity: 0.3;
+	}
+	75% {
+		transform: scale(0.5);
+		opacity: 0.5;
+	}
+	100% {
+		transform: scale(1);
+		opacity: 0.0;
+	}
+}
+
+@-moz-keyframes pulse {
+	0% {
+		transform: scale(0);
+		opacity: 0.0;
+	}
+	25% {
+		transform: scale(0);
+		opacity: 0.1;
+	}
+	50% {
+		transform: scale(0.1);
+		opacity: 0.3;
+	}
+	75% {
+		transform: scale(0.5);
+		opacity: 0.5;
+	}
+	100% {
+		transform: scale(1);
+		opacity: 0.0;
+	}
+}
+
+@keyframes pulse {
+	0% {
+		transform: scale(0);
+		opacity: 0.0;
+	}
+	25% {
+		transform: scale(0);
+		opacity: 0.1;
+	}
+	50% {
+		transform: scale(0.1);
+		opacity: 0.3;
+	}
+	75% {
+		transform: scale(0.5);
+		opacity: 0.5;
+	}
+	100% {
+		transform: scale(1);
+		opacity: 0.0;
+	}
+}

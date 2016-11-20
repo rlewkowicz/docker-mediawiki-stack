@@ -1,0 +1,16 @@
+{
+	"@metadata": {
+		"authors": [
+			"Sp5uhe",
+			"Chrumps",
+			"Peter Bowman",
+			"Tar Lócesilion"
+		]
+	},
+	"citethispage": "Przypis do tej strony",
+	"citethispage-desc": "Dodaje stronę specjalną [[Special:CiteThisPage|obsługi cytowań]] i link w pasku narzędziowym",
+	"citethispage-link": "Cytowanie tego artykułu",
+	"tooltip-citethispage": "Informacja o tym jak należy cytować tę stronę",
+	"citethispage-change-submit": "Wygeneruj przypis bibliograficzny",
+	"citethispage-change-target": "Strona:"
+}

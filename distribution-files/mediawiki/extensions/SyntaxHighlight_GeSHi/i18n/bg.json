@@ -1,0 +1,10 @@
+{
+	"@metadata": {
+		"authors": [
+			"Borislav",
+			"DCLXVI",
+			"Turin"
+		]
+	},
+	"syntaxhighlight-desc": "Осигурява синтактично осветяване на <code>&lt;syntaxhighlight&gt;</code> чрез [http://pygments.org/ Pygments]"
+}

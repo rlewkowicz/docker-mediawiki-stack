@@ -1,0 +1,17 @@
+/*!
+ * Styling for Special:Watchlist and Special:RecentChanges
+ */
+
+.mw-changeslist-line-watched .mw-title {
+	font-weight: bold;
+}
+
+/*
+ * Titles, including username links, and also tag names
+ * are prone to getting jumbled up
+ * with other titles, usernames, etc. in mixed RTL-LTR environment.
+ */
+.mw-changeslist .mw-tag-marker,
+.mw-changeslist .mw-title {
+	unicode-bidi: embed;
+}

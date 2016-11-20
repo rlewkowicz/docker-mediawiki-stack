@@ -1,0 +1,53 @@
+/*!
+ * VisualEditor MediaWiki Initialization DesktopArticleTarget Monobook skin high-definition styles.
+ *
+ * @copyright 2011-2016 VisualEditor Team and others; see AUTHORS.txt
+ * @license The MIT License (MIT); see LICENSE.txt
+ */
+
+.ve-init-mw-desktopArticleTarget {
+	/* Enforce different font-size for all UI elements of VisualEditor. The difference is tiny, but
+	   enough to make the icon containers 23.813px rather than 24px and thus the icons blurry */
+	font-size: 1.00787401575em; /* 0.8em / x-small / 127% */
+}
+
+.ve-init-mw-desktopArticleTarget .mw-body-content,
+.ve-ui-overlay-global .mw-body-content {
+	/* Match skin's font-size for the surface content */
+	font-size: 0.9921875em; /* 1/1.00787401575 */
+}
+
+.ve-init-mw-desktopArticleTarget-toolbar {
+	/* 1/1.00787401575 */
+	margin: -0.9921875em;
+	margin-bottom: 0;
+}
+
+.ve-active .ve-init-mw-desktopArticleTarget-originalContent {
+	padding-top: 0.9921875em;
+}
+
+/* Main document debug bar */
+.ve-init-mw-desktopArticleTarget > .ve-ui-debugBar {
+	border-top: 1px solid #ccc;
+	/* 0.8/0.8 */
+	padding: 1em;
+	margin: 1em -1em -1em -1em;
+}
+
+.ve-init-mw-target-surface {
+	margin-bottom: -0.9921875em;
+	padding-bottom: 0.9921875em;
+}
+
+.ve-init-mw-target-surface .ve-ce-documentNode,
+.ve-init-mw-target-surface .ve-ui-surface-placeholder {
+	padding: 0;
+}
+
+.mw-body .ve-init-mw-target-surface .ve-ui-surface-placeholder > * {
+	/* Fix margin overlap */
+	margin-top: 0;
+	/* Placeholder doesn't need a border as well */
+	border: 0;
+}
