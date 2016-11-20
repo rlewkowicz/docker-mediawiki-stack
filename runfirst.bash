@@ -11,6 +11,7 @@ pip install docker-compose
 useradd www-data
 rm -f $DIR/mediawiki/includes/installer/LocalSettingsGenerator.php
 \cp $DIR/distribution-files/LocalSettingsGenerator.php $DIR/distribution-files/mediawiki/includes/installer/LocalSettingsGenerator.php
+sed -i "s/\$wgDBserver = \'localhost\';/s/\$wgDBserver = \'mysql\';/g" $DIR/distribution-files/mediawiki/includes/DefaultSettings.php
 find $DIR/distribution-files/mediawiki -type d -exec chmod 755 {} +
 find $DIR/distribution-files/mediawiki -type f -exec chmod 644 {} +
 chown -R www-data.www-data $DIR/distribution-files/mediawiki
