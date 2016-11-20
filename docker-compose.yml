@@ -27,6 +27,8 @@ services:
     - MYSQL_ROOT_PASSWORD=@6gRzU2k8%
   parsoid:
     image: rlewkowicz/parsoid:latest
+    volumes:
+    - "./distribution-files/parsoid/config.yaml:/usr/local/lib/node_modules/parsoid/config.yaml"
   myadmin:
     image: phpmyadmin/phpmyadmin
     ports:
