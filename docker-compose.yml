@@ -8,6 +8,8 @@ services:
     - "/etc/passwd:/etc/passwd:ro"
     - "/etc/shadow:/etc/shadow:ro"
     - "/etc/group:/etc/group:ro"
+    links:
+    - "parsoid:parsoid"
   nginx:
     image: nginx:1.10
     ports:
@@ -19,6 +21,8 @@ services:
     - "/etc/passwd:/etc/passwd:ro"
     - "/etc/shadow:/etc/shadow:ro"
     - "/etc/group:/etc/group:ro"
+    # links:
+    # - "phpfpm:phpfpm"
   mysql:
     image: mariadb:10.0
     volumes:
@@ -29,6 +33,8 @@ services:
     image: rlewkowicz/parsoid:latest
     volumes:
     - "./distribution-files/parsoid/config.yaml:/usr/local/lib/node_modules/parsoid/config.yaml"
+    links:
+    - "nginx:nginx"
   myadmin:
     image: phpmyadmin/phpmyadmin
     ports:
