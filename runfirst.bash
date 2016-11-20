@@ -12,4 +12,4 @@ useradd www-data
 yes | cp -rf $DIR/distribution-files/LocalSettingsGenerator.php $DIR/mediawiki/includes/installer/LocalSettingsGenerator.php
 find $DIR/distribution-files/mediawiki -type d -exec chmod 755 {} +
 find $DIR/distribution-files/mediawiki -type f -exec chmod 644 {} +
-chown www-data.www-data $DIR/distribution-files/mediawiki
+chown -R www-data.www-data $DIR/distribution-files/mediawiki
