@@ -1,0 +1,100 @@
+Containerized Mediawiki 
+=======================
+###TLDR:
+I recommend running the runfirst.bash. It does work for you with setting visual editor as well as a couple other things. Wiki is on port 80. phpmyadmin is on port 8080. Root pw is in the 
+
+
+```
+git clone git@github.com:rlewkowicz/docker-mediawiki-stack.git
+cd docker-mediawiki-stack
+./runfirst.bash
+docker-compose up [-d] [--force-recreate]
+```
+
+
+You're now running the world’s largest enterprise wiki platform. 
+
+
+Project Compendium
+binaryoasis.com:8000
+
+
+###Known Issues and Todos:
+Architecturally the platform should be sound. There’s basic tests for most of the jenkins jobs, but the whole thing has not undergone extensive testing yet.   
+The nginx ssl portion should be good, but I haven’t been able to toss an ssl in there yet. 
+Programmatically things need to be tightened and cleaned. Some of the Jenkins files could use some refactoring and the main bash script is pretty cancerous. 
+I’ll be adding cassandra and restbase for scalability before too long. 
+
+
+###The Sauce 
+Installing mediawiki is a bit of a pain (especially with the visual editor). The directions are sometimes unclear on which packages are required for the php compile. At the very least in a platform agnostic manner. As it stands it should work with either debian or redhat based systems that docker supports.
+
+
+###Why it's better than the mediawiki sponsored docker setup. 
+The official mediawiki docker image doesn’t really subscribe to the docker ideology. It’s all blob’d into one container. This follows the one service per container concept and is built in a way that that allows for agnostic immutable system setup. I’ll touch on this in the setup section.
+
+
+Setup
+=======================
+So obviously there’s going to be assets that need to not be in the container. This is in the distribution files folder. These assets (as well as the containers) are managed by jenkins and are kept up to date with their respective mainline providers. They’ll all be auto mounted pending alternate configuration. 
+
+
+If you want the files to live elsewhere, you can use something like bound mounts. 
+
+
+```
+mount -o bind /app/parsoid /etc/parsoid
+mount -o bind /app/mysql/ /var/lib/mysql
+mount -o bind /app/mediawiki/ /var/www/mediawiki
+```
+
+
+This is nice, because now your system can be truly ephemeral and your data can live wherever.
+
+
+Usage and Common Tasks
+=======================
+####Starting and Stopping Services 
+
+
+docker stop CONTAINER_NAME; docker start CONTAINER_NAME
+
+
+####Accessing Daemon Logs
+
+
+docker logs [ -f ] CONTAINER_NAME
+
+
+####Accessing a Shell
+
+
+docker exec -ti CONTAINER_NAME /bin/sh
+
+
+####Managing the Database
+
+
+docker exec -ti MYSQL_CONTAINER mysql 
+Or phpmyadmin
+host:8080
+
+
+Caveat Emptor
+=======================
+Per the usual, this is an open source project maintained by some random guy on the internet. Use at your own risk.  
+
+
+Requirements
+------------
+Docker && Docker Compose (runfirst.bash will handle this)
+
+
+Contributing
+------------
+Let me know if anything is amiss and I’ll fix it. 
+
+
+License and Authors
+-------------------
+Authors: Ryan Lewkowicz 
