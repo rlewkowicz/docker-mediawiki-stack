@@ -436,7 +436,8 @@ $wgDefaultUserOptions['visualeditor-enable-experimental'] = 1;
 $wgVirtualRestConfig['modules']['parsoid'] = array(
   // URL to the Parsoid instance
   // Use port 8142 if you use the Debian package
-  'url' => 'http://parsoid:8000',
+  'url' => 'http://nginx:8000',
+	'domain' => 'nginx',
 	'forwardCookies' => true
 );
 
