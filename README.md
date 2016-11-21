@@ -73,7 +73,9 @@ docker exec -ti CONTAINER_NAME /bin/sh
 
 
 docker exec -ti MYSQL_CONTAINER mysql 
-Or phpmyadmin
+
+Or phpmyadmin:
+
 host:8080
 
 
