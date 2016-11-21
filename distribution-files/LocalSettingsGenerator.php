@@ -414,9 +414,10 @@ ${serverSetting}
 $generatedLocal = $generatedLocal.<<<'EOD'
 
 #URL OVERRIDE
-$wgScriptPath = "";
-$wgArticlePath      = "/view/$1";
+$wgScriptPath	    = "";
+$wgArticlePath      = "/$1";
 $wgUsePathInfo      = true;
+$wgScriptExtension  = ".php";
 
 #VISUAL EDITOR
 
@@ -436,18 +437,9 @@ $wgVirtualRestConfig['modules']['parsoid'] = array(
   // URL to the Parsoid instance
   // Use port 8142 if you use the Debian package
   'url' => 'http://parsoid:8000',
-  // Parsoid "domain", see below (optional)
-  'domain' => 'localhost',
-  // Parsoid "prefix", see below (optional)
-  'prefix' => 'localhost'
+	'forwardCookies' => true
 );
 
-// Forward users' Cookie: headers to Parsoid. Required for private wikis (login required to read).
-// If the wiki is not private (i.e. $wgGroupPermissions['*']['read'] is true) this configuration
-// variable will be ignored.
-//
-// This feature requires a non-locking session store. The default session store will not work and
-// will cause deadlocks (connection timeouts from Parsoid) when trying to use this feature.
 $wgSessionsInObjectCache = true;
 
 EOD;
