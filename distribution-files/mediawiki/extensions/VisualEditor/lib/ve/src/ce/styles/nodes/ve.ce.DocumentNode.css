@@ -1,0 +1,21 @@
+/*!
+ * VisualEditor ContentEditable DocumentNode styles.
+ *
+ * @copyright 2011-2016 VisualEditor Team and others; see http://ve.mit-license.org
+ */
+
+.ve-ce-documentNode {
+	cursor: text;
+	/* 0.75/0.8, 1.5/0.8 */
+	padding: 0.9375em 1.875em;
+}
+
+/*
+ * Don't bother with -moz-selection becase Firefox 24 only
+ * supports overriding text selection colour, not images
+ * (i.e. any focusable nodes)
+ */
+.ve-ce-documentNode::selection,
+.ve-ce-documentNode *::selection {
+	background: rgba( 109, 169, 247, 0.5 ); /* #6da9f7 */
+}

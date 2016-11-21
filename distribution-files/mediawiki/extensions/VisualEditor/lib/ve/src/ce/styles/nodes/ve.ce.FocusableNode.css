@@ -1,0 +1,91 @@
+/*!
+ * VisualEditor ContentEditable FocusableNode styles.
+ *
+ * @copyright 2011-2016 VisualEditor Team and others; see http://ve.mit-license.org
+ */
+
+.ve-ce-surface-highlights-focused .ve-ce-focusableNode-highlights {
+	opacity: 0.5;
+}
+
+.ve-ce-surface-highlights-blurred .ve-ce-focusableNode-highlights {
+	opacity: 0.15;
+}
+
+/* Support: IE */
+/* Set opacity directly on the highlights, rather than their containers,
+   otherwise the opacity isn't applied at all */
+.ve-init-target-ie .ve-ce-surface-highlights-focused .ve-ce-focusableNode-highlight {
+	opacity: 0.5;
+}
+
+.ve-init-target-ie .ve-ce-surface-highlights-blurred .ve-ce-focusableNode-highlight {
+	opacity: 0.15;
+}
+
+.ve-ce-focusableNode {
+	cursor: default;
+}
+
+/* We have to use a * selector because user-select isn't inherited by absolutely positioned
+   children in Firefox. */
+/*csslint vendor-prefix: false, compatible-vendor-prefixes:false */
+.ve-ce-focusableNode * {
+	/* Support: Firefox */
+	/* T70537: work around Firefox bug */
+	-moz-user-select: none;
+}
+/*csslint vendor-prefix: true, compatible-vendor-prefixes:true */
+
+.ve-ce-focusableNode-highlight {
+	background: #6da9f7;
+	box-shadow: inset 0 0 0 1px #4C76ac;
+	position: absolute;
+	/* Clip extra span added for selectability */
+	overflow: hidden;
+}
+
+.ve-ce-focusableNode-highlight-error {
+	background: #f00;
+}
+
+.ve-ce-focusableNode-highlight-relocatable-marker {
+	width: 100%;
+	height: 100%;
+}
+
+.ve-ce-focusableNode-highlights-relocating .ve-ce-focusableNode-highlight-relocatable-marker {
+	background: #000;
+	background: rgba( 0, 0, 0, 1 );
+}
+
+/* Prevent 'copy image' appearing in context menu */
+.ve-ce-focusableNode-highlights-contextOpen .ve-ce-focusableNode-highlight-relocatable-marker {
+	display: none;
+}
+
+.ve-ce-focusableNode-highlight-selectable {
+	position: absolute;
+	top: -1000px;
+}
+
+.ve-ce-focusableNode-invisible {
+	display: inline-block;
+	vertical-align: middle;
+	/* Negative margins ensure icon height doesn't exceed line height in paragraphs */
+	margin: -6px 0 -2px 0;
+	width: 24px;
+	height: 24px;
+}
+
+.ve-ce-focusableNode-invisibleIcon.oo-ui-iconElement {
+	display: block;
+	/* Don't scale icon in headings etc. */
+	width: 24px;
+	height: 24px;
+	background-size: 24px 24px;
+	/* Make native selection match fake selection */
+	font-size: 24px;
+	line-height: 1em;
+	opacity: 0.5;
+}

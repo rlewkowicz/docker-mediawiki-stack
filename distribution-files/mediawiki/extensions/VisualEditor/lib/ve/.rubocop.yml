@@ -1,0 +1,9 @@
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  Include:
+    - 'Gemfile'
+    - '.jsduck/**/*.rb'
+
+Metrics/LineLength:
+  Max: 100

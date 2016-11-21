@@ -1,8 +1,8 @@
 [
     {
         "name": "symfony/process",
-        "version": "v3.1.6",
-        "version_normalized": "3.1.6.0",
+        "version": "v3.1.7",
+        "version_normalized": "3.1.7.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/process.git",

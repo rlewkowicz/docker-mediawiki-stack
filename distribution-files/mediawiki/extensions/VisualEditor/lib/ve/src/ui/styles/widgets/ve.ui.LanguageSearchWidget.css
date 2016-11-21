@@ -1,0 +1,12 @@
+/*!
+ * VisualEditor UserInterface LanguageSearchWidget/LanguageResultWidget styles.
+ *
+ * @copyright 2011-2016 VisualEditor Team and others; see http://ve.mit-license.org
+ */
+
+/* ve.ui.LanguageResultWidget */
+
+.ve-ui-languageResultWidget-otherMatch {
+	float: right;
+	color: #777;
+}

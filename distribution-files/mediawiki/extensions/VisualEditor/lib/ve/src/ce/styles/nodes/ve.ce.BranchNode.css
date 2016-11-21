@@ -1,0 +1,113 @@
+/*!
+ * VisualEditor ContentEditable BranchNode styles.
+ *
+ * @copyright 2011-2016 VisualEditor Team and others; see http://ve.mit-license.org
+ */
+
+/* Prevent focus outline on editable sections */
+.ve-ce-branchNode:focus {
+	outline: none;
+}
+
+.ve-ce-branchNode-blockSlug {
+	cursor: pointer;
+	opacity: 0;
+	-webkit-transition: opacity 200ms ease-out;
+	-moz-transition: opacity 200ms ease-out;
+	-o-transition: opacity 200ms ease-out;
+	transition: opacity 200ms ease-out;
+}
+
+.ve-ce-branchNode-blockSlug:hover,
+.ve-ce-branchNode-blockSlug.ve-ce-branchNode-blockSlug-focused {
+	opacity: 1;
+}
+
+.ve-ce-branchNode-blockSlug,
+.ve-ce-branchNode-newSlug {
+	margin: -0.3em 0 -0.1em 0;
+	outline: 1px dashed #ccc;
+	/* rgba( #f1f7fb, 0.5 ) */
+	background-color: rgba( 241, 247, 251, 0.75 );
+}
+
+.ve-ce-branchNode-newSlug-open {
+	margin: 1em 0;
+	background-color: transparent;
+	outline-color: transparent;
+	outline-offset: 1em;
+	-webkit-transition: all 400ms ease-out;
+	-moz-transition: all 400ms ease-out;
+	-o-transition: all 400ms ease-out;
+	transition: all 400ms ease-out;
+}
+
+.ve-ce-branchNode-blockSlug > .oo-ui-buttonWidget {
+	margin-left: 0.25em;
+	opacity: 0.5;
+	display: block;
+}
+
+.ve-ce-branchNode-blockSlug > .oo-ui-buttonWidget > .oo-ui-buttonElement-button {
+	display: block;
+}
+
+.ve-ce-branchNode-blockSlug > .oo-ui-buttonWidget > .oo-ui-buttonElement-button > .oo-ui-iconElement-icon {
+	width: 0.95em;
+	height: 0.95em;
+	background-size: auto;
+}
+
+.ve-ce-chimera {
+	width: 0;
+	height: 0;
+}
+
+.ve-ce-chimera-webkit {
+	/* Cursor positioning tweak */
+	width: 1px;
+	height: 1em;
+}
+
+.ve-ce-chimera-gecko {
+	/* Force height in empty branch */
+	border: 1px solid transparent;
+}
+
+.ve-ce-chimera-debug {
+	width: auto;
+	height: auto;
+}
+
+.ve-ce-unicorn:not( .ve-ce-unicorn-debug ) {
+	width: 0;
+	height: 0;
+}
+
+/* Pre-formatted node styling */
+
+pre.ve-ce-branchNode {
+	/* Support: Chrome, Safari */
+	/* Prevent silly wrapping on Safari and Chrome (https://bugs.webkit.org/show_bug.cgi?id=35935) */
+	word-wrap: normal;
+}
+
+/* Hack for empty headings and paragraphs; can't use min-height because of IE */
+
+.ve-ce-branchNode h1:empty:before,
+.ve-ce-branchNode h2:empty:before,
+.ve-ce-branchNode h3:empty:before,
+.ve-ce-branchNode h4:empty:before,
+.ve-ce-branchNode h5:empty:before,
+.ve-ce-branchNode h6:empty:before,
+.ve-ce-branchNode p:empty:before {
+	content: url( data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 );
+}
+
+/* Emulate the first paragraph in each list item being unwrapped */
+
+/* TODO use CSS class for wrapper paragraph */
+li.ve-ce-branchNode p.ve-ce-branchNode:first-child {
+	margin: 0;
+	padding: 0;
+}

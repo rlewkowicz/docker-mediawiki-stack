@@ -1,0 +1,110 @@
+/*!
+ * VisualEditor ContentEditable TableRowNode class.
+ *
+ * @copyright 2011-2016 VisualEditor Team and others; see http://ve.mit-license.org
+ */
+
+/**
+ * ContentEditable table row node.
+ *
+ * @class
+ * @extends ve.ce.BranchNode
+ * @constructor
+ * @param {ve.dm.TableRowNode} model Model to observe
+ * @param {Object} [config] Configuration options
+ */
+ve.ce.TableRowNode = function VeCeTableRowNode() {
+	// Parent constructor
+	ve.ce.TableRowNode.super.apply( this, arguments );
+
+	this.$missingCell = null;
+};
+
+/* Inheritance */
+
+OO.inheritClass( ve.ce.TableRowNode, ve.ce.BranchNode );
+
+/* Static Properties */
+
+ve.ce.TableRowNode.static.name = 'tableRow';
+
+ve.ce.TableRowNode.static.tagName = 'tr';
+
+/* Methods */
+
+/**
+ * @inheritdoc
+ */
+ve.ce.TableRowNode.prototype.onSetup = function () {
+	// Parent method
+	ve.ce.TableRowNode.super.prototype.onSetup.apply( this, arguments );
+
+	this.setupMissingCell();
+};
+
+/**
+ * @inheritdoc
+ */
+ve.ce.TableRowNode.prototype.onSplice = function () {
+	// Parent method
+	ve.ce.TableRowNode.super.prototype.onSplice.apply( this, arguments );
+
+	if ( this.getRoot() ) {
+		// Defer call until after other changes in this cycle have been made
+		setTimeout( this.setupMissingCell.bind( this ) );
+	}
+};
+
+/**
+ * Setup a slug for a missing cell, if this row contains fewer cells than the table
+ */
+ve.ce.TableRowNode.prototype.setupMissingCell = function () {
+	var row,
+		matrix = this.findParent( ve.ce.TableNode ).getModel().getMatrix(),
+		maxColCount = matrix.getMaxColCount();
+
+	row = matrix.getRowNodes().indexOf( this.model );
+	if ( maxColCount > matrix.getColCount( row ) ) {
+		if ( !this.$missingCell ) {
+			this.$missingCell = $( '<td>' )
+				.prop( 'contentEditable', 'false' )
+				.addClass( 've-ce-branchNode-slug ve-ce-branchNode-blockSlug oo-ui-icon-add ve-ce-tableNode-missingCell' )
+				.on( 'click', this.onMissingCellClick.bind( this ) );
+		}
+		this.$element.append( this.$missingCell );
+	} else if ( this.$missingCell ) {
+		this.$missingCell.detach();
+	}
+};
+
+/**
+ * Handle click events on the missing cell slug
+ *
+ * @param {jQuery.Event} e Click event
+ */
+ve.ce.TableRowNode.prototype.onMissingCellClick = function () {
+	var row, col,
+		surfaceModel = this.getRoot().getSurface().getModel(),
+		documentModel =  surfaceModel.getDocument(),
+		tableModel = this.findParent( ve.ce.TableNode ).getModel(),
+		matrix = tableModel.getMatrix();
+
+	// Add a cell onto the end of the row
+	surfaceModel.change(
+		ve.dm.Transaction.newFromInsertion(
+			documentModel, this.getModel().getRange().end,
+			ve.dm.TableCellNode.static.createData()
+		)
+	);
+
+	// Select the newly-inserted cell
+	row = matrix.getRowNodes().indexOf( this.model );
+	col = matrix.getColCount( row ) - 1;
+	surfaceModel.setSelection(
+		new ve.dm.TableSelection( documentModel, tableModel.getOuterRange(), col, row )
+	);
+};
+
+/* Registration */
+
+ve.ce.nodeFactory.register( ve.ce.TableRowNode );
