@@ -5,7 +5,7 @@ I recommend running the runfirst.bash. It does work for you with setting visual 
 
 
 ```
-git clone git@github.com:rlewkowicz/docker-mediawiki-stack.git
+git clone https://github.com/rlewkowicz/docker-mediawiki-stack.git
 cd docker-mediawiki-stack
 ./runfirst.bash
 docker-compose up [-d] [--force-recreate]
