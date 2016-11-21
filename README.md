@@ -1,7 +1,7 @@
 Containerized Mediawiki 
 =======================
 ###TLDR:
-I recommend running the runfirst.bash. It does work for you with setting visual editor as well as a couple other things. Wiki is on port 80. phpmyadmin is on port 8080. root mysql pw is in the docker-compose.yml
+I recommend running the runfirst.bash. It does work for you with setting visual editor as well as a couple other things. Wiki is on port 80. phpmyadmin is on port 8080. root mysql pw is in the docker-compose.yml. Database host is supposed to be "mysql". It will be preset if you run runfirst.bash
 
 
 ```
