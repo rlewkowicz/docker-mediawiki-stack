@@ -7,6 +7,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 
 command -v docker >/dev/null 2>&1 || { curl -s https://get.docker.com/ | bash; }
+sudo service docker start
 curl https://bootstrap.pypa.io/get-pip.py | python
 pip install docker-compose
 useradd www-data
