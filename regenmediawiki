@@ -1,6 +1,9 @@
 cd distribution-files/
 rm -rf mediawiki
-git clone --depth 1 -b REL1_27 --single-branch https://github.com/wikimedia/mediawiki-extensions-VisualEditor.git
+git clone --depth 1 -b REL1_27 --single-branch https://gerrit.wikimedia.org/r/p/mediawiki/extensions/VisualEditor.git
+cd VisualEditor
+git submodule update --init
+cd ..
 git clone --depth 1 -b  REL1_27 --single-branch https://github.com/wikimedia/mediawiki.git
 git clone --depth 1 -b REL1_27 --single-branch https://github.com/wikimedia/mediawiki-extensions.git
 git clone --depth 1 -b REL1_27 --single-branch https://github.com/wikimedia/mediawiki-skins-Vector.git
@@ -52,7 +55,7 @@ git commit . -m 'doot'
 git submodule update --init --recursive
 cd ..
 mv mediawiki-skins-Vector mediawiki/skins/Vector
-mv mediawiki-extensions-VisualEditor mediawiki-extensions/VisualEditor
+mv VisualEditor mediawiki-extensions/VisualEditor
 rm -rf mediawiki/extensions
 mv mediawiki-extensions mediawiki/extensions
 cd mediawiki
