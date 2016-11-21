@@ -42,9 +42,7 @@ If you want the files to live elsewhere, you can use something like bound mounts
 
 
 ```
-mount -o bind /app/parsoid /etc/parsoid
-mount -o bind /app/mysql/ /var/lib/mysql
-mount -o bind /app/mediawiki/ /var/www/mediawiki
+mount -o bind SOURCE DESTINATION
 ```
 
 
