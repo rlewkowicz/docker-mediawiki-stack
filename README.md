@@ -1,7 +1,7 @@
 Containerized Mediawiki 
 =======================
 ###TLDR:
-I recommend running the runfirst.bash. It does work for you with setting visual editor as well as a couple other things. Wiki is on port 80. phpmyadmin is on port 8080. Root pw is in the 
+I recommend running the runfirst.bash. It does work for you with setting visual editor as well as a couple other things. Wiki is on port 80. phpmyadmin is on port 8080. root mysql pw is in the docker-compose.yml
 
 
 ```
@@ -11,12 +11,11 @@ cd docker-mediawiki-stack
 docker-compose up [-d] [--force-recreate]
 ```
 
-
 You're now running the world’s largest enterprise wiki platform. 
 
 
 Project Compendium
-binaryoasis.com:8000
+http://binaryoasis.com:8000
 
 
 ###Known Issues and Todos:
