@@ -8,8 +8,6 @@ services:
     - "/etc/passwd:/etc/passwd:ro"
     - "/etc/shadow:/etc/shadow:ro"
     - "/etc/group:/etc/group:ro"
-    links:
-    - "parsoid:parsoid"
   nginx:
     image: nginx:1.10
     ports:
@@ -21,20 +19,25 @@ services:
     - "/etc/passwd:/etc/passwd:ro"
     - "/etc/shadow:/etc/shadow:ro"
     - "/etc/group:/etc/group:ro"
-    # links:
-    # - "phpfpm:phpfpm"
+    depends_on:
+    - phpfpm
+    - parsoid
+    - mysql
   mysql:
     image: mariadb:10.0
     volumes:
     - "./distribution-files/mysql:/var/lib/mysql"
     environment:
     - MYSQL_ROOT_PASSWORD=@6gRzU2k8%
+    - MYSQL_USER=root@myadmin
+    - MYSQL_PASSWORD=@6gRzU2k8%
+    depends_on:
+    - myadmin
   parsoid:
     image: rlewkowicz/parsoid:latest
     volumes:
     - "./distribution-files/parsoid/config.yaml:/usr/local/lib/node_modules/parsoid/config.yaml"
-    links:
-    - "nginx:nginx"
+    hostname: parsoid
   myadmin:
     image: phpmyadmin/phpmyadmin
     ports:

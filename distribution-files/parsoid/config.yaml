@@ -34,12 +34,11 @@ services:
         mwApis:
         - # This is the only required parameter,
           # the URL of you MediaWiki API endpoint.
-          uri: 'http://localhost/w/api.php'
+          uri: 'http://nginx/api.php'
           # The "domain" is used for communication with Visual Editor
           # and RESTBase.  It defaults to the hostname portion of
           # the `uri` property below, but you can manually set it
           # to an arbitrary string.
-          domain: 'localhost'  # optional
           # To specify a proxy (or proxy headers) specific to this prefix
           # (which overrides defaultAPIProxyURI). Alternatively, set `proxy`
           # to `null` to override and force no proxying when a default proxy
@@ -79,7 +78,7 @@ services:
 
         # Allow override of port/interface:
         #serverPort: 8000
-        #serverInterface: '127.0.0.1'
+        serverInterface: '0.0.0.0'
 
         # Enable linting of some wikitext errors to the log
         #linting: true
