@@ -5,7 +5,6 @@ if [[ $EUID -ne 0 ]]; then
 fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-
 command -v docker >/dev/null 2>&1 || { curl -s https://get.docker.com/ | bash; }
 sudo service docker start
 command -v pip >/dev/null 2>&1 || { \curl -L https://bootstrap.pypa.io/get-pip.py | python || \curl -L https://bootstrap.pypa.io/get-pip.py | python3; }
