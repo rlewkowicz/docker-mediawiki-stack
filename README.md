@@ -25,7 +25,7 @@ http://binaryoasis.com:8000
 ###Known Issues and Todos:
 * Architecturally the platform should be sound. There’s basic tests for most of the jenkins jobs, but the whole thing has not undergone extensive testing yet.   
 * The nginx ssl portion should be good, but I haven’t been able to toss an ssl in there yet. 
-* Programmatically things need to be tightened and cleaned. Some of the Jenkins files could use some refactoring and the main bash script is pretty cancerous. 
+* Programmatically things need to be tightened and cleaned. Some of the Jenkins files could use some refactoring and the main bash script is pretty cancerous. My editor likes to unifiy tabs and spaces and not tell me. It shows up in github lol.
 * I’ll be adding cassandra and restbase for scalability before too long. 
 
 
