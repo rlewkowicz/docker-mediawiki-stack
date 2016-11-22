@@ -30,7 +30,7 @@ services:
     - MYSQL_ROOT_PASSWORD=@6gRzU2k8%
     - MYSQL_USER=root@myadmin
     - MYSQL_PASSWORD=@6gRzU2k8%
-    depends_on
+    depends_on:
     - nginx
   parsoid:
     image: rlewkowicz/parsoid:latest
