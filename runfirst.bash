@@ -8,7 +8,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 command -v docker >/dev/null 2>&1 || { curl -s https://get.docker.com/ | bash; }
 sudo service docker start
-command -v pip >/dev/null 2>&1 || { \curl https://bootstrap.pypa.io/get-pip.py > /tmp/get-pip.py&&chmod +x /tmp/get-pip.py&&/tmp/get-pip.py; }
+command -v pip >/dev/null 2>&1 || { \curl -L https://bootstrap.pypa.io/get-pip.py | python || \curl -L https://bootstrap.pypa.io/get-pip.py | python3; }
 command -v docker-compose >/dev/null 2>&1 || { pip install docker-compose; }
 useradd www-data
 rm -f $DIR/mediawiki/includes/installer/LocalSettingsGenerator.php
