@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitc14f06802c896b4224dde8359ab4a1e3
+class ComposerStaticInit0101a8601e6e808c69af9034d3a11300
 {
     public static $files = array (
         'dc4b5f4e25c85e752b42e9496a811112' => __DIR__ . '/../..' . '/LocalisationUpdate.php',
