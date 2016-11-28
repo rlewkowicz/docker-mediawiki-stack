@@ -17,6 +17,11 @@ docker-compose up [-d] [--force-recreate]
 
 You're now running the world’s largest enterprise wiki platform. 
 
+To update it at anytime:
+```
+git pull --rebase -X ours
+```
+
 
 Project Compendium
 http://binaryoasis.com:8000
