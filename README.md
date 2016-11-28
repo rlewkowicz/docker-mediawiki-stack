@@ -17,8 +17,10 @@ docker-compose up [-d] [--force-recreate]
 
 You're now running the world’s largest enterprise wiki platform. 
 
-To update it at anytime:
+To update it at anytime (this will become a submodules folder at somepoint):
 ```
+git add -A
+git commit . -m '.'
 git pull --rebase -X ours
 ```
 
