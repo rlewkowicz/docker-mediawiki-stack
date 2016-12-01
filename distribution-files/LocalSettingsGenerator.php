@@ -163,11 +163,14 @@ class LocalSettingsGenerator {
       $localSettings .= "\n";
     }
 
-
-        $file = "/var/www/mediawiki/LocalSettings.php";
-        $handle = fopen($file, 'w') or die('Cannot open file:  '.$file);
-        fwrite($handle, $localSettings);
-
+      $file = "/var/www/mediawiki/LocalSettings.php";
+      if (!file_exists($file)) {
+        if (is_writable("/var/www/mediawiki/")) {
+          $handle = fopen($file, 'w') or die('Cannot open file:  '.$file);
+          fwrite($handle, $localSettings);
+        }
+      }
+    
     return $localSettings;
   }
 
