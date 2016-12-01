@@ -8,6 +8,7 @@ services:
     - "/etc/passwd:/etc/passwd:ro"
     - "/etc/shadow:/etc/shadow:ro"
     - "/etc/group:/etc/group:ro"
+    restart: always
   nginx:
     image: nginx:1.10
     ports:
@@ -22,6 +23,7 @@ services:
     depends_on:
     - phpfpm
     - parsoid
+    restart: always
   mysql:
     image: mariadb:10.0
     volumes:
@@ -32,11 +34,13 @@ services:
     - MYSQL_PASSWORD=@6gRzU2k8%
     depends_on:
     - nginx
+    restart: always
   parsoid:
     image: rlewkowicz/parsoid:latest
     volumes:
     - "./distribution-files/parsoid/config.yaml:/usr/local/lib/node_modules/parsoid/config.yaml"
     hostname: parsoid
+    restart: always
   myadmin:
     image: phpmyadmin/phpmyadmin
     ports:
@@ -45,3 +49,4 @@ services:
     - PMA_HOST=mysql
     depends_on:
     - mysql
+    restart: always
