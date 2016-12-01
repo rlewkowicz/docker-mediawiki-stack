@@ -6,10 +6,10 @@ fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 command -v docker >/dev/null 2>&1 || { curl -s https://get.docker.com/ | bash; }
-sudo service docker start
+service docker start
 command -v pip >/dev/null 2>&1 || { \curl -L https://bootstrap.pypa.io/get-pip.py | python || \curl -L https://bootstrap.pypa.io/get-pip.py | python3; }
 command -v docker-compose >/dev/null 2>&1 || { pip install docker-compose; }
-useradd www-data
+getent passwd www-data >/dev/null 2>&1 || { useradd www-data; }
 rm -f $DIR/mediawiki/includes/installer/LocalSettingsGenerator.php
 \cp $DIR/distribution-files/LocalSettingsGenerator.php $DIR/distribution-files/mediawiki/includes/installer/LocalSettingsGenerator.php
 sed -i "s#wgDBserver.*localhost#wgDBserver \= \'mysql#g" $DIR/distribution-files/mediawiki/includes/DefaultSettings.php
