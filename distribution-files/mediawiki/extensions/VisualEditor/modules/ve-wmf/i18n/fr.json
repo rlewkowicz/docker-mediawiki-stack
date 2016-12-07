@@ -32,13 +32,16 @@
 			"아라",
 			"Framafan",
 			"Wladek92",
-			"Jdforrester"
+			"Jdforrester",
+			"Pols12"
 		]
 	},
 	"tag-visualeditor": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Éditeur visuel]]",
 	"tag-visualeditor-description": "Modification effectuée avec l'[[{{MediaWiki:visualeditor-descriptionpagelink}}|éditeur visuel]]",
 	"tag-visualeditor-needcheck": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Éditeur visuel : à vérifier]]",
 	"tag-visualeditor-needcheck-description": "Modification faite en utilisant l’[[{{MediaWiki:visualeditor-descriptionpagelink}}|éditeur visuel]], dans laquelle le système a détecté que le wikicode contient peut-être des modifications non voulues.",
+	"tag-visualeditor-wikitext": "modification de source 2017",
+	"tag-visualeditor-wikitext-description": "Modification faites en utilisant l’éditeur visuel de wikitexte 2017",
 	"tag-visualeditor-switched": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Éditeur visuel : basculé]]",
 	"tag-visualeditor-switched-description": "L’utilisateur a commencé à modifier en utilisant l’éditeur visuel puis est passé sur l’éditeur de wikicode.",
 	"visualeditor-feedback-link": "Project:ÉditeurVisuel/Avis",
@@ -48,7 +51,8 @@
 	"visualeditor-help-title": "Guide d’utilisation de l’éditeur",
 	"visualeditor-welcomedialog-action": "Commencer à modifier",
 	"visualeditor-welcomedialog-content": "Tout le monde peut participer, et chaque amélioration est utile.",
-	"visualeditor-welcomedialog-content-thanks": "Merci d'aider le monde à découvrir plus de choses !",
-	"visualeditor-welcomedialog-switch": "Basculer vers l'éditeur de source",
+	"visualeditor-welcomedialog-content-thanks": "Merci d'aider le monde à découvrir de nouvelles choses !",
+	"visualeditor-welcomedialog-switch": "Basculer vers l'éditeur de code",
+	"visualeditor-welcomedialog-switch-ve": "Basculer vers l’éditeur visuel",
 	"visualeditor-welcomedialog-title": "{{GENDER:$1|Bienvenue}} sur $2"
 }

@@ -18,7 +18,7 @@ body {
 	float: right;
 	margin: 0.5em 0 0 0;
 	background: url( VisualEditor-logo.svg ) no-repeat;
-	background-size: contain;
+	background-size: contain; /* stylelint-disable-line no-unsupported-browser-features */
 	width: 10.75em;
 	height: 3.75em;
 }
@@ -104,6 +104,7 @@ body {
 
 .ve-ui-debugBar {
 	padding: 1.5em;
+	border-top: 1px solid #ccc;
 }
 
 .ve-ui-debugBar-filibuster {
@@ -111,14 +112,15 @@ body {
 }
 
 .ve-filibuster-changes {
-	border: solid red 1px;
+	border: 1px solid #f00;
 }
 
 .ve-filibuster-frame {
 	list-style: none;
 }
 
-.ve-filibuster-frame-expandable:before, .ve-filibuster-frame-collapsed:before {
+.ve-filibuster-frame-expandable:before,
+.ve-filibuster-frame-collapsed:before {
 	content: '+';
 }
 

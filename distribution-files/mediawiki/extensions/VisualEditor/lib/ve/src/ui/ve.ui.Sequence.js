@@ -12,7 +12,9 @@
  * @constructor
  * @param {string} name Symbolic name
  * @param {string} commandName Command name this sequence executes
- * @param {string|Array|RegExp} data Data to match
+ * @param {string|Array|RegExp} data Data to match. String, linear data array, or regular expression.
+ *         When using a RegularExpression always match the end of the sequence with a '$' so that
+ *         only sequences next to the user's cursor match.
  * @param {number} [strip=0] Number of data elements to strip after execution
  *        (from the right)
  * @param {boolean} [setSelection=false] Whether to set the selection to the
@@ -66,7 +68,7 @@ ve.ui.Sequence.prototype.match = function ( data, offset, plaintext ) {
  * @return {boolean} The command executed
  */
 ve.ui.Sequence.prototype.execute = function ( surface, range ) {
-	var command, stripRange, executed, stripFragment, selection,
+	var command, stripRange, executed, stripFragment, selection, args,
 		surfaceModel = surface.getModel();
 
 	if ( surface.getCommands().indexOf( this.getCommandName() ) === -1 ) {
@@ -94,9 +96,19 @@ ve.ui.Sequence.prototype.execute = function ( surface, range ) {
 		surfaceModel.setLinearSelection( range );
 	}
 
-	executed = command.execute( surface );
+	// For sequences that trigger dialogs, pass an extra flag so the window knows
+	// to un-strip the sequence if it is closed without action. See ve.ui.WindowAction.
+	if ( command.getAction() === 'window' && command.getMethod() === 'open' ) {
+		args = ve.copy( command.args );
+		args[ 1 ] = args[ 1 ] || {};
+		args[ 1 ].strippedSequence = !!this.strip;
+	}
+
+	executed = command.execute( surface, args );
 
 	if ( executed && stripFragment ) {
+		// Strip the typed text. This will be undone if the action triggered was
+		// window/open and the window is dismissed
 		stripFragment.removeContent();
 	}
 

@@ -78,6 +78,11 @@
 			"lib/rangefix/rangefix.js"
 		]
 	},
+	"spark-md5": {
+		"scripts": [
+			"lib/spark-md5/spark-md5.js"
+		]
+	},
 	"dom-classlist-shim": {
 		"scripts": [
 			"lib/classList/classList.js"
@@ -206,6 +211,7 @@
 			"visualEditor.supportCheck",
 			"unicodejs",
 			"rangefix",
+			"spark-md5",
 			"dom-classlist-shim"
 		]
 	},
@@ -257,6 +263,7 @@
 			"src/dm/ve.dm.Selection.js",
 			"src/dm/ve.dm.Surface.js",
 			"src/dm/ve.dm.SurfaceFragment.js",
+			"src/dm/ve.dm.SourceSurfaceFragment.js",
 			"src/dm/ve.dm.DataString.js",
 			"src/dm/ve.dm.Document.js",
 			"src/dm/ve.dm.DocumentSlice.js",
@@ -304,6 +311,7 @@
 			"src/dm/annotations/ve.dm.LinkAnnotation.js",
 			"src/dm/annotations/ve.dm.TextStyleAnnotation.js",
 			"src/dm/annotations/ve.dm.AbbreviationAnnotation.js",
+			"src/dm/annotations/ve.dm.BidiAnnotation.js",
 			"src/dm/annotations/ve.dm.BigAnnotation.js",
 			"src/dm/annotations/ve.dm.BoldAnnotation.js",
 			"src/dm/annotations/ve.dm.CodeSampleAnnotation.js",
@@ -394,6 +402,7 @@
 			"src/ce/annotations/ve.ce.LinkAnnotation.js",
 			"src/ce/annotations/ve.ce.TextStyleAnnotation.js",
 			"src/ce/annotations/ve.ce.AbbreviationAnnotation.js",
+			"src/ce/annotations/ve.ce.BidiAnnotation.js",
 			"src/ce/annotations/ve.ce.BigAnnotation.js",
 			"src/ce/annotations/ve.ce.BoldAnnotation.js",
 			"src/ce/annotations/ve.ce.CodeAnnotation.js",
@@ -453,6 +462,7 @@
 			"src/ui/ve.ui.DataTransferItem.js",
 			"src/ui/ve.ui.WindowManager.js",
 			"src/ui/ve.ui.NodeWindow.js",
+			"src/ui/ve.ui.TabIndexScope.js",
 			"src/ui/windowmanagers/ve.ui.SurfaceWindowManager.js",
 			"src/ui/actions/ve.ui.AnnotationAction.js",
 			"src/ui/actions/ve.ui.ContentAction.js",
@@ -523,6 +533,7 @@
 			"src/ce/styles/nodes/ve.ce.DocumentNode.css",
 			"src/ce/styles/nodes/ve.ce.GeneratedContentNode.css",
 			"src/ce/styles/nodes/ve.ce.HorizontalRuleNode.css",
+			"src/ce/styles/nodes/ve.ce.CommentNode.css",
 			"src/ce/styles/annotations/ve.ce.LanguageAnnotation.css",
 			"src/ce/styles/annotations/ve.ce.LinkAnnotation.css",
 			"src/ce/styles/nodes/ve.ce.ResizableNode.css",

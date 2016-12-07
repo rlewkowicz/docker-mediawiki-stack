@@ -17,7 +17,7 @@
  */
 ve.dm.MWMagicLinkNode = function VeDmMWMagicLinkNode() {
 	// Parent constructor
-	ve.dm.LeafNode.apply( this, arguments );
+	ve.dm.MWMagicLinkNode.super.apply( this, arguments );
 
 	// Mixin constructors
 	ve.dm.FocusableNode.call( this );
@@ -358,7 +358,7 @@ ve.dm.MWMagicLinkIsbnType.prototype.matchHref = function ( href ) {
 		return false;
 	}
 	// conf.specialBooksources has localized name for Special:Booksources
-	normalized = ve.safeDecodeURIComponent( m[ 1 ] ).replace( ' ', '_' );
+	normalized = ve.decodeURIComponentIntoArticleTitle( m[ 1 ], true ).replace( ' ', '_' );
 	if ( normalized !== 'Special:BookSources' && normalized !== conf.specialBooksources ) {
 		return false;
 	}
@@ -386,7 +386,7 @@ ve.dm.MWMagicLinkPmidType = function VeDmMWMagicLinkPmidType( content ) {
 OO.inheritClass( ve.dm.MWMagicLinkPmidType, ve.dm.MWMagicLinkType );
 
 ve.dm.MWMagicLinkPmidType.prototype.getHref = function () {
-	return '//www.ncbi.nlm.nih.gov/pubmed/' + this.code + '?dopt=Abstract';
+	return mw.msg( 'pubmedurl', this.code );
 };
 
 /**
@@ -407,7 +407,7 @@ ve.dm.MWMagicLinkRfcType = function VeDmMWMagicLinkRfcType( content ) {
 OO.inheritClass( ve.dm.MWMagicLinkRfcType, ve.dm.MWMagicLinkType );
 
 ve.dm.MWMagicLinkRfcType.prototype.getHref = function () {
-	return '//tools.ietf.org/html/rfc' + this.code;
+	return mw.msg( 'rfcurl', this.code );
 };
 
 /* Registration */

@@ -19,6 +19,7 @@
 		<link rel=stylesheet href="lib/ve/src/ce/styles/nodes/ve.ce.DocumentNode.css" class="stylesheet-ve">
 		<link rel=stylesheet href="lib/ve/src/ce/styles/nodes/ve.ce.GeneratedContentNode.css" class="stylesheet-ve">
 		<link rel=stylesheet href="lib/ve/src/ce/styles/nodes/ve.ce.HorizontalRuleNode.css" class="stylesheet-ve">
+		<link rel=stylesheet href="lib/ve/src/ce/styles/nodes/ve.ce.CommentNode.css" class="stylesheet-ve">
 		<link rel=stylesheet href="lib/ve/src/ce/styles/annotations/ve.ce.LanguageAnnotation.css" class="stylesheet-ve">
 		<link rel=stylesheet href="lib/ve/src/ce/styles/annotations/ve.ce.LinkAnnotation.css" class="stylesheet-ve">
 		<link rel=stylesheet href="lib/ve/src/ce/styles/nodes/ve.ce.ResizableNode.css" class="stylesheet-ve">
@@ -132,6 +133,9 @@
 		<!-- rangefix -->
 		<script src="lib/ve/lib/rangefix/rangefix.js"></script>
 
+		<!-- spark-md5 -->
+		<script src="lib/ve/lib/spark-md5/spark-md5.js"></script>
+
 		<!-- dom-classlist-shim -->
 		<script src="lib/ve/lib/classList/classList.js"></script>
 
@@ -192,6 +196,7 @@
 		<script src="lib/ve/src/dm/ve.dm.Selection.js"></script>
 		<script src="lib/ve/src/dm/ve.dm.Surface.js"></script>
 		<script src="lib/ve/src/dm/ve.dm.SurfaceFragment.js"></script>
+		<script src="lib/ve/src/dm/ve.dm.SourceSurfaceFragment.js"></script>
 		<script src="lib/ve/src/dm/ve.dm.DataString.js"></script>
 		<script src="lib/ve/src/dm/ve.dm.Document.js"></script>
 		<script src="lib/ve/src/dm/ve.dm.DocumentSlice.js"></script>
@@ -239,6 +244,7 @@
 		<script src="lib/ve/src/dm/annotations/ve.dm.LinkAnnotation.js"></script>
 		<script src="lib/ve/src/dm/annotations/ve.dm.TextStyleAnnotation.js"></script>
 		<script src="lib/ve/src/dm/annotations/ve.dm.AbbreviationAnnotation.js"></script>
+		<script src="lib/ve/src/dm/annotations/ve.dm.BidiAnnotation.js"></script>
 		<script src="lib/ve/src/dm/annotations/ve.dm.BigAnnotation.js"></script>
 		<script src="lib/ve/src/dm/annotations/ve.dm.BoldAnnotation.js"></script>
 		<script src="lib/ve/src/dm/annotations/ve.dm.CodeSampleAnnotation.js"></script>
@@ -328,6 +334,7 @@
 		<script src="lib/ve/src/ce/annotations/ve.ce.LinkAnnotation.js"></script>
 		<script src="lib/ve/src/ce/annotations/ve.ce.TextStyleAnnotation.js"></script>
 		<script src="lib/ve/src/ce/annotations/ve.ce.AbbreviationAnnotation.js"></script>
+		<script src="lib/ve/src/ce/annotations/ve.ce.BidiAnnotation.js"></script>
 		<script src="lib/ve/src/ce/annotations/ve.ce.BigAnnotation.js"></script>
 		<script src="lib/ve/src/ce/annotations/ve.ce.BoldAnnotation.js"></script>
 		<script src="lib/ve/src/ce/annotations/ve.ce.CodeAnnotation.js"></script>
@@ -386,6 +393,7 @@
 		<script src="lib/ve/src/ui/ve.ui.DataTransferItem.js"></script>
 		<script src="lib/ve/src/ui/ve.ui.WindowManager.js"></script>
 		<script src="lib/ve/src/ui/ve.ui.NodeWindow.js"></script>
+		<script src="lib/ve/src/ui/ve.ui.TabIndexScope.js"></script>
 		<script src="lib/ve/src/ui/windowmanagers/ve.ui.SurfaceWindowManager.js"></script>
 		<script src="lib/ve/src/ui/actions/ve.ui.AnnotationAction.js"></script>
 		<script src="lib/ve/src/ui/actions/ve.ui.ContentAction.js"></script>

@@ -10,12 +10,13 @@
 .ve-activating .ve-init-mw-desktopArticleTarget-toolbar,
 .ve-deactivating .ve-init-mw-desktopArticleTarget-toolbar {
 	overflow: hidden;
-	transition: height 0.4s ease;
+	transition: height 0.4s ease; /* stylelint-disable-line no-unsupported-browser-features */
 }
 
 .ve-ui-toolbar-floating .oo-ui-toolbar-bar {
 	transform: translateY( -100% );
-	transition: transform 0.4s ease;
+	transition: transform 0.4s ease; /* stylelint-disable-line no-unsupported-browser-features */
+	z-index: 4;
 }
 
 .ve-active .ve-ui-toolbar-floating .oo-ui-toolbar-bar {
@@ -37,4 +38,15 @@
 
 .ve-init-mw-desktopArticleTarget .redirectMsg a:hover {
 	text-decoration: none;
+}
+
+.ve-init-mw-articleTarget-source .catlinks {
+	display: none;
+}
+
+/*!
+ * Increase z-index of surface container so it appears above the debug bar
+ */
+.ve-init-mw-desktopArticleTarget #bodyContent { /* stylelint-disable-line selector-no-id */
+	z-index: 1;
 }

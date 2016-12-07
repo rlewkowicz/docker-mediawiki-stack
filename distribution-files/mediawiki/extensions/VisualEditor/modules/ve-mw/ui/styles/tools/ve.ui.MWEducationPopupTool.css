@@ -9,22 +9,24 @@
 	width: 2.5em;
 	height: 2.5em;
 	border-radius: 50%;
-	background-color: #347bff;
+	background-color: #36c;
 	position: absolute;
 	opacity: 0;
+	/* stylelint-disable no-unsupported-browser-features */
 	-webkit-animation: pulse 3s ease-out;
-	   -moz-animation: pulse 3s ease-out;
-	        animation: pulse 3s ease-out;
+	-moz-animation: pulse 3s ease-out;
+	animation: pulse 3s ease-out;
 	-webkit-animation-iteration-count: infinite;
-	   -moz-animation-iteration-count: infinite;
-	        animation-iteration-count: infinite;
+	-moz-animation-iteration-count: infinite;
+	animation-iteration-count: infinite;
+	/* stylelint-enable no-unsupported-browser-features */
 }
 
 .ve-ui-stillDot {
 	width: 0.8em;
 	height: 0.8em;
 	border-radius: 50%;
-	background-color: #347bff;
+	background-color: #36c;
 	position: absolute;
 }
 
@@ -64,69 +66,69 @@
 
 @-webkit-keyframes pulse {
 	0% {
-		transform: scale(0);
-		opacity: 0.0;
+		transform: scale( 0 );
+		opacity: 0;
 	}
 	25% {
-		transform: scale(0);
+		transform: scale( 0 );
 		opacity: 0.1;
 	}
 	50% {
-		transform: scale(0.1);
+		transform: scale( 0.1 );
 		opacity: 0.3;
 	}
 	75% {
-		transform: scale(0.5);
+		transform: scale( 0.5 );
 		opacity: 0.5;
 	}
 	100% {
-		transform: scale(1);
-		opacity: 0.0;
+		transform: scale( 1 );
+		opacity: 0;
 	}
 }
 
 @-moz-keyframes pulse {
 	0% {
-		transform: scale(0);
-		opacity: 0.0;
+		transform: scale( 0 );
+		opacity: 0;
 	}
 	25% {
-		transform: scale(0);
+		transform: scale( 0 );
 		opacity: 0.1;
 	}
 	50% {
-		transform: scale(0.1);
+		transform: scale( 0.1 );
 		opacity: 0.3;
 	}
 	75% {
-		transform: scale(0.5);
+		transform: scale( 0.5 );
 		opacity: 0.5;
 	}
 	100% {
-		transform: scale(1);
-		opacity: 0.0;
+		transform: scale( 1 );
+		opacity: 0;
 	}
 }
 
 @keyframes pulse {
 	0% {
-		transform: scale(0);
-		opacity: 0.0;
+		transform: scale( 0 );
+		opacity: 0;
 	}
 	25% {
-		transform: scale(0);
+		transform: scale( 0 );
 		opacity: 0.1;
 	}
 	50% {
-		transform: scale(0.1);
+		transform: scale( 0.1 );
 		opacity: 0.3;
 	}
 	75% {
-		transform: scale(0.5);
+		transform: scale( 0.5 );
 		opacity: 0.5;
 	}
 	100% {
-		transform: scale(1);
-		opacity: 0.0;
+		transform: scale( 1 );
+		opacity: 0;
 	}
 }

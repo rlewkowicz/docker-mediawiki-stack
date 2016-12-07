@@ -19,7 +19,7 @@
  */
 ve.dm.MWTemplateModel = function VeDmMWTemplateModel( transclusion, target ) {
 	// Parent constructor
-	ve.dm.MWTransclusionPartModel.call( this, transclusion );
+	ve.dm.MWTemplateModel.super.call( this, transclusion );
 
 	// Properties
 	this.target = target;
@@ -288,24 +288,32 @@ ve.dm.MWTemplateModel.prototype.removeParameter = function ( param ) {
 };
 
 /**
- * Add all non-existing required and suggested parameters, if any.
- *
- * @method
- * @return {number} Number of parameters added
+ * @inheritdoc
  */
 ve.dm.MWTemplateModel.prototype.addPromptedParameters = function () {
-	var i, len, addedCount = 0,
+	var i, len, name, j, aliases, aliasLen, foundAlias,
+		addedCount = 0,
 		spec = this.getSpec(),
 		names = spec.getParameterNames();
 
 	for ( i = 0, len = names.length; i < len; i++ ) {
+		name = names[ i ];
+		aliases = spec.getParameterAliases( name );
+		foundAlias = false;
+		for ( j = 0, aliasLen = aliases.length; j < aliasLen; j++ ) {
+			if ( Object.prototype.hasOwnProperty.call( this.params, aliases[ j ] ) ) {
+				foundAlias = true;
+				break;
+			}
+		}
 		if (
-				!this.params[ name ] &&
-				(
-					spec.isParameterRequired( names[ i ] ) ||
-					spec.isParameterSuggested( names[ i ] )
-				)
-			) {
+			!foundAlias &&
+			!this.params[ name ] &&
+			(
+				spec.isParameterRequired( name ) ||
+				spec.isParameterSuggested( name )
+			)
+		) {
 			this.addParameter( new ve.dm.MWParameterModel( this, names[ i ] ) );
 			addedCount++;
 		}

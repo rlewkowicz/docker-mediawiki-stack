@@ -6,18 +6,24 @@
 			"Kghbln",
 			"Marmase",
 			"Mirzali",
-			"Se4598"
+			"Se4598",
+			"Kumkumuk"
 		]
 	},
 	"tag-visualeditor": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Vurnayışo asaye]]",
-	"tag-visualeditor-description": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Asenleg vırnayışi]]ya vırnayış bıkeré",
-	"tag-visualeditor-needcheck": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Vurnayışo Asaye: Arıste ke]]",
+	"tag-visualeditor-description": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Vurnayışo asayi]] kar kerdışa vırnayış bıkeré",
+	"tag-visualeditor-needcheck": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Vurnayışo Asaye: Araste kı]]",
+	"tag-visualeditor-needcheck-description": "Sistem [[{{MediaWiki:visualeditor-descriptionpagelink}}|vurnayışê asayi]] ya nêşenê ke timar kerê se,  lakin çıma vurnayışi ra normal editore ya ma tesbit kerdo ke şıma vurnayış kerd o.",
 	"tag-visualeditor-switched": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|Vurnayışo Asaye: Vurna]]",
+	"tag-visualeditor-switched-description": "Karberi \"Vurnayışo asaye\"  ya vurnayışi kerd,  dıma ravêrd çıme vurnayışi.",
 	"visualeditor-feedback-link": "Project:Vinleg vırnayoğ/Peydrışten",
-	"visualeditor-feedback-tool": "Heqa nê bernameyi de tebliğ caverde",
-	"visualeditor-help-label": "Klavuza karberi bıwan",
+	"visualeditor-feedback-tool": "Heqa nê nustekeni peyd rışte bırış",
+	"visualeditor-help-label": "Qılawuzê karberi bıwane",
+	"visualeditor-help-title": "Heqa çıtewri gurenayışê vurnayoği de qılawuz",
 	"visualeditor-welcomedialog-action": "Dest ra vurnayışi ke",
 	"visualeditor-welcomedialog-content": "Heme kes şeno bıvurno, û her raştkerdış yarmetiye keno.",
 	"visualeditor-welcomedialog-content-thanks": "Semedê keşıfê dınya ra û destegê to rê teşekur kenime!",
+	"visualeditor-welcomedialog-switch": "Ravêre era vurnayoğê çımeyi",
+	"visualeditor-welcomedialog-switch-ve": "Ravêr Vurnayoğo Asaye",
 	"visualeditor-welcomedialog-title": "{{GENDER:$1|Xeyr ameyê}}  $2"
 }

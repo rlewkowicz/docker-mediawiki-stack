@@ -25,8 +25,16 @@
 			{
 				"name": "Data Model",
 				"classes": [
+					"ve.dm.MW*Surface",
+					"ve.dm.MW*SurfaceFragment",
 					"ve.dm.MW*Provider",
 					"ve.dm.MW*Queue"
+				]
+			},
+			{
+				"name": "ContentEditable",
+				"classes": [
+					"ve.ce.MW*Surface"
 				]
 			}
 		]
@@ -91,7 +99,7 @@
 					"ve.dm.APIResultsProvider",
 					"ve.dm.APIResultsQueue",
 					"ve.dm.Surface",
-					"ve.dm.SurfaceFragment",
+					"ve.dm.*SurfaceFragment",
 					"ve.dm.*Selection",
 					"ve.dm.Transaction",
 					"ve.dm.TransactionProcessor",
@@ -141,6 +149,7 @@
 					"ve.ui.*Toolbar",
 					"ve.ui.DebugBar",
 					"ve.ui.Trigger",
+					"ve.ui.TabIndexScope",
 					"ve.ui.*Action",
 					"ve.ui.*Command",
 					"ve.ui.*ContextItem",

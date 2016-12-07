@@ -14,9 +14,12 @@
  * @param {ve.dm.MWHeadingNode} model Model to observe
  * @param {Object} [config] Configuration options
  */
-ve.ce.MWHeadingNode = function VeCeMWHeadingNode( model, config ) {
+ve.ce.MWHeadingNode = function VeCeMWHeadingNode() {
 	// Parent constructor
-	ve.ce.HeadingNode.call( this, model, config );
+	ve.ce.MWHeadingNode.super.apply( this, arguments );
+
+	// Events
+	this.model.connect( this, { update: 'onUpdate' } );
 };
 
 /* Inheritance */
@@ -31,7 +34,7 @@ ve.ce.MWHeadingNode.static.name = 'mwHeading';
 
 ve.ce.MWHeadingNode.prototype.onSetup = function () {
 	// Parent method
-	ve.ce.HeadingNode.prototype.onSetup.call( this );
+	ve.ce.MWHeadingNode.super.prototype.onSetup.call( this );
 
 	// Make reference to the surface
 	this.surface = this.root.getSurface().getSurface();
@@ -40,14 +43,32 @@ ve.ce.MWHeadingNode.prototype.onSetup = function () {
 
 ve.ce.MWHeadingNode.prototype.onTeardown = function () {
 	// Parent method
-	ve.ce.HeadingNode.prototype.onTeardown.call( this );
+	ve.ce.MWHeadingNode.super.prototype.onTeardown.call( this );
 
 	this.rebuildToc();
 };
 
+ve.ce.MWHeadingNode.prototype.onUpdate = function () {
+	var surface = this.surface,
+		node = this;
+
+	// Parent method
+	ve.ce.MWHeadingNode.super.prototype.onUpdate.call( this );
+
+	if ( surface && surface.mwTocWidget ) {
+		surface.getModel().getDocument().once( 'transact', function () {
+			surface.mwTocWidget.updateNode( node );
+		} );
+	}
+};
+
 ve.ce.MWHeadingNode.prototype.rebuildToc = function () {
-	if ( this.surface.mwTocWidget ) {
-		this.surface.mwTocWidget.rebuild();
+	var surface = this.surface;
+
+	if ( surface && surface.mwTocWidget ) {
+		surface.getModel().getDocument().once( 'transact', function () {
+			surface.mwTocWidget.rebuild();
+		} );
 	}
 };
 

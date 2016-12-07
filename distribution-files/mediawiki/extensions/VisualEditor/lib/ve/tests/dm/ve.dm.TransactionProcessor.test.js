@@ -16,6 +16,7 @@ QUnit.test( 'commit', function ( assert ) {
 		bold = ve.dm.example.createAnnotation( ve.dm.example.bold ),
 		italic = ve.dm.example.createAnnotation( ve.dm.example.italic ),
 		underline = ve.dm.example.createAnnotation( ve.dm.example.underline ),
+		link = ve.dm.example.createAnnotation( ve.dm.example.link( 'x' ) ),
 		metaElementInsert = {
 			type: 'alienMeta',
 			attributes: {
@@ -328,6 +329,32 @@ QUnit.test( 'commit', function ( assert ) {
 				expected: function ( data ) {
 					data.splice( 10, 1 );
 					data.splice( 3, 1 );
+				}
+			},
+			'applying a link across an existing annotation boundary': {
+				data: [
+					{ type: 'paragraph' },
+					[ 'f', store.indexes( [ bold, italic ] ) ],
+					[ 'o', store.indexes( [ bold, italic ] ) ],
+					[ 'o', store.indexes( [ bold, italic ] ) ],
+					[ 'b', store.indexes( [ bold ] ) ],
+					[ 'a', store.indexes( [ bold ] ) ],
+					[ 'r', store.indexes( [ bold ] ) ],
+					{ type: '/paragraph' }
+				],
+				calls: [
+					[ 'pushRetain', 1 ],
+					[ 'pushStartAnnotating', 'set', store.index( link ) ],
+					[ 'pushRetain', 6 ],
+					[ 'pushStopAnnotating', 'set', store.index( link ) ],
+					[ 'pushRetain', 1 ]
+				],
+				expected: function ( data ) {
+					var i, annotations;
+					for ( i = 1; i <= 6; i++ ) {
+						annotations = data[ i ][ 1 ];
+						annotations.splice( 1, 0, store.index( link ) );
+					}
 				}
 			},
 			'inserting text after alien node at the end': {
@@ -656,7 +683,7 @@ QUnit.test( 'commit', function ( assert ) {
 		);
 		testDoc.buildNodeTree();
 
-		tx = new ve.dm.Transaction( testDoc );
+		tx = new ve.dm.Transaction();
 		for ( i = 0; i < cases[ msg ].calls.length; i++ ) {
 			// some calls need the document as its first argument
 			if ( /^(pushReplace$|new)/.test( cases[ msg ].calls[ i ][ 0 ] ) ) {
@@ -680,7 +707,7 @@ QUnit.test( 'commit', function ( assert ) {
 			expectedDoc.buildNodeTree();
 			// Commit
 			testDoc.commit( tx );
-			assert.deepEqualWithDomElements( testDoc.getFullData(), expectedDoc.getFullData(), 'commit (data): ' + msg );
+			assert.equalLinearDataWithDom( testDoc.getStore(), testDoc.getFullData(), expectedDoc.getFullData(), 'commit (data): ' + msg );
 			assert.equalNodeTree(
 				testDoc.getDocumentNode(),
 				expectedDoc.getDocumentNode(),
@@ -688,7 +715,7 @@ QUnit.test( 'commit', function ( assert ) {
 			);
 			// Rollback
 			testDoc.commit( tx.reversed() );
-			assert.deepEqualWithDomElements( testDoc.getFullData(), originalDoc.getFullData(), 'rollback (data): ' + msg );
+			assert.equalLinearDataWithDom( testDoc.getStore(), testDoc.getFullData(), originalDoc.getFullData(), 'rollback (data): ' + msg );
 			assert.equalNodeTree(
 				testDoc.getDocumentNode(),
 				originalDoc.getDocumentNode(),
@@ -703,7 +730,7 @@ QUnit.test( 'commit', function ( assert ) {
 				cases[ msg ].exception,
 				'exception thrown: ' + msg
 			);
-			assert.deepEqualWithDomElements( testDoc.getFullData(), originalDoc.getFullData(), 'data unmodified: ' + msg );
+			assert.equalLinearDataWithDom( testDoc.getStore(), testDoc.getFullData(), originalDoc.getFullData(), 'data unmodified: ' + msg );
 			assert.equalNodeTree(
 				testDoc.getDocumentNode(),
 				originalDoc.getDocumentNode(),

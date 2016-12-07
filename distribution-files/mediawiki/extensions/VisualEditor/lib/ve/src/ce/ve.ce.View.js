@@ -22,7 +22,7 @@ ve.ce.View = function VeCeView( model, config ) {
 	this.model = model;
 
 	// Parent constructor
-	OO.ui.Element.call( this, config );
+	ve.ce.View.super.call( this, config );
 
 	// Mixin constructors
 	OO.EventEmitter.call( this );
@@ -36,18 +36,20 @@ ve.ce.View = function VeCeView( model, config ) {
 		teardown: 'onTeardown'
 	} );
 
-	// Render attributes from original DOM elements
-	ve.dm.Converter.static.renderHtmlAttributeList(
-		this.model.getOriginalDomElements(),
-		this.$element,
-		this.constructor.static.renderHtmlAttributes,
-		// computed attributes
-		true,
-		// deep
-		!ve.dm.nodeFactory.lookup( this.model.getType() ) ||
-			!ve.dm.nodeFactory.canNodeHaveChildren( this.model.getType() ) ||
-			ve.dm.nodeFactory.doesNodeHandleOwnChildren( this.model.getType() )
-	);
+	if ( this.model.element && this.model.element.originalDomElementsIndex !== undefined ) {
+		// Render attributes from original DOM elements
+		ve.dm.Converter.static.renderHtmlAttributeList(
+			this.model.getOriginalDomElements( this.model.getStore() ),
+			this.$element,
+			this.constructor.static.renderHtmlAttributes,
+			// computed attributes
+			true,
+			// deep
+			!( this.model instanceof ve.dm.Node ) ||
+			!this.model.canHaveChildren() ||
+			this.model.handlesOwnChildren()
+		);
+	}
 };
 
 /* Inheritance */

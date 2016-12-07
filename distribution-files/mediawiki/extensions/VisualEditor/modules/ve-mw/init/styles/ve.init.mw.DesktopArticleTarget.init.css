@@ -5,8 +5,7 @@
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
-/*csslint known-properties:false */
-/* Bug: https://github.com/stubbornella/csslint/issues/436 */
+/* stylelint-disable selector-no-id */
 
 /*!
  * State                | <html> classes
@@ -14,7 +13,7 @@
  * Reading              | ve-available
  * Loading editor       | ve-available ve-activated ve-loading
  * - mw.DesktopArticleTarget.css is loaded
- * Activate editor      | ve-available ve-activated ve-activating
+ * Activate editor      | ve-available ve-activated ve-loading ve-activating
  * Active               | ve-available ve-activated ve-active
  * Deactivate editor    | ve-available ve-deactivating
  * Deactivated          | ve-available
@@ -23,16 +22,12 @@
 .ve-activated #toc,
 .ve-activated #siteNotice,
 .ve-activated .mw-indicators,
-/* Most of bodyContent can be hidden as VE has an equivalent of most children
-   in ve-init-target (sibling of #bodyContent). However, we can't hide it
-   completely as subs should remain visible (for persistence with read mode),
-   and ve-ui-mwTocWidget is also part of #bodyContent. */
-.ve-active #bodyContent > :not( #siteSub ):not( #contentSub ):not( .ve-ui-mwTocWidget ),
 .ve-activated #t-print,
 .ve-activated #t-permalink,
 .ve-activated #p-coll-print_export,
 .ve-activated #t-cite,
-.ve-deactivating .ve-ui-surface {
+.ve-deactivating .ve-ui-surface,
+.ve-active .ve-init-mw-desktopArticleTarget-editableContent {
 	display: none;
 }
 
@@ -41,17 +36,31 @@
    ve.ce.FocusableNode#updateInvisibleIcon */
 .ve-activating .ve-ui-surface {
 	height: 0;
+	padding: 0 !important; /* stylelint-disable-line declaration-no-important */
 	overflow: hidden;
 }
 
-.ve-activated #bodyContent,
-.ve-activated #firstHeading {
-	opacity: 0.6;
+/* While loading, everything except the progress bar */
+.ve-loading #content > :not( .ve-init-mw-desktopArticleTarget-loading-overlay ),
+/* Once activated, all uneditable content except catlinks */
+.ve-activated .ve-init-mw-desktopArticleTarget-uneditableContent {
+	/* IE9 is supported with JS events */
+	/* stylelint-disable no-unsupported-browser-features */
 	pointer-events: none;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+	/* stylelint-enable no-unsupported-browser-features */
+	opacity: 0.5;
+}
+
+.ve-activated .catlinks {
+	cursor: pointer;
+}
+
+.ve-activated .catlinks a {
+	opacity: 1;
 }
 
 /* Progress bar mimicking OOUI */
@@ -59,6 +68,7 @@
 .ve-activated #content {
 	position: relative;
 }
+/* stylelint-enable selector-no-id */
 
 .ve-init-mw-desktopArticleTarget-loading-overlay {
 	position: absolute;

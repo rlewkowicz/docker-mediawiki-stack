@@ -9,11 +9,11 @@
  *
  * @class
  * @constructor
+ * @param {Object[]} [operations] The operations comprising this transaction; default []
  */
-ve.dm.Transaction = function VeDmTransaction( doc ) {
-	this.operations = [];
+ve.dm.Transaction = function VeDmTransaction( operations ) {
+	this.operations = operations || [];
 	this.applied = false;
-	this.doc = doc;
 };
 
 /* Static Methods */
@@ -22,7 +22,7 @@ ve.dm.Transaction = function VeDmTransaction( doc ) {
  * Generate a transaction that replaces data in a range.
  *
  * @method
- * @param {ve.dm.Document} doc Document to create transaction for
+ * @param {ve.dm.Document} doc Document in pre-transaction state
  * @param {ve.Range} range Range of data to remove
  * @param {Array} data Data to insert
  * @param {boolean} [removeMetadata=false] Remove metadata instead of collapsing it
@@ -31,7 +31,7 @@ ve.dm.Transaction = function VeDmTransaction( doc ) {
  */
 ve.dm.Transaction.newFromReplacement = function ( doc, range, data, removeMetadata ) {
 	var endOffset,
-		tx = new ve.dm.Transaction( doc );
+		tx = new ve.dm.Transaction();
 	endOffset = tx.pushRemoval( doc, 0, range, removeMetadata );
 	endOffset = tx.pushInsertion( doc, endOffset, endOffset, data );
 	tx.pushFinalRetain( doc, endOffset );
@@ -43,13 +43,13 @@ ve.dm.Transaction.newFromReplacement = function ( doc, range, data, removeMetada
  *
  * @static
  * @method
- * @param {ve.dm.Document} doc Document to create transaction for
+ * @param {ve.dm.Document} doc Document in pre-transaction state
  * @param {number} offset Offset to insert at
  * @param {Array} data Data to insert
  * @return {ve.dm.Transaction} Transaction that inserts data
  */
 ve.dm.Transaction.newFromInsertion = function ( doc, offset, data ) {
-	var tx = new ve.dm.Transaction( doc ),
+	var tx = new ve.dm.Transaction(),
 		endOffset = tx.pushInsertion( doc, 0, offset, data );
 	// Retain to end of document, if needed (for completeness)
 	tx.pushFinalRetain( doc, endOffset );
@@ -75,14 +75,14 @@ ve.dm.Transaction.newFromInsertion = function ( doc, offset, data ) {
  * 3. Merges take place at the highest common ancestor
  *
  * @method
- * @param {ve.dm.Document} doc Document to create transaction for
+ * @param {ve.dm.Document} doc Document in pre-transaction state
  * @param {ve.Range} range Range of data to remove
  * @param {boolean} [removeMetadata=false] Remove metadata instead of collapsing it
  * @return {ve.dm.Transaction} Transaction that removes data
  * @throws {Error} Invalid range
  */
 ve.dm.Transaction.newFromRemoval = function ( doc, range, removeMetadata ) {
-	var tx = new ve.dm.Transaction( doc ),
+	var tx = new ve.dm.Transaction(),
 		endOffset = tx.pushRemoval( doc, 0, range, removeMetadata );
 
 	// Ensure no transaction leaves the document in a completely empty state
@@ -106,14 +106,14 @@ ve.dm.Transaction.newFromRemoval = function ( doc, range, removeMetadata ) {
  * the slice, so any differences between internal items that doc and newDoc have in common will
  * be resolved in newDoc's favor.
  *
- * @param {ve.dm.Document} doc Main document
+ * @param {ve.dm.Document} doc Main document in the state to which the transaction start applies
  * @param {number} offset Offset to insert at
  * @param {ve.dm.Document} newDoc Document to insert
  * @param {ve.Range} [newDocRange] Range from the new document to insert (defaults to entire document)
  * @return {ve.dm.Transaction} Transaction that inserts the nodes and updates the internal list
  */
 ve.dm.Transaction.newFromDocumentInsertion = function ( doc, offset, newDoc, newDocRange ) {
-	var i, len, storeMerge, listMerge, data, metadata, listData, listMetadata, linearData,
+	var i, len, listMerge, data, metadata, listData, listMetadata, linearData,
 		oldEndOffset, newEndOffset, tx, insertion, spliceItemRange, spliceListNodeRange,
 		listNode = doc.internalList.getListNode(),
 		listNodeRange = listNode.getRange(),
@@ -142,9 +142,7 @@ ve.dm.Transaction.newFromDocumentInsertion = function ( doc, offset, newDoc, new
 	}
 
 	// Merge the stores
-	storeMerge = doc.getStore().merge( newDoc.getStore() );
-	// Remap the store indexes in the data
-	data.remapStoreIndexes( storeMerge );
+	doc.getStore().merge( newDoc.getStore() );
 
 	listMerge = doc.internalList.merge( newDoc.internalList, newDoc.origInternalListLength || 0 );
 	// Remap the indexes in the data
@@ -165,8 +163,6 @@ ve.dm.Transaction.newFromDocumentInsertion = function ( doc, offset, newDoc, new
 			doc.getStore(),
 			newDoc.getData( new ve.Range( newListNodeRange.start, newEndOffset ), true )
 		);
-		// Remap indexes in data coming from newDoc
-		linearData.remapStoreIndexes( storeMerge );
 		listData = linearData.data
 			.concat( doc.getData( new ve.Range( oldEndOffset, listNodeRange.end ), true ) );
 		listMetadata = newDoc.getMetadata( new ve.Range( newListNodeRange.start, newEndOffset ), true )
@@ -181,15 +177,13 @@ ve.dm.Transaction.newFromDocumentInsertion = function ( doc, offset, newDoc, new
 			doc.getStore(),
 			newDoc.getData( listMerge.newItemRanges[ i ], true )
 		);
-		// Remap indexes in data coming from newDoc
-		linearData.remapStoreIndexes( storeMerge );
 		listData = listData.concat( linearData.data );
 		// We don't have to worry about merging metadata at the edges, because there can't be
 		// metadata between internal list items
 		listMetadata = listMetadata.concat( newDoc.getMetadata( listMerge.newItemRanges[ i ], true ) );
 	}
 
-	tx = new ve.dm.Transaction( doc );
+	tx = new ve.dm.Transaction();
 
 	if ( offset <= listNodeRange.start ) {
 		// offset is before listNodeRange
@@ -257,7 +251,7 @@ ve.dm.Transaction.newFromDocumentInsertion = function ( doc, offset, newDoc, new
  *
  * @static
  * @method
- * @param {ve.dm.Document} doc Document to create transaction for
+ * @param {ve.dm.Document} doc Document in pre-transaction state
  * @param {number} offset Offset of element
  * @param {Object.<string,Mixed>} attr List of attribute key and value pairs, use undefined value
  *  to remove an attribute
@@ -266,7 +260,7 @@ ve.dm.Transaction.newFromDocumentInsertion = function ( doc, offset, newDoc, new
  * @throws {Error} Cannot set attributes on closing element
  */
 ve.dm.Transaction.newFromAttributeChanges = function ( doc, offset, attr ) {
-	var tx = new ve.dm.Transaction( doc ),
+	var tx = new ve.dm.Transaction(),
 		data = doc.getData();
 	// Verify element exists at offset
 	if ( data[ offset ].type === undefined ) {
@@ -290,7 +284,7 @@ ve.dm.Transaction.newFromAttributeChanges = function ( doc, offset, attr ) {
  *
  * @static
  * @method
- * @param {ve.dm.Document} doc Document to create transaction for
+ * @param {ve.dm.Document} doc Document in pre-transaction state
  * @param {ve.Range} range Range to annotate
  * @param {string} method Annotation mode
  *  - `set`: Adds annotation to all content in range
@@ -300,7 +294,7 @@ ve.dm.Transaction.newFromAttributeChanges = function ( doc, offset, attr ) {
  */
 ve.dm.Transaction.newFromAnnotation = function ( doc, range, method, annotation ) {
 	var covered, type, annotatable,
-		tx = new ve.dm.Transaction( doc ),
+		tx = new ve.dm.Transaction(),
 		data = doc.data,
 		index = doc.getStore().index( annotation ),
 		i = range.start,
@@ -398,14 +392,14 @@ ve.dm.Transaction.newFromAnnotation = function ( doc, range, method, annotation 
  *
  * @static
  * @method
- * @param {ve.dm.Document} doc Document to create transaction for
+ * @param {ve.dm.Document} doc Document in pre-transaction state
  * @param {number} offset Offset of element
  * @param {number} index Index of metadata cursor within element
  * @param {Array} newElements New elements to insert
  * @return {ve.dm.Transaction} Transaction that inserts the metadata elements
  */
 ve.dm.Transaction.newFromMetadataInsertion = function ( doc, offset, index, newElements ) {
-	var tx = new ve.dm.Transaction( doc ),
+	var tx = new ve.dm.Transaction(),
 		data = doc.metadata,
 		elements = data.getData( offset ) || [];
 
@@ -433,7 +427,7 @@ ve.dm.Transaction.newFromMetadataInsertion = function ( doc, offset, index, newE
  *
  * @static
  * @method
- * @param {ve.dm.Document} doc Document to create transaction for
+ * @param {ve.dm.Document} doc Document in pre-transaction state
  * @param {number} offset Offset of element
  * @param {ve.Range} range Range of metadata to remove
  * @return {ve.dm.Transaction} Transaction that removes metadata elements
@@ -442,7 +436,7 @@ ve.dm.Transaction.newFromMetadataInsertion = function ( doc, offset, index, newE
  */
 ve.dm.Transaction.newFromMetadataRemoval = function ( doc, offset, range ) {
 	var selection,
-		tx = new ve.dm.Transaction( doc ),
+		tx = new ve.dm.Transaction(),
 		data = doc.metadata,
 		elements = data.getData( offset ) || [];
 
@@ -480,7 +474,7 @@ ve.dm.Transaction.newFromMetadataRemoval = function ( doc, offset, range ) {
  *
  * @static
  * @method
- * @param {ve.dm.Document} doc Document to create transaction for
+ * @param {ve.dm.Document} doc Document in pre-transaction state
  * @param {number} offset Offset of element
  * @param {number} index Index of metadata cursor within element
  * @param {Object} newElement New element to insert
@@ -489,7 +483,7 @@ ve.dm.Transaction.newFromMetadataRemoval = function ( doc, offset, range ) {
  */
 ve.dm.Transaction.newFromMetadataElementReplacement = function ( doc, offset, index, newElement ) {
 	var oldElement,
-		tx = new ve.dm.Transaction( doc ),
+		tx = new ve.dm.Transaction(),
 		data = doc.getMetadata(),
 		elements = data[ offset ] || [];
 
@@ -519,7 +513,7 @@ ve.dm.Transaction.newFromMetadataElementReplacement = function ( doc, offset, in
  *
  * @static
  * @method
- * @param {ve.dm.Document} doc Document to create transaction for
+ * @param {ve.dm.Document} doc Document in pre-transaction state
  * @param {ve.Range} range Range to convert
  * @param {string} type Symbolic name of element type to convert to
  * @param {Object} attr Attributes to initialize element with
@@ -527,7 +521,7 @@ ve.dm.Transaction.newFromMetadataElementReplacement = function ( doc, offset, in
  */
 ve.dm.Transaction.newFromContentBranchConversion = function ( doc, range, type, attr ) {
 	var i, selected, branch, branchOuterRange,
-		tx = new ve.dm.Transaction( doc ),
+		tx = new ve.dm.Transaction(),
 		selection = doc.selectNodes( range, 'leaves' ),
 		opening = { type: type },
 		closing = { type: '/' + type },
@@ -608,7 +602,7 @@ ve.dm.Transaction.newFromContentBranchConversion = function ( doc, range, type, 
  *              {type: '/paragraph'}, {type: '/listItem'}, {type: 'listItem', attributes: {styles: ['bullet']}},
  *              {type: 'paragraph'}, 'b', {type: '/paragraph'}, {type: '/listItem'}, {type: '/list'} ]
  *
- * @param {ve.dm.Document} doc Document to generate a transaction for
+ * @param {ve.dm.Document} doc Document in pre-transaction state
  * @param {ve.Range} range Range to wrap/unwrap/replace around
  * @param {Array} unwrapOuter Opening elements to unwrap. These must be immediately *outside* the range
  * @param {Array} wrapOuter Opening elements to wrap around the range
@@ -618,7 +612,7 @@ ve.dm.Transaction.newFromContentBranchConversion = function ( doc, range, type, 
  */
 ve.dm.Transaction.newFromWrap = function ( doc, range, unwrapOuter, wrapOuter, unwrapEach, wrapEach ) {
 	var i, j, unwrapOuterData, startOffset, unwrapEachData, closingUnwrapEach, closingWrapEach,
-		tx = new ve.dm.Transaction( doc ),
+		tx = new ve.dm.Transaction(),
 		depth = 0;
 
 	// Function to generate arrays of closing elements in reverse order
@@ -749,6 +743,15 @@ ve.dm.Transaction.reversers = {
 /* Methods */
 
 /**
+ * Get a serializable object describing the transaction
+ *
+ * @return {Object} Serializable object
+ */
+ve.dm.Transaction.prototype.toJSON = function () {
+	return this.operations;
+};
+
+/**
  * Create a clone of this transaction.
  *
  * The returned transaction will be exactly the same as this one, except that its 'applied' flag
@@ -820,16 +823,6 @@ ve.dm.Transaction.prototype.isNoOp = function () {
  */
 ve.dm.Transaction.prototype.getOperations = function () {
 	return this.operations;
-};
-
-/**
- * Get the document the transaction was created for.
- *
- * @method
- * @return {ve.dm.Document} Document
- */
-ve.dm.Transaction.prototype.getDocument = function () {
-	return this.doc;
 };
 
 /**
@@ -990,13 +983,14 @@ ve.dm.Transaction.prototype.translateRange = function ( range, excludeInsertion 
  *
  * Changes within the internal list at the end of a document are ignored.
  *
+ * @param {ve.dm.Document} doc The document in the state to which the transaction applies
  * @return {ve.Range|null} Range covering modifications, or null for a no-op transaction
  */
-ve.dm.Transaction.prototype.getModifiedRange = function () {
+ve.dm.Transaction.prototype.getModifiedRange = function ( doc ) {
 	var i, len, op, start, end,
 		oldOffset = 0,
 		offset = 0,
-		internalListNode = this.getDocument().getInternalList().getListNode(),
+		internalListNode = doc.getInternalList().getListNode(),
 		docEndOffset = internalListNode ? internalListNode.getOuterRange().start : this.getDocument().data.getLength();
 
 	opLoop:
@@ -1044,7 +1038,7 @@ ve.dm.Transaction.prototype.getModifiedRange = function () {
  *
  * @private
  * @method
- * @param {ve.dm.Document} doc Document to finish off.
+ * @param {ve.dm.Document} doc The document in the state to which the transaction applies
  * @param {number} offset Final offset edited by the transaction up to this point.
  * @param {number} [metaOffset=0] Final metadata offset edited, if non-zero.
  */
@@ -1121,7 +1115,7 @@ ve.dm.Transaction.prototype.pushRetainMetadata = function ( length ) {
  * affected region contains metadata; see
  * {@link ve.dm.Transaction#pushReplace} for details.
  *
- * @param {ve.dm.Document} doc Document
+ * @param {ve.dm.Document} doc The document in the state to which the transaction applies
  * @param {number} removeStart Offset to start removing from
  * @param {number} removeEnd Offset to remove to
  * @param {boolean} [removeMetadata=false] Remove metadata instead of collapsing it
@@ -1207,7 +1201,7 @@ ve.dm.Transaction.prototype.pushReplaceInternal = function ( remove, insert, rem
  * final metadata element.)
  *
  * @method
- * @param {ve.dm.Document} doc Document model
+ * @param {ve.dm.Document} doc The document in the state to which the transaction applies
  * @param {number} offset Offset to start at
  * @param {number} removeLength Number of data items to remove
  * @param {Array} insert Data to insert
@@ -1419,7 +1413,7 @@ ve.dm.Transaction.prototype.pushStopAnnotating = function ( method, index ) {
  * Adds an insertion to an existing transaction object.
  *
  * @private
- * @param {ve.dm.Document} doc Document to create transaction for
+ * @param {ve.dm.Document} doc The document in the state to which the transaction applies
  * @param {number} currentOffset Offset up to which the transaction has gone already
  * @param {number} insertOffset Offset to insert at
  * @param {Array} data Linear model data to insert
@@ -1443,7 +1437,7 @@ ve.dm.Transaction.prototype.pushInsertion = function ( doc, currentOffset, inser
  * Adds a removal to an existing transaction object.
  *
  * @private
- * @param {ve.dm.Document} doc Document to create transaction for
+ * @param {ve.dm.Document} doc The document in the state to which the transaction applies
  * @param {number} currentOffset Offset up to which the transaction has gone already
  * @param {ve.Range} range Range to remove
  * @param {boolean} [removeMetadata=false] Remove metadata instead of collapsing it

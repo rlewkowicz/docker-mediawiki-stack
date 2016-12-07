@@ -79,43 +79,34 @@ ve.dm.MWExtensionNode.static.toDataElement = function ( domElements, converter )
 
 /** */
 ve.dm.MWExtensionNode.static.cloneElement = function () {
-	// TODO: This is the same as ve.dm.MWTransclusionnode.static.cloneElement, find a way
-	// to de-duplicate this method.
-	var i, len,
-		// Parent method
-		clone = ve.dm.MWExtensionNode.super.static.cloneElement.apply( this, arguments );
-
+	// Parent method
+	var clone = ve.dm.MWExtensionNode.super.static.cloneElement.apply( this, arguments );
 	delete clone.attributes.originalMw;
-	// Remove about attribute to prevent about grouping of duplicated transclusions
-	if ( clone.originalDomElements ) {
-		for ( i = 0, len = clone.originalDomElements.length; i < len; i++ ) {
-			clone.originalDomElements[ i ].removeAttribute( 'about' );
-		}
-	}
 	return clone;
 };
 
 ve.dm.MWExtensionNode.static.toDomElements = function ( dataElement, doc, converter ) {
-	var el, els, index,
+	var el, els, value,
 		store = converter.getStore(),
 		originalMw = dataElement.attributes.originalMw;
 
 	// If the transclusion is unchanged just send back the
 	// original DOM elements so selser can skip over it
 	if (
-		( originalMw && ve.compare( dataElement.attributes.mw, JSON.parse( originalMw ) ) )
+		dataElement.originalDomElementsIndex &&
+		originalMw && ve.compare( dataElement.attributes.mw, JSON.parse( originalMw ) )
 	) {
 		// originalDomElements is also used for CE rendering so return a copy
-		els = ve.copyDomElements( dataElement.originalDomElements, doc );
+		els = ve.copyDomElements( converter.getStore().value( dataElement.originalDomElementsIndex ), doc );
 	} else {
 		if (
 			converter.isForClipboard() &&
 			// Use getHashObjectForRendering to get the rendering from the store
-			( index = store.indexOfHash( OO.getHash( [ this.getHashObjectForRendering( dataElement ), undefined ] ) ) ) !== null
+			( value = store.value( store.indexOfValue( null, OO.getHash( [ this.getHashObjectForRendering( dataElement ), undefined ] ) ) ) )
 		) {
 			// For the clipboard use the current DOM contents so the user has something
 			// meaningful to paste into external applications
-			els = ve.copyDomElements( store.value( index ), doc );
+			els = ve.copyDomElements( value, doc );
 		} else {
 			el = doc.createElement( this.tagName );
 			el.setAttribute( 'typeof', 'mw:Extension/' + this.getExtensionName( dataElement ) );

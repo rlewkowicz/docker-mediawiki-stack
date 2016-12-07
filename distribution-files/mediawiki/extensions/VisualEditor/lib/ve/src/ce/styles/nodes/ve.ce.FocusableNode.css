@@ -4,42 +4,21 @@
  * @copyright 2011-2016 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
-.ve-ce-surface-highlights-focused .ve-ce-focusableNode-highlights {
-	opacity: 0.5;
-}
-
-.ve-ce-surface-highlights-blurred .ve-ce-focusableNode-highlights {
-	opacity: 0.15;
-}
-
-/* Support: IE */
-/* Set opacity directly on the highlights, rather than their containers,
-   otherwise the opacity isn't applied at all */
-.ve-init-target-ie .ve-ce-surface-highlights-focused .ve-ce-focusableNode-highlight {
-	opacity: 0.5;
-}
-
-.ve-init-target-ie .ve-ce-surface-highlights-blurred .ve-ce-focusableNode-highlight {
-	opacity: 0.15;
-}
-
 .ve-ce-focusableNode {
 	cursor: default;
 }
 
 /* We have to use a * selector because user-select isn't inherited by absolutely positioned
    children in Firefox. */
-/*csslint vendor-prefix: false, compatible-vendor-prefixes:false */
 .ve-ce-focusableNode * {
 	/* Support: Firefox */
 	/* T70537: work around Firefox bug */
-	-moz-user-select: none;
+	-moz-user-select: none; /* stylelint-disable-line no-unsupported-browser-features */
 }
-/*csslint vendor-prefix: true, compatible-vendor-prefixes:true */
 
 .ve-ce-focusableNode-highlight {
 	background: #6da9f7;
-	box-shadow: inset 0 0 0 1px #4C76ac;
+	box-shadow: inset 0 0 0 1px #4c76ac;
 	position: absolute;
 	/* Clip extra span added for selectability */
 	overflow: hidden;
@@ -83,9 +62,30 @@
 	/* Don't scale icon in headings etc. */
 	width: 24px;
 	height: 24px;
-	background-size: 24px 24px;
+	background-size: 24px 24px; /* stylelint-disable-line no-unsupported-browser-features */
 	/* Make native selection match fake selection */
 	font-size: 24px;
 	line-height: 1em;
 	opacity: 0.5;
+}
+
+/* Highlights group opacity */
+
+.ve-ce-surface-highlights-focused .ve-ce-focusableNode-highlights {
+	opacity: 0.5;
+}
+
+.ve-ce-surface-highlights-blurred .ve-ce-focusableNode-highlights {
+	opacity: 0.15;
+}
+
+/* Support: IE, Edge */
+/* Set opacity directly on the highlights, rather than their containers,
+   otherwise the opacity isn't applied at all */
+.ve-init-target-ie-or-edge .ve-ce-surface-highlights-focused .ve-ce-focusableNode-highlight {
+	opacity: 0.5;
+}
+
+.ve-init-target-ie-or-edge .ve-ce-surface-highlights-blurred .ve-ce-focusableNode-highlight {
+	opacity: 0.15;
 }

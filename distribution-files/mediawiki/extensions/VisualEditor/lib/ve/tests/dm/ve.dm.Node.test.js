@@ -10,7 +10,7 @@ QUnit.module( 've.dm.Node' );
 
 ve.dm.NodeStub = function VeDmNodeStub() {
 	// Parent constructor
-	ve.dm.Node.apply( this, arguments );
+	ve.dm.NodeStub.super.apply( this, arguments );
 };
 
 OO.inheritClass( ve.dm.NodeStub, ve.dm.LeafNode );
@@ -119,6 +119,7 @@ QUnit.test( 'canBeMergedWith', 4, function ( assert ) {
 
 QUnit.test( 'getClonedElement', function ( assert ) {
 	var i, node,
+		doc = ve.dm.example.createExampleDocument(),
 		cases = [
 			{
 				original: {
@@ -193,6 +194,7 @@ QUnit.test( 'getClonedElement', function ( assert ) {
 
 	for ( i = 0; i < cases.length; i++ ) {
 		node = new ve.dm.NodeStub( cases[ i ].original );
+		node.setDocument( doc );
 		assert.deepEqual( node.getClonedElement( cases[ i ].preserveGenerated ), cases[ i ].clone, cases[ i ].msg );
 	}
 } );

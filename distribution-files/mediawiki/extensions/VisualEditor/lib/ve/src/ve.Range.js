@@ -8,12 +8,16 @@
  * @class
  *
  * @constructor
- * @param {number} from Anchor offset
+ * @param {number} [from=0] Anchor offset
  * @param {number} [to=from] Focus offset
  */
 ve.Range = function VeRange( from, to ) {
-	this.from = from || 0;
-	this.to = to === undefined ? this.from : to;
+	// For ease of debugging, check arguments.length when applying defaults, to preserve
+	// invalid arguments such as undefined and NaN that indicate a programming error.
+	// Range calculation errors can often propagate quite far before surfacing, so the
+	// indication is important.
+	this.from = arguments.length >= 1 ? from : 0;
+	this.to = arguments.length >= 2 ? to : this.from;
 	this.start = this.from < this.to ? this.from : this.to;
 	this.end = this.from < this.to ? this.to : this.from;
 };
@@ -130,17 +134,18 @@ ve.Range.prototype.containsRange = function ( range ) {
 };
 
 /**
- * Check if another range overlaps this range.
+ * Check if another range is touching this one
  *
- * This includes ranges which touch, e.g. [1,3] & [3,5], and ranges
- * which cover this one completely, e.g. [1,3] & [0,5].
+ * This includes ranges which touch this one, e.g. [1,3] & [3,5],
+ * ranges which overlap this one, and ranges which cover
+ * this one completely, e.g. [1,3] & [0,5].
  *
  * Useful for testing if two ranges can be joined (using #expand)
  *
  * @param {ve.Range} range Range to check
- * @return {boolean} If other range overlaps this range
+ * @return {boolean} If other range touches this range
  */
-ve.Range.prototype.overlapsRange = function ( range ) {
+ve.Range.prototype.touchesRange = function ( range ) {
 	return range.end >= this.start && range.start <= this.end;
 };
 

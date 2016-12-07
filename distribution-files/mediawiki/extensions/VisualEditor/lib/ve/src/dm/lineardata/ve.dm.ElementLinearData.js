@@ -46,7 +46,7 @@ ve.dm.ElementLinearData.static.endWordRegExp = new RegExp(
  * @param {Object|Array|string} b Second element
  * @return {boolean} Elements are comparable
  */
-ve.dm.ElementLinearData.static.compareElements = function ( a, b ) {
+ve.dm.ElementLinearData.static.compareElementsUnannotated = function ( a, b ) {
 	var aPlain = a,
 		bPlain = b;
 
@@ -73,6 +73,46 @@ ve.dm.ElementLinearData.static.compareElements = function ( a, b ) {
 		};
 	}
 	return ve.compare( aPlain, bPlain );
+};
+
+/**
+ * Compare two elements' basic properties and annotations
+ *
+ * Elements are comparable if they have the same type, attributes,
+ * text data and annotations, as determined by
+ * ve.dm.AnnotationSet#compareTo .
+ *
+ * @param {Object|Array|string} a First element
+ * @param {Object|Array|string} b Second element
+ * @param {ve.dm.IndexValueStore} aStore First element's store
+ * @param {ve.dm.IndexValueStore} [bStore] Second element's store, if different
+ * @return {boolean} Elements are comparable
+ */
+ve.dm.ElementLinearData.static.compareElements = function ( a, b, aStore, bStore ) {
+	var aSet, bSet, aAnnotations, bAnnotations;
+
+	bStore = bStore || aStore;
+
+	if ( !this.compareElementsUnannotated( a, b ) ) {
+		return false;
+	}
+	if ( Array.isArray( a ) ) {
+		aAnnotations = a[ 1 ];
+	}
+	if ( Array.isArray( b ) ) {
+		bAnnotations = b[ 1 ];
+	}
+	if ( a && a.type ) {
+		aAnnotations = a.annotations;
+	}
+	if ( b && b.type ) {
+		bAnnotations = b.annotations;
+	}
+
+	aSet = new ve.dm.AnnotationSet( aStore, aAnnotations || [] );
+	bSet = new ve.dm.AnnotationSet( bStore, bAnnotations || [] );
+
+	return aSet.compareTo( bSet );
 };
 
 /* Methods */
@@ -617,21 +657,28 @@ ve.dm.ElementLinearData.prototype.trimOuterSpaceFromRange = function ( range ) {
 /**
  * Check if the data is just plain (un-annotated) text
  *
- * @param {boolean} [allowNonContentNodes] Include non-content nodes in the definition of plain text, e.g. paragraphs, headings, lists
  * @param {ve.Range} [range] Range to get the data for. The whole data set if not specified.
+ * @param {boolean} [allowNonContentNodes] Include non-content nodes in the definition of plain text, e.g. paragraphs, headings, lists
+ * @param {boolean} [allowedTypes] Only allow specific non-content types
  * @return {boolean} The data is plain text
  */
-ve.dm.ElementLinearData.prototype.isPlainText = function ( allowNonContentNodes, range ) {
-	var i;
+ve.dm.ElementLinearData.prototype.isPlainText = function ( range, allowNonContentNodes, allowedTypes ) {
+	var i, type;
+
 	range = range || new ve.Range( 0, this.getLength() );
 
 	for ( i = range.start; i < range.end; i++ ) {
-		if (
-			typeof this.data[ i ] === 'string' ||
-			allowNonContentNodes && this.isElementData( i ) &&
-			!ve.dm.nodeFactory.isNodeContent( this.getType( i ) )
-		) {
+		if ( typeof this.data[ i ] === 'string' ) {
 			continue;
+		} else if ( ( allowNonContentNodes || allowedTypes ) && this.isElementData( i ) ) {
+			type = this.getType( i );
+			if ( allowedTypes && allowedTypes.indexOf( type ) !== -1 ) {
+				continue;
+			}
+			if ( allowNonContentNodes && !ve.dm.nodeFactory.isNodeContent( type ) ) {
+				continue;
+			}
+			return false;
 		} else {
 			return false;
 		}
@@ -930,6 +977,7 @@ ve.dm.ElementLinearData.prototype.getWordRange = function ( offset ) {
  */
 ve.dm.ElementLinearData.prototype.getUsedStoreValues = function ( range ) {
 	var i, index, indexes, j,
+		store = this.getStore(),
 		valueStore = {};
 
 	range = range || new ve.Range( 0, this.data.length );
@@ -942,34 +990,14 @@ ve.dm.ElementLinearData.prototype.getUsedStoreValues = function ( range ) {
 		while ( j-- ) {
 			index = indexes[ j ];
 			if ( !Object.prototype.hasOwnProperty.call( valueStore, index ) ) {
-				valueStore[ index ] = this.getStore().value( index );
+				valueStore[ index ] = store.value( index );
 			}
+		}
+		if ( this.data[ i ].originalDomElementsIndex !== undefined ) {
+			valueStore[ this.data[ i ].originalDomElementsIndex ] = store.value( this.data[ i ].originalDomElementsIndex );
 		}
 	}
 	return valueStore;
-};
-
-/**
- * Remap the store indexes used in this linear data.
- *
- * Remaps annotations and calls remapStoreIndexes() on each node.
- *
- * @method
- * @param {Object} mapping Mapping from store indexes to store indexes
- */
-ve.dm.ElementLinearData.prototype.remapStoreIndexes = function ( mapping ) {
-	var i, ilen, j, jlen, indexes, nodeClass;
-	for ( i = 0, ilen = this.data.length; i < ilen; i++ ) {
-		indexes = this.getAnnotationIndexesFromOffset( i, true );
-		for ( j = 0, jlen = indexes.length; j < jlen; j++ ) {
-			indexes[ j ] = mapping[ indexes[ j ] ];
-		}
-		this.setAnnotationIndexesAtOffset( i, indexes );
-		if ( this.isOpenElementData( i ) ) {
-			nodeClass = ve.dm.nodeFactory.lookup( this.getType( i ) );
-			nodeClass.static.remapStoreIndexes( this.data[ i ], mapping );
-		}
-	}
 };
 
 /**
@@ -1021,19 +1049,24 @@ ve.dm.ElementLinearData.prototype.remapInternalListKeys = function ( internalLis
  * @param {boolean} [rules.allowBreaks] Allow <br> line breaks, otherwise the node will be split
  * @param {boolean} [rules.preserveHtmlWhitespace] Preserve non-semantic HTML whitespace
  * @param {boolean} [rules.nodeSanitization] Apply per-type node sanitizations via ve.dm.Node#sanitize
- * @param {boolean} [keepEmptyContentBranches=false] Preserve empty content branch nodes
+ * @param {boolean} [rules.keepEmptyContentBranches] Preserve empty content branch nodes
  */
-ve.dm.ElementLinearData.prototype.sanitize = function ( rules, keepEmptyContentBranches ) {
-	var i, len, annotations, emptySet, setToRemove, type, canContainContent, contentElement, isOpen, nodeClass,
+ve.dm.ElementLinearData.prototype.sanitize = function ( rules ) {
+	var i, len, annotations, emptySet, setToRemove, type,
+		canContainContent, contentElement, isOpen, nodeClass, ann,
+		store = this.getStore(),
 		allAnnotations = this.getAnnotationsFromRange( new ve.Range( 0, this.getLength() ), true );
 
 	if ( rules.plainText ) {
-		emptySet = new ve.dm.AnnotationSet( this.getStore() );
+		emptySet = new ve.dm.AnnotationSet( store );
 	} else {
 		if ( rules.removeOriginalDomElements ) {
 			// Remove originalDomElements from annotations
 			for ( i = 0, len = allAnnotations.getLength(); i < len; i++ ) {
-				delete allAnnotations.get( i ).element.originalDomElements;
+				ann = allAnnotations.get( i );
+				if ( ann.element.originalDomElementsIndex !== undefined ) {
+					delete allAnnotations.get( i ).element.originalDomElementsIndex;
+				}
 			}
 		}
 
@@ -1091,8 +1124,9 @@ ve.dm.ElementLinearData.prototype.sanitize = function ( rules, keepEmptyContentB
 
 			// If a node is empty but can contain content, then just remove it
 			if (
-				!keepEmptyContentBranches &&
+				!rules.keepEmptyContentBranches &&
 				i > 0 && !isOpen && this.isOpenElementData( i - 1 ) &&
+				!ve.getProp( this.getData( i - 1 ), 'internal', 'generated' ) &&
 				canContainContent
 			) {
 				this.splice( i - 1, 2 );
@@ -1119,7 +1153,9 @@ ve.dm.ElementLinearData.prototype.sanitize = function ( rules, keepEmptyContentB
 			// Remove plain newline characters, as they are semantically meaningless
 			// and will confuse the user. Firefox adds these automatically when copying
 			// line-wrapped HTML. T104790
-			if ( this.getCharacterData( i ) === '\n' ) {
+			// However, don't remove them if we're in a situation where they might
+			// actually be meaningful -- i.e. if we're inside a <pre>. T132006
+			if ( this.getCharacterData( i ) === '\n' && !ve.dm.nodeFactory.doesNodeHaveSignificantWhitespace( type ) ) {
 				if ( this.getCharacterData( i + 1 ).match( /\s/ ) || this.getCharacterData( i - 1 ).match( /\s/ ) ) {
 					// If whitespace-adjacent, remove the newline to avoid double spaces
 					this.splice( i, 1 );
@@ -1154,7 +1190,7 @@ ve.dm.ElementLinearData.prototype.sanitize = function ( rules, keepEmptyContentB
 			}
 			if ( rules.removeOriginalDomElements ) {
 				// Remove originalDomElements from nodes
-				delete this.getData( i ).originalDomElements;
+				delete this.getData( i ).originalDomElementsIndex;
 			}
 		}
 	}
@@ -1168,12 +1204,13 @@ ve.dm.ElementLinearData.prototype.sanitize = function ( rules, keepEmptyContentB
  * @param {boolean} preserveGenerated Preserve internal.generated properties of elements
  */
 ve.dm.ElementLinearData.prototype.cloneElements = function ( preserveGenerated ) {
-	var i, len, nodeClass;
+	var i, len, nodeClass,
+		store = this.getStore();
 	for ( i = 0, len = this.getLength(); i < len; i++ ) {
 		if ( this.isOpenElementData( i ) ) {
 			nodeClass = ve.dm.nodeFactory.lookup( this.getType( i ) );
 			if ( nodeClass ) {
-				this.setData( i, nodeClass.static.cloneElement( this.getData( i ), preserveGenerated ) );
+				this.setData( i, nodeClass.static.cloneElement( this.getData( i ), store, preserveGenerated ) );
 			}
 		}
 	}

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "53e939916d7720070ae23ebb07628513",
-    "content-hash": "1dbc028088cc5059dc1d0f0d48fcad7e",
+    "hash": "eec175d8793def7f0a878ed554be4a67",
+    "content-hash": "146cc757fefdec0093458f0b04104a49",
     "packages": [],
     "packages-dev": [
         {
@@ -57,24 +57,26 @@
         },
         {
             "name": "mediawiki/mediawiki-codesniffer",
-            "version": "v0.5.1",
+            "version": "v0.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-tools-codesniffer.git",
-                "reference": "e1ee95d0beb1c0eed8d98b6e4aa322130ac04d50"
+                "reference": "6b713bcbb9c20a3bdad76f9477458c9b4ae0773b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/e1ee95d0beb1c0eed8d98b6e4aa322130ac04d50",
-                "reference": "e1ee95d0beb1c0eed8d98b6e4aa322130ac04d50",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/6b713bcbb9c20a3bdad76f9477458c9b4ae0773b",
+                "reference": "6b713bcbb9c20a3bdad76f9477458c9b4ae0773b",
                 "shasum": ""
             },
             "require": {
-                "squizlabs/php_codesniffer": "2.5.0"
+                "php": ">= 5.5.9",
+                "squizlabs/php_codesniffer": "2.6.0"
             },
             "require-dev": {
                 "jakub-onderka/php-parallel-lint": "0.9.*",
-                "phpunit/phpunit": "~4.8.18"
+                "mikey179/vfsstream": "~1.6",
+                "phpunit/phpunit": "~4.1"
             },
             "type": "library",
             "notification-url": "https://packagist.org/downloads/",
@@ -87,23 +89,24 @@
                 "codesniffer",
                 "mediawiki"
             ],
-            "time": "2015-12-29 01:03:51"
+            "time": "2016-05-28 01:08:59"
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "2.5.0",
+            "version": "2.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "e4fb41d5d0387d556e2c25534d630b3cce90ea67"
+                "reference": "1bcdf03b068a530ac1962ce671dead356eeba43b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/e4fb41d5d0387d556e2c25534d630b3cce90ea67",
-                "reference": "e4fb41d5d0387d556e2c25534d630b3cce90ea67",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/1bcdf03b068a530ac1962ce671dead356eeba43b",
+                "reference": "1bcdf03b068a530ac1962ce671dead356eeba43b",
                 "shasum": ""
             },
             "require": {
+                "ext-simplexml": "*",
                 "ext-tokenizer": "*",
                 "ext-xmlwriter": "*",
                 "php": ">=5.1.2"
@@ -118,7 +121,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.0.x-dev"
+                    "dev-master": "2.x-dev"
                 }
             },
             "autoload": {
@@ -164,7 +167,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2015-12-11 00:12:46"
+            "time": "2016-04-03 22:58:34"
         }
     ],
     "aliases": [],

@@ -3,10 +3,12 @@
 		"authors": [
 			"Vikassy",
 			"Omshivaprakash",
-			"VASANTH S.N."
+			"VASANTH S.N.",
+			"Yogesh",
+			"Shushruth"
 		]
 	},
-	"tag-visualeditor": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|ದೃಶ್ಯ ಸಂಪಾದಕ]]",
+	"tag-visualeditor": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|ದೃಶ್ಯ ಸಂಪಾದನೆ]]",
 	"tag-visualeditor-description": "ಸಂಪಾದನೆಗೆ ಬಳಸಿದ್ದು [[{{MediaWiki:visualeditor-descriptionpagelink}}|ದೃಶ್ಯ ಸಂಪಾದಕ]]",
 	"tag-visualeditor-needcheck": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|ದೃಶ್ಯ ಸಂಪಾದಕ: ಪರೀಕ್ಷಿಸು]]",
 	"tag-visualeditor-needcheck-description": "ಸಂಪಾದನೆಗೆ ಬಳಸಿದ್ದು [[{{MediaWiki:visualeditor-descriptionpagelink}}|ದೃಶ್ಯ ಸಂಪಾದಕ]] ಇಲ್ಲಿ ಸಾಧನವು ಬೇಡದ ಕೆಲವು ಬದಲಾವಣೆಗಳಾಗಿರುವುದನ್ನು ಗಮನಿಸಿದೆ.",
@@ -20,5 +22,6 @@
 	"visualeditor-welcomedialog-content": "ಯಾರು ಬೇಕಾದರೂ ಸಂಪಾದಿಸಬಹುದು,ಮತ್ತು ಪ್ರತಿಯೊಂದು ಸುಧಾರಣೆಯೂ ಸಹಾಯ ಮಾಡುತ್ತದೆ.",
 	"visualeditor-welcomedialog-content-thanks": "ಪ್ರಪಂಚದ ಬಗ್ಗೆ ಹೆಚ್ಚಿನ ತಿಳಿವನ್ನು ಹೊಂದಲು ಸಹಾಯಮಾಡುತ್ತಿರುವುದಕ್ಕೆ ದನ್ಯವಾದಗಳು!",
 	"visualeditor-welcomedialog-switch": "ಮೂಲ ಸಂಪಾದಕಕ್ಕೆ ಬದಲಾಯಿಸು",
+	"visualeditor-welcomedialog-switch-ve": "ದೃಶ್ಯ ಸಂಪಾದನೆಗೆ ಬದಲಿಸಿ",
 	"visualeditor-welcomedialog-title": "$2 ಗೆ {{GENDER:$1|ಸುಸ್ವಾಗತ}}"
 }

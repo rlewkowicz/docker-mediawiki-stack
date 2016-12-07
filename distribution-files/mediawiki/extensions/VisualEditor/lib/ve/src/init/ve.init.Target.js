@@ -15,9 +15,6 @@
  * @constructor
  * @param {Object} [config] Configuration options
  * @cfg {Object} [toolbarConfig] Configuration options for the toolbar
- * @cfg {ve.ui.CommandRegistry} [commandRegistry] Command registry to use
- * @cfg {ve.ui.SequenceRegistry} [sequenceRegistry] Sequence registry to use
- * @cfg {ve.ui.DataTransferHandlerFactory} [dataTransferHandlerFactory] Data transfer handler factory to use
  */
 ve.init.Target = function VeInitTarget( config ) {
 	config = config || {};
@@ -37,19 +34,22 @@ ve.init.Target = function VeInitTarget( config ) {
 	this.toolbar = null;
 	this.actionsToolbar = null;
 	this.toolbarConfig = config.toolbarConfig;
-	this.commandRegistry = config.commandRegistry || ve.ui.commandRegistry;
-	this.sequenceRegistry = config.sequenceRegistry || ve.ui.sequenceRegistry;
-	this.dataTransferHandlerFactory = config.dataTransferHandlerFactory || ve.ui.dataTransferHandlerFactory;
-	this.documentTriggerListener = new ve.TriggerListener( this.constructor.static.documentCommands, this.commandRegistry );
-	this.targetTriggerListener = new ve.TriggerListener( this.constructor.static.targetCommands, this.commandRegistry );
 	this.$scrollContainer = this.getScrollContainer();
 	this.toolbarScrollOffset = 0;
+
+	this.setupTriggerListeners();
 
 	// Initialization
 	this.$element.addClass( 've-init-target' );
 
 	if ( ve.init.platform.constructor.static.isInternetExplorer() ) {
 		this.$element.addClass( 've-init-target-ie' );
+	}
+
+	// We don't have any Edge CSS bugs that aren't present in IE, so
+	// use a combined class to simplify selectors.
+	if ( ve.init.platform.constructor.static.isEdge() ) {
+		this.$element.addClass( 've-init-target-ie-or-edge' );
 	}
 
 	// Events
@@ -214,6 +214,15 @@ ve.init.Target.prototype.destroy = function () {
 };
 
 /**
+ * Set up trigger listeners
+ */
+ve.init.Target.prototype.setupTriggerListeners = function () {
+	var surfaceOrSurfaceConfig = this.getSurface() || this.getSurfaceConfig();
+	this.documentTriggerListener = new ve.TriggerListener( this.constructor.static.documentCommands, surfaceOrSurfaceConfig.commandRegistry );
+	this.targetTriggerListener = new ve.TriggerListener( this.constructor.static.targetCommands, surfaceOrSurfaceConfig.commandRegistry );
+};
+
+/**
  * Get the target's scroll container
  *
  * @return {jQuery} The target's scroll container
@@ -246,10 +255,11 @@ ve.init.Target.prototype.onContainerScroll = function () {
  * @param {jQuery.Event} e Key down event
  */
 ve.init.Target.prototype.onDocumentKeyDown = function ( e ) {
-	var command, trigger = new ve.ui.Trigger( e );
+	var command, surface, trigger = new ve.ui.Trigger( e );
 	if ( trigger.isComplete() ) {
 		command = this.documentTriggerListener.getCommandByTrigger( trigger.toString() );
-		if ( command && command.execute( this.getSurface() ) ) {
+		surface = this.getSurface();
+		if ( surface && command && command.execute( surface ) ) {
 			e.preventDefault();
 		}
 	}
@@ -261,10 +271,11 @@ ve.init.Target.prototype.onDocumentKeyDown = function ( e ) {
  * @param {jQuery.Event} e Key down event
  */
 ve.init.Target.prototype.onTargetKeyDown = function ( e ) {
-	var command, trigger = new ve.ui.Trigger( e );
+	var command, surface, trigger = new ve.ui.Trigger( e );
 	if ( trigger.isComplete() ) {
 		command = this.targetTriggerListener.getCommandByTrigger( trigger.toString() );
-		if ( command && command.execute( this.getSurface() ) ) {
+		surface = this.getSurface();
+		if ( surface && command && command.execute( surface ) ) {
 			e.preventDefault();
 		}
 	}
@@ -310,8 +321,9 @@ ve.init.Target.prototype.createSurface = function ( dmDoc, config ) {
 ve.init.Target.prototype.getSurfaceConfig = function ( config ) {
 	return ve.extendObject( {
 		$scrollContainer: this.$scrollContainer,
-		commandRegistry: this.commandRegistry,
-		sequenceRegistry: this.sequenceRegistry,
+		commandRegistry: ve.ui.commandRegistry,
+		sequenceRegistry: ve.ui.sequenceRegistry,
+		dataTransferHandlerFactory: ve.ui.dataTransferHandlerFactory,
 		includeCommands: this.constructor.static.includeCommands,
 		excludeCommands: OO.simpleArrayUnion(
 			this.constructor.static.excludeCommands,
@@ -342,6 +354,9 @@ ve.init.Target.prototype.addSurface = function ( dmDoc, config ) {
  * Destroy and remove all surfaces from the target
  */
 ve.init.Target.prototype.clearSurfaces = function () {
+	// We're about to destroy this.surface, so unset it for sanity
+	// Otherwise, getSurface() could return a destroyed surface
+	this.surface = null;
 	while ( this.surfaces.length ) {
 		this.surfaces.pop().destroy();
 	}
@@ -362,6 +377,9 @@ ve.init.Target.prototype.onSurfaceViewFocus = function ( surface ) {
  * @param {ve.ui.Surface} surface Surface
  */
 ve.init.Target.prototype.setSurface = function ( surface ) {
+	if ( this.surfaces.indexOf( surface ) === -1 ) {
+		throw new Error( 'Active surface must have been added first' );
+	}
 	if ( surface !== this.surface ) {
 		this.surface = surface;
 		this.setupToolbar( surface );
@@ -408,7 +426,8 @@ ve.init.Target.prototype.getActions = function () {
  */
 ve.init.Target.prototype.setupToolbar = function ( surface ) {
 	var toolbar = this.getToolbar(),
-		actions = this.getActions();
+		actions = this.getActions(),
+		rAF = window.requestAnimationFrame || setTimeout;
 
 	toolbar.connect( this, { resize: 'onToolbarResize' } );
 
@@ -417,8 +436,7 @@ ve.init.Target.prototype.setupToolbar = function ( surface ) {
 	this.attachToolbar( surface );
 	toolbar.$bar.append( surface.getToolbarDialogs().$element );
 	toolbar.$actions.append( actions.$element );
-	this.onContainerScroll();
-
+	rAF( this.onContainerScrollHandler );
 };
 
 /**

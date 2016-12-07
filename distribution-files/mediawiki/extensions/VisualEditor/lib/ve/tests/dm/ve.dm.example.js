@@ -40,13 +40,23 @@ ve.dm.example.preprocessAnnotations = function ( data, store ) {
 		}
 	}
 
+	function preprocessOriginalDomElements( el ) {
+		var originalDomElements = el.originalDomElements;
+		if ( originalDomElements ) {
+			el.originalDomElementsIndex = store.index( originalDomElements, originalDomElements.map( ve.getNodeHtml ).join( '' ) );
+			delete el.originalDomElements;
+		}
+	}
+
 	store = store || new ve.dm.IndexValueStore();
 	for ( i = 0; i < data.length; i++ ) {
 		key = data[ i ].annotations ? 'annotations' : 1;
 		// check for shorthand annotation objects in array
 		if ( Array.isArray( data[ i ][ key ] ) && data[ i ][ key ][ 0 ].type ) {
+			data[ i ][ key ].forEach( preprocessOriginalDomElements );
 			data[ i ][ key ] = ve.dm.example.createAnnotationSet( store, data[ i ][ key ] ).getIndexes();
 		}
+		preprocessOriginalDomElements( data[ i ] );
 	}
 	return new ve.dm.FlatLinearData( store, data );
 };
@@ -54,8 +64,8 @@ ve.dm.example.preprocessAnnotations = function ( data, store ) {
 /**
  * Convert real data back to shorthand notation. See #preprocessAnnotations.
  *
- * Any annotation that has .originalDomElements will be shallow-cloned and have
- * .originalDomElements removed.
+ * Any annotation that has originalDomElements will be shallow-cloned and have
+ * originalDomElements removed.
  *
  * @param {Array} data Linear model data. Will be modified.
  * @param {ve.dm.IndexValueStore} store Index-value store to resolve annotations in
@@ -72,10 +82,10 @@ ve.dm.example.postprocessAnnotations = function ( data, store, preserveDomElemen
 			data[ i ][ key ] = new ve.dm.AnnotationSet( store, data[ i ][ key ] ).get();
 			for ( j = 0; j < data[ i ][ key ].length; j++ ) {
 				data[ i ][ key ][ j ] = data[ i ][ key ][ j ].element;
-				if ( !preserveDomElements && data[ i ][ key ][ j ].originalDomElements ) {
-					// Make a shallow clone and remove .originalDomElements from it
+				if ( !preserveDomElements && data[ i ][ key ][ j ].originalDomElementsIndex !== undefined ) {
+					// Make a shallow clone and remove originalDomElements from it
 					data[ i ][ key ][ j ] = $.extend( {}, data[ i ][ key ][ j ] );
-					delete data[ i ][ key ][ j ].originalDomElements;
+					delete data[ i ][ key ][ j ].originalDomElementsIndex;
 				}
 			}
 		}
@@ -92,8 +102,8 @@ ve.dm.example.postprocessAnnotations = function ( data, store, preserveDomElemen
 ve.dm.example.removeOriginalDomElements = function ( data ) {
 	var i, len;
 	for ( i = 0, len = data.length; i < len; i++ ) {
-		if ( data[ i ].originalDomElements ) {
-			delete data[ i ].originalDomElements;
+		if ( data[ i ].originalDomElementsIndex !== undefined ) {
+			delete data[ i ].originalDomElementsIndex;
 		}
 	}
 	return data;
@@ -104,10 +114,11 @@ ve.dm.example.removeOriginalDomElements = function ( data ) {
  *
  * @method
  * @param {Object} annotation Plain object with type and attributes properties
+ * @param {ve.dm.IndexValueStore} [store] Index value store
  * @return {ve.dm.Annotation} Instance of the right ve.dm.Annotation subclass
  */
-ve.dm.example.createAnnotation = function ( annotation ) {
-	return ve.dm.annotationFactory.createFromElement( annotation );
+ve.dm.example.createAnnotation = function ( annotation, store ) {
+	return ve.dm.annotationFactory.createFromElement( annotation, store );
 };
 
 /**
@@ -124,7 +135,7 @@ ve.dm.example.createAnnotation = function ( annotation ) {
 ve.dm.example.createAnnotationSet = function ( store, annotations ) {
 	var i;
 	for ( i = 0; i < annotations.length; i++ ) {
-		annotations[ i ] = ve.dm.example.createAnnotation( annotations[ i ] );
+		annotations[ i ] = ve.dm.example.createAnnotation( annotations[ i ], store );
 	}
 	return new ve.dm.AnnotationSet( store, store.indexes( annotations ) );
 };
@@ -144,6 +155,27 @@ ve.dm.example.link = function ( href ) {
 ve.dm.example.language = function ( lang, dir ) {
 	return { type: 'meta/language', attributes: { lang: lang, dir: dir } };
 };
+
+ve.dm.example.annIndex = function ( tagName, text ) {
+	var ann = ve.copy( {
+			b: ve.dm.example.bold,
+			i: ve.dm.example.italic,
+			u: ve.dm.example.underline
+		}[ tagName ] );
+
+	ann.originalDomElementsIndex = ve.dm.IndexValueStore.prototype.indexOfValue( null, '<' + tagName + '>' + text + '</' + tagName + '>' );
+	return ve.dm.IndexValueStore.prototype.indexOfValue( ann );
+};
+
+// index = store.indexOfValue( ve.dm.example.bold )
+ve.dm.example.boldIndex = 'h49981eab0f8056ff';
+ve.dm.example.italicIndex = 'hefd27ef3bf2041dd';
+ve.dm.example.underlineIndex = 'hf214c680fbc361da';
+ve.dm.example.strongIndex = 'ha5aaf526d1c3af54';
+
+ve.dm.example.domBoldIndex = 'ha17878c4224059d6';
+ve.dm.example.domItalicIndex = 'h818fb55eaa1f5676';
+ve.dm.example.domUnderlineIndex = 'h6d4db1ae2f34b4b7';
 
 ve.dm.example.inlineSlug = '<span class="ve-ce-branchNode-slug ve-ce-branchNode-inlineSlug"></span>';
 ve.dm.example.blockSlug = '<div class="ve-ce-branchNode-slug ve-ce-branchNode-blockSlug"></div>';
@@ -1423,7 +1455,6 @@ ve.dm.example.domToDataCases = {
 			{ type: 'internalList' },
 			{ type: '/internalList' }
 		],
-		storeLength: 2,
 		fromDataBody: '<p><code>a</code>b<tt>c</tt>d<code>ef</code></p>'
 	},
 	'additive annotations': {
@@ -1439,8 +1470,7 @@ ve.dm.example.domToDataCases = {
 			{ type: '/paragraph' },
 			{ type: 'internalList' },
 			{ type: '/internalList' }
-		],
-		storeLength: 2
+		]
 	},
 	'additive annotations overlapping other annotations': {
 		body: '<p><i><big>a<big><b>b</b></big><b>c</b></big></i></p>',
@@ -1452,8 +1482,7 @@ ve.dm.example.domToDataCases = {
 			{ type: '/paragraph' },
 			{ type: 'internalList' },
 			{ type: '/internalList' }
-		],
-		storeLength: 3
+		]
 	},
 	'annotations normalised on import': {
 		body: '<p><em>Foo</em><strong>bar</strong></p>',
@@ -1546,7 +1575,8 @@ ve.dm.example.domToDataCases = {
 			'<font class="ve-ce-textStyleAnnotation ve-ce-fontAnnotation">i</font>' +
 		'</p>'
 	},
-	'strip leading whitespace in paragraphs': {
+	'strip leading whitespace in non-whitespace preserving nodes': {
+		// T53462/T142132
 		data: [
 			{ type: 'paragraph' },
 			' ', 'f', 'o', 'o',
@@ -1563,7 +1593,8 @@ ve.dm.example.domToDataCases = {
 			{ type: 'internalList' },
 			{ type: '/internalList' }
 		],
-		normalizedBody: '<p>foo</p><p>bar</p><h2>baz</h2><pre> \tquux</pre>'
+		normalizedBody: '<p>foo</p><p>bar</p><h2>baz</h2><pre> \tquux</pre>',
+		clipboardBody: '<p> foo</p><p> \t \tbar</p><h2>  baz</h2><pre> \tquux</pre>'
 	},
 	image: {
 		body: ve.dm.example.image.html,
@@ -2055,8 +2086,7 @@ ve.dm.example.domToDataCases = {
 	},
 	'example document': {
 		body: ve.dm.example.html,
-		data: ve.dm.example.data,
-		storeLength: 2
+		data: ve.dm.example.data
 	},
 	'empty annotation': {
 		body: '<p>Foo<span id="anchorTarget"></span>Bar</p>',
@@ -2190,9 +2220,6 @@ ve.dm.example.domToDataCases = {
 			{ type: 'internalList' },
 			{ type: '/internalList' }
 		],
-		normalizedBody:
-			'<p><b>Foobar</b><strong>baz</strong></p>' +
-			'<p><a href="quux">Foobar</a><a href="whee">baz</a></p>',
 		fromDataBody:
 			'<p><b>Foobarbaz</b></p>' +
 			'<p><a href="quux">Foobar</a><a href="whee">baz</a></p>'
@@ -3207,13 +3234,56 @@ ve.dm.example.domToDataCases = {
 			{ type: '/internalList' }
 		]
 	},
+	'about group separated by whitespace is split': {
+		body: '<div rel="ve:Alien" about="#vet1">Foo</div>\t<div rel="ve:Alien" about="#vet1">Bar</div>',
+		data: [
+			{
+				type: 'alienBlock',
+				originalDomElements: $( '<div rel="ve:Alien" about="#vet1">Foo</div>' ).toArray(),
+				internal: {
+					whitespace: [ undefined, undefined, undefined, '\t' ]
+				}
+			},
+			{ type: '/alienBlock' },
+			{
+				type: 'alienBlock',
+				originalDomElements: $( '<div rel="ve:Alien" about="#vet1">Bar</div>' ).toArray(),
+				internal: {
+					whitespace: [ '\t' ]
+				}
+			},
+			{ type: '/alienBlock' },
+			{ type: 'internalList' },
+			{ type: '/internalList' }
+		]
+	},
+	'about group separated by text is split': {
+		body: '<p><span rel="ve:Alien" about="#vet1">Foo</span>X<span rel="ve:Alien" about="#vet1">Bar</span></p>',
+		data: [
+			{ type: 'paragraph' },
+			{
+				type: 'alienInline',
+				originalDomElements: $( '<span rel="ve:Alien" about="#vet1">Foo</span>' ).toArray()
+			},
+			{ type: '/alienInline' },
+			'X',
+			{
+				type: 'alienInline',
+				originalDomElements: $( '<span rel="ve:Alien" about="#vet1">Bar</span>' ).toArray()
+			},
+			{ type: '/alienInline' },
+			{ type: '/paragraph' },
+			{ type: 'internalList' },
+			{ type: '/internalList' }
+		]
+	},
 	'whitespace preservation with an about group': {
-		body: ' <div rel="ve:Alien" about="#vet1">\tFoo\t\t</div>\t\t\t' +
+		body: ' <div rel="ve:Alien" about="#vet1">\tFoo\t\t</div>' +
 			'<div rel="ve:Alien" about="#vet1">  Bar   </div>    ',
 		data: [
 			{
 				type: 'alienBlock',
-				originalDomElements: $( '<div rel="ve:Alien" about="#vet1">\tFoo\t\t</div>\t\t\t' +
+				originalDomElements: $( '<div rel="ve:Alien" about="#vet1">\tFoo\t\t</div>' +
 						'<div rel="ve:Alien" about="#vet1">  Bar   </div>' ).toArray(),
 				internal: {
 					whitespace: [ ' ', undefined, undefined, '    ' ]
@@ -3564,7 +3634,7 @@ ve.dm.example.isolationData = [
 ];
 
 ve.dm.example.RDFaDoc = ve.dm.converter.getModelFromDom( ve.createDocumentFromHtml(
-	'<p about="a" content="b" datatype="c" property="d" rel="e" resource="f" rev="g" typeof="h" ' +
+	'<p content="b" datatype="c" property="d" rel="e" resource="f" rev="g" typeof="h" ' +
 	// Non-RDFa attribute
 	'class="i">' +
 	'Foo</p>'
@@ -3572,7 +3642,7 @@ ve.dm.example.RDFaDoc = ve.dm.converter.getModelFromDom( ve.createDocumentFromHt
 
 ve.dm.example.UnboldableNode = function () {
 	// Parent constructor
-	ve.dm.LeafNode.apply( this, arguments );
+	ve.dm.example.UnboldableNode.super.apply( this, arguments );
 };
 OO.inheritClass( ve.dm.example.UnboldableNode, ve.dm.LeafNode );
 ve.dm.example.UnboldableNode.static.name = 'exampleUnboldable';
@@ -3581,9 +3651,9 @@ ve.dm.example.UnboldableNode.static.blacklistedAnnotationTypes = [ 'textStyle/bo
 ve.dm.example.UnboldableNode.static.matchTagNames = [];
 ve.dm.modelRegistry.register( ve.dm.example.UnboldableNode );
 
-ve.dm.example.IgnoreChildrenNode = function ( children, element ) {
+ve.dm.example.IgnoreChildrenNode = function () {
 	// Parent constructor
-	ve.dm.BranchNode.call( this, children, element );
+	ve.dm.example.IgnoreChildrenNode.super.apply( this, arguments );
 };
 OO.inheritClass( ve.dm.example.IgnoreChildrenNode, ve.dm.BranchNode );
 ve.dm.example.IgnoreChildrenNode.static.name = 'exampleIgnoreChildren';

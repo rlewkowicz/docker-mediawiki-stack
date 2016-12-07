@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Logger\LoggerFactory;
+use MediaWiki\MediaWikiServices;
 
 /**
  * The MediaWiki class is the helper class for the index.php entry point.
@@ -477,6 +478,7 @@ class MediaWiki {
 			$trxProfiler = Profiler::instance()->getTransactionProfiler();
 			if ( $request->wasPosted() && !$action->doesWrites() ) {
 				$trxProfiler->setExpectations( $trxLimits['POST-nonwrite'], __METHOD__ );
+				$request->markAsSafeRequest();
 			}
 
 			# Let CDN cache things if we can purge them.
@@ -505,6 +507,7 @@ class MediaWiki {
 	 */
 	public function run() {
 		try {
+			$this->setDBProfilingAgent();
 			try {
 				$this->main();
 			} catch ( ErrorPageError $e ) {
@@ -515,18 +518,47 @@ class MediaWiki {
 				$e->report(); // display the GUI error
 			}
 		} catch ( Exception $e ) {
+			$context = $this->context;
+			$action = $context->getRequest()->getVal( 'action', 'view' );
+			if (
+				$e instanceof DBConnectionError &&
+				$context->hasTitle() &&
+				$context->getTitle()->canExist() &&
+				in_array( $action, [ 'view', 'history' ], true ) &&
+				HTMLFileCache::useFileCache( $this->context, HTMLFileCache::MODE_OUTAGE )
+			) {
+				// Try to use any (even stale) file during outages...
+				$cache = new HTMLFileCache( $context->getTitle(), 'view' );
+				if ( $cache->isCached() ) {
+					$cache->loadFromFileCache( $context, HTMLFileCache::MODE_OUTAGE );
+					print MWExceptionRenderer::getHTML( $e );
+					exit;
+				}
+
+			}
+
 			MWExceptionHandler::handleException( $e );
 		}
 
 		$this->doPostOutputShutdown( 'normal' );
 	}
 
+	private function setDBProfilingAgent() {
+		$services = MediaWikiServices::getInstance();
+		// Add a comment for easy SHOW PROCESSLIST interpretation
+		$name = $this->context->getUser()->getName();
+		$services->getDBLoadBalancerFactory()->setAgentName(
+			mb_strlen( $name ) > 15 ? mb_substr( $name, 0, 15 ) . '...' : $name
+		);
+	}
+
 	/**
 	 * @see MediaWiki::preOutputCommit()
+	 * @param callable $postCommitWork [default: null]
 	 * @since 1.26
 	 */
-	public function doPreOutputCommit() {
-		self::preOutputCommit( $this->context );
+	public function doPreOutputCommit( callable $postCommitWork = null ) {
+		self::preOutputCommit( $this->context, $postCommitWork );
 	}
 
 	/**
@@ -534,44 +566,91 @@ class MediaWiki {
 	 * the user can receive a response (in case commit fails)
 	 *
 	 * @param IContextSource $context
+	 * @param callable $postCommitWork [default: null]
 	 * @since 1.27
 	 */
-	public static function preOutputCommit( IContextSource $context ) {
+	public static function preOutputCommit(
+		IContextSource $context, callable $postCommitWork = null
+	) {
 		// Either all DBs should commit or none
 		ignore_user_abort( true );
 
 		$config = $context->getConfig();
+		$request = $context->getRequest();
+		$output = $context->getOutput();
+		$lbFactory = MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
 
-		$factory = wfGetLBFactory();
 		// Commit all changes
-		$factory->commitMasterChanges(
+		$lbFactory->commitMasterChanges(
 			__METHOD__,
 			// Abort if any transaction was too big
 			[ 'maxWriteDuration' => $config->get( 'MaxUserDBWriteDuration' ) ]
 		);
-		// Record ChronologyProtector positions
-		$factory->shutdown();
-		wfDebug( __METHOD__ . ': all transactions committed' );
+		wfDebug( __METHOD__ . ': primary transaction round committed' );
 
+		// Run updates that need to block the user or affect output (this is the last chance)
 		DeferredUpdates::doUpdates( 'enqueue', DeferredUpdates::PRESEND );
 		wfDebug( __METHOD__ . ': pre-send deferred updates completed' );
+
+		// Decide when clients block on ChronologyProtector DB position writes
+		$urlDomainDistance = (
+			$request->wasPosted() &&
+			$output->getRedirect() &&
+			$lbFactory->hasOrMadeRecentMasterChanges( INF )
+		) ? self::getUrlDomainDistance( $output->getRedirect(), $context ) : false;
+
+		if ( $urlDomainDistance === 'local' || $urlDomainDistance === 'remote' ) {
+			// OutputPage::output() will be fast; $postCommitWork will not be useful for
+			// masking the latency of syncing DB positions accross all datacenters synchronously.
+			// Instead, make use of the RTT time of the client follow redirects.
+			$flags = $lbFactory::SHUTDOWN_CHRONPROT_ASYNC;
+			$cpPosTime = microtime( true );
+			// Client's next request should see 1+ positions with this DBMasterPos::asOf() time
+			if ( $urlDomainDistance === 'local' ) {
+				// Client will stay on this domain, so set an unobtrusive cookie
+				$expires = time() + ChronologyProtector::POSITION_TTL;
+				$options = [ 'prefix' => '' ];
+				$request->response()->setCookie( 'cpPosTime', $cpPosTime, $expires, $options );
+			} else {
+				// Cookies may not work across wiki domains, so use a URL parameter
+				$safeUrl = $lbFactory->appendPreShutdownTimeAsQuery(
+					$output->getRedirect(),
+					$cpPosTime
+				);
+				$output->redirect( $safeUrl );
+			}
+		} else {
+			// OutputPage::output() is fairly slow; run it in $postCommitWork to mask
+			// the latency of syncing DB positions accross all datacenters synchronously
+			$flags = $lbFactory::SHUTDOWN_CHRONPROT_SYNC;
+			if ( $lbFactory->hasOrMadeRecentMasterChanges( INF ) ) {
+				$cpPosTime = microtime( true );
+				// Set a cookie in case the DB position store cannot sync accross datacenters.
+				// This will at least cover the common case of the user staying on the domain.
+				$expires = time() + ChronologyProtector::POSITION_TTL;
+				$options = [ 'prefix' => '' ];
+				$request->response()->setCookie( 'cpPosTime', $cpPosTime, $expires, $options );
+			}
+		}
+		// Record ChronologyProtector positions for DBs affected in this request at this point
+		$lbFactory->shutdown( $flags, $postCommitWork );
+		wfDebug( __METHOD__ . ': LBFactory shutdown completed' );
 
 		// Set a cookie to tell all CDN edge nodes to "stick" the user to the DC that handles this
 		// POST request (e.g. the "master" data center). Also have the user briefly bypass CDN so
 		// ChronologyProtector works for cacheable URLs.
-		$request = $context->getRequest();
-		if ( $request->wasPosted() && $factory->hasOrMadeRecentMasterChanges() ) {
+		if ( $request->wasPosted() && $lbFactory->hasOrMadeRecentMasterChanges() ) {
 			$expires = time() + $config->get( 'DataCenterUpdateStickTTL' );
 			$options = [ 'prefix' => '' ];
 			$request->response()->setCookie( 'UseDC', 'master', $expires, $options );
 			$request->response()->setCookie( 'UseCDNCache', 'false', $expires, $options );
 		}
 
-		// Avoid letting a few seconds of slave lag cause a month of stale data. This logic is
+		// Avoid letting a few seconds of replica DB lag cause a month of stale data. This logic is
 		// also intimately related to the value of $wgCdnReboundPurgeDelay.
-		if ( $factory->laggedSlaveUsed() ) {
+		if ( $lbFactory->laggedReplicaUsed() ) {
 			$maxAge = $config->get( 'CdnMaxageLagged' );
-			$context->getOutput()->lowerCdnMaxage( $maxAge );
+			$output->lowerCdnMaxage( $maxAge );
 			$request->response()->header( "X-Database-Lagged: true" );
 			wfDebugLog( 'replication', "Lagged DB used; CDN cache TTL limited to $maxAge seconds" );
 		}
@@ -579,9 +658,44 @@ class MediaWiki {
 		// Avoid long-term cache pollution due to message cache rebuild timeouts (T133069)
 		if ( MessageCache::singleton()->isDisabled() ) {
 			$maxAge = $config->get( 'CdnMaxageSubstitute' );
-			$context->getOutput()->lowerCdnMaxage( $maxAge );
+			$output->lowerCdnMaxage( $maxAge );
 			$request->response()->header( "X-Response-Substitute: true" );
 		}
+	}
+
+	/**
+	 * @param string $url
+	 * @param IContextSource $context
+	 * @return string|bool Either "local" or "remote" if in the farm, false otherwise
+	 */
+	private static function getUrlDomainDistance( $url, IContextSource $context ) {
+		static $relevantKeys = [ 'host' => true, 'port' => true ];
+
+		$infoCandidate = wfParseUrl( $url );
+		if ( $infoCandidate === false ) {
+			return false;
+		}
+
+		$infoCandidate = array_intersect_key( $infoCandidate, $relevantKeys );
+		$clusterHosts = array_merge(
+			// Local wiki host (the most common case)
+			[ $context->getConfig()->get( 'CanonicalServer' ) ],
+			// Any local/remote wiki virtual hosts for this wiki farm
+			$context->getConfig()->get( 'LocalVirtualHosts' )
+		);
+
+		foreach ( $clusterHosts as $i => $clusterHost ) {
+			$parseUrl = wfParseUrl( $clusterHost );
+			if ( !$parseUrl ) {
+				continue;
+			}
+			$infoHost = array_intersect_key( $parseUrl, $relevantKeys );
+			if ( $infoCandidate === $infoHost ) {
+				return ( $i === 0 ) ? 'local' : 'remote';
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -601,10 +715,9 @@ class MediaWiki {
 		// Show visible profiling data if enabled (which cannot be post-send)
 		Profiler::instance()->logDataPageOutputOnly();
 
-		$that = $this;
-		$callback = function () use ( $that, $mode ) {
+		$callback = function () use ( $mode ) {
 			try {
-				$that->restInPeace( $mode );
+				$this->restInPeace( $mode );
 			} catch ( Exception $e ) {
 				MWExceptionHandler::handleException( $e );
 			}
@@ -619,7 +732,7 @@ class MediaWiki {
 				fastcgi_finish_request();
 			} else {
 				// Either all DB and deferred updates should happen or none.
-				// The later should not be cancelled due to client disconnect.
+				// The latter should not be cancelled due to client disconnect.
 				ignore_user_abort( true );
 			}
 
@@ -630,6 +743,7 @@ class MediaWiki {
 	private function main() {
 		global $wgTitle;
 
+		$output = $this->context->getOutput();
 		$request = $this->context->getRequest();
 
 		// Send Ajax requests to the Ajax dispatcher.
@@ -643,6 +757,7 @@ class MediaWiki {
 
 			$dispatcher = new AjaxDispatcher( $this->config );
 			$dispatcher->performAction( $this->context->getUser() );
+
 			return;
 		}
 
@@ -656,10 +771,10 @@ class MediaWiki {
 		$trxLimits = $this->config->get( 'TrxProfilerLimits' );
 		$trxProfiler = Profiler::instance()->getTransactionProfiler();
 		$trxProfiler->setLogger( LoggerFactory::getInstance( 'DBPerformance' ) );
-		if ( $request->wasPosted() ) {
-			$trxProfiler->setExpectations( $trxLimits['POST'], __METHOD__ );
-		} else {
+		if ( $request->hasSafeMethod() ) {
 			$trxProfiler->setExpectations( $trxLimits['GET'], __METHOD__ );
+		} else {
+			$trxProfiler->setExpectations( $trxLimits['POST'], __METHOD__ );
 		}
 
 		// If the user has forceHTTPS set to true, or if the user
@@ -669,6 +784,8 @@ class MediaWiki {
 		// isLoggedIn() will do all sorts of weird stuff.
 		if (
 			$request->getProtocol() == 'http' &&
+			// switch to HTTPS only when supported by the server
+			preg_match( '#^https://#', wfExpandUrl( $request->getRequestURL(), PROTO_HTTPS ) ) &&
 			(
 				$request->getSession()->shouldForceHTTPS() ||
 				// Check the cookie manually, for paranoia
@@ -702,45 +819,55 @@ class MediaWiki {
 				// Setup dummy Title, otherwise OutputPage::redirect will fail
 				$title = Title::newFromText( 'REDIR', NS_MAIN );
 				$this->context->setTitle( $title );
-				$output = $this->context->getOutput();
 				// Since we only do this redir to change proto, always send a vary header
 				$output->addVaryHeader( 'X-Forwarded-Proto' );
 				$output->redirect( $redirUrl );
 				$output->output();
+
 				return;
 			}
 		}
 
-		if ( $this->config->get( 'UseFileCache' ) && $title->getNamespace() >= 0 ) {
-			if ( HTMLFileCache::useFileCache( $this->context ) ) {
-				// Try low-level file cache hit
-				$cache = new HTMLFileCache( $title, $action );
-				if ( $cache->isCacheGood( /* Assume up to date */ ) ) {
-					// Check incoming headers to see if client has this cached
-					$timestamp = $cache->cacheTimestamp();
-					if ( !$this->context->getOutput()->checkLastModified( $timestamp ) ) {
-						$cache->loadFromFileCache( $this->context );
-					}
-					// Do any stats increment/watchlist stuff
-					// Assume we're viewing the latest revision (this should always be the case with file cache)
-					$this->context->getWikiPage()->doViewUpdates( $this->context->getUser() );
-					// Tell OutputPage that output is taken care of
-					$this->context->getOutput()->disable();
-					return;
+		if ( $title->canExist() && HTMLFileCache::useFileCache( $this->context ) ) {
+			// Try low-level file cache hit
+			$cache = new HTMLFileCache( $title, $action );
+			if ( $cache->isCacheGood( /* Assume up to date */ ) ) {
+				// Check incoming headers to see if client has this cached
+				$timestamp = $cache->cacheTimestamp();
+				if ( !$output->checkLastModified( $timestamp ) ) {
+					$cache->loadFromFileCache( $this->context );
 				}
+				// Do any stats increment/watchlist stuff, assuming user is viewing the
+				// latest revision (which should always be the case for file cache)
+				$this->context->getWikiPage()->doViewUpdates( $this->context->getUser() );
+				// Tell OutputPage that output is taken care of
+				$output->disable();
+
+				return;
 			}
 		}
 
 		// Actually do the work of the request and build up any output
 		$this->performRequest();
 
+		// GUI-ify and stash the page output in MediaWiki::doPreOutputCommit() while
+		// ChronologyProtector synchronizes DB positions or slaves accross all datacenters.
+		$buffer = null;
+		$outputWork = function () use ( $output, &$buffer ) {
+			if ( $buffer === null ) {
+				$buffer = $output->output( true );
+			}
+
+			return $buffer;
+		};
+
 		// Now commit any transactions, so that unreported errors after
 		// output() don't roll back the whole DB transaction and so that
 		// we avoid having both success and error text in the response
-		$this->doPreOutputCommit();
+		$this->doPreOutputCommit( $outputWork );
 
-		// Output everything!
-		$this->context->getOutput()->output();
+		// Now send the actual output
+		print $outputWork();
 	}
 
 	/**
@@ -748,15 +875,21 @@ class MediaWiki {
 	 * @param string $mode Use 'fast' to always skip job running
 	 */
 	public function restInPeace( $mode = 'fast' ) {
+		$lbFactory = MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
 		// Assure deferred updates are not in the main transaction
-		wfGetLBFactory()->commitMasterChanges( __METHOD__ );
+		$lbFactory->commitMasterChanges( __METHOD__ );
 
-		// Ignore things like master queries/connections on GET requests
-		// as long as they are in deferred updates (which catch errors).
-		Profiler::instance()->getTransactionProfiler()->resetExpectations();
+		// Loosen DB query expectations since the HTTP client is unblocked
+		$trxProfiler = Profiler::instance()->getTransactionProfiler();
+		$trxProfiler->resetExpectations();
+		$trxProfiler->setExpectations(
+			$this->config->get( 'TrxProfilerLimits' )['PostSend'],
+			__METHOD__
+		);
 
 		// Do any deferred jobs
 		DeferredUpdates::doUpdates( 'enqueue' );
+		DeferredUpdates::setImmediateMode( true );
 
 		// Make sure any lazy jobs are pushed
 		JobQueueGroup::pushLazyJobs();
@@ -771,9 +904,8 @@ class MediaWiki {
 		wfLogProfilingData();
 
 		// Commit and close up!
-		$factory = wfGetLBFactory();
-		$factory->commitMasterChanges( __METHOD__ );
-		$factory->shutdown( LBFactory::SHUTDOWN_NO_CHRONPROT );
+		$lbFactory->commitMasterChanges( __METHOD__ );
+		$lbFactory->shutdown( LBFactory::SHUTDOWN_NO_CHRONPROT );
 
 		wfDebug( "Request ended normally\n" );
 	}
@@ -785,10 +917,10 @@ class MediaWiki {
 	 */
 	public function triggerJobs() {
 		$jobRunRate = $this->config->get( 'JobRunRate' );
-		if ( $jobRunRate <= 0 || wfReadOnly() ) {
-			return;
-		} elseif ( $this->getTitle()->isSpecial( 'RunJobs' ) ) {
+		if ( $this->getTitle()->isSpecial( 'RunJobs' ) ) {
 			return; // recursion guard
+		} elseif ( $jobRunRate <= 0 || wfReadOnly() ) {
+			return;
 		}
 
 		if ( $jobRunRate < 1 ) {

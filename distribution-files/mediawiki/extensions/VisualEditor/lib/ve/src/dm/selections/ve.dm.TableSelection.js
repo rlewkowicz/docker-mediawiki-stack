@@ -364,10 +364,11 @@ ve.dm.TableSelection.prototype.getTableNode = function () {
  * @param {number} fromRowOffset Starting row offset
  * @param {number} [toColOffset] End column offset
  * @param {number} [toRowOffset] End row offset
+ * @param {number} [wrap] Wrap to the next/previous row if column limits are exceeded
  * @return {ve.dm.TableSelection} Adjusted selection
  */
-ve.dm.TableSelection.prototype.newFromAdjustment = function ( fromColOffset, fromRowOffset, toColOffset, toRowOffset ) {
-	var fromCell, toCell,
+ve.dm.TableSelection.prototype.newFromAdjustment = function ( fromColOffset, fromRowOffset, toColOffset, toRowOffset, wrap ) {
+	var fromCell, toCell, wrapDir,
 		matrix = this.getTableNode().getMatrix();
 
 	if ( toColOffset === undefined ) {
@@ -387,9 +388,25 @@ ve.dm.TableSelection.prototype.newFromAdjustment = function ( fromColOffset, fro
 		while ( offset !== 0 ) {
 			if ( mode === 'col' ) {
 				col += dir;
-				if ( col >= matrix.getColCount( row ) || col < 0 ) {
-					// Out of bounds
-					break;
+				// Out of bounds
+				if ( col >= matrix.getColCount( row ) ) {
+					if ( wrap && row < matrix.getRowCount() - 1 ) {
+						// Subtract columns in current row
+						col -= matrix.getColCount( row );
+						row++;
+						wrapDir = 1;
+					} else {
+						break;
+					}
+				} else if ( col < 0 ) {
+					if ( wrap && row > 0 ) {
+						row--;
+						// Add columns in previous row
+						col += matrix.getColCount( row );
+						wrapDir = -1;
+					} else {
+						break;
+					}
 				}
 			} else {
 				row += dir;
@@ -423,6 +440,13 @@ ve.dm.TableSelection.prototype.newFromAdjustment = function ( fromColOffset, fro
 	}
 	if ( toRowOffset ) {
 		toCell = adjust( 'row', toCell, toRowOffset );
+	}
+
+	// Collapse to end/start if wrapping forwards/backwards
+	if ( wrapDir > 0 ) {
+		fromCell = toCell;
+	} else if ( wrapDir < 0 ) {
+		toCell = fromCell;
 	}
 
 	return new this.constructor(

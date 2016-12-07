@@ -18,7 +18,8 @@
 			"Умар",
 			"Kaganer",
 			"Nirovulf",
-			"Perevod16"
+			"Perevod16",
+			"Jackie"
 		]
 	},
 	"visualeditor": "VisualEditor",
@@ -28,11 +29,13 @@
 	"visualeditor-align-widget-left": "Слева",
 	"visualeditor-align-widget-right": "Справа",
 	"visualeditor-alignablecontextitem-title": "Выравнивание",
+	"visualeditor-annotationbutton-big-tooltip": "Крупный",
 	"visualeditor-annotationbutton-bold-tooltip": "Полужирный",
 	"visualeditor-annotationbutton-code-tooltip": "Программный код",
 	"visualeditor-annotationbutton-italic-tooltip": "Курсив",
 	"visualeditor-annotationbutton-language-tooltip": "Язык",
 	"visualeditor-annotationbutton-link-tooltip": "Ссылка",
+	"visualeditor-annotationbutton-small-tooltip": "Мелкий",
 	"visualeditor-annotationbutton-strikethrough-tooltip": "Зачёркнутый",
 	"visualeditor-annotationbutton-subscript-tooltip": "Подстрочный индекс",
 	"visualeditor-annotationbutton-superscript-tooltip": "Надстрочный индекс",
@@ -135,7 +138,7 @@
 	"visualeditor-table-move-col-after": "Двигаться после",
 	"visualeditor-table-move-col-before": "Прежде чем двигаться",
 	"visualeditor-table-move-row-after": "Двигаться ниже",
-	"visualeditor-table-move-row-before": "Двигатся выше",
+	"visualeditor-table-move-row-before": "Двигаться выше",
 	"visualeditor-tablecell-contextitem": "Ячейка таблицы",
 	"visualeditor-tablecell-tooltip": "Дважды кликните для редактирования ячейки",
 	"visualeditor-toolbar-format-tooltip": "Формат абзаца",

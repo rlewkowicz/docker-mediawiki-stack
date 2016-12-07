@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3b0013734a655bbfb8437bf53fdfa549",
-    "content-hash": "a947cbc88a80f4405c346e8d5ae50405",
+    "hash": "fe3da793ae0a18b984e319aa1ff0e480",
+    "content-hash": "146cc757fefdec0093458f0b04104a49",
     "packages": [],
     "packages-dev": [
         {
@@ -57,16 +57,16 @@
         },
         {
             "name": "mediawiki/mediawiki-codesniffer",
-            "version": "v0.7.1",
+            "version": "v0.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-tools-codesniffer.git",
-                "reference": "e722267df7a0c0e6e05831d2c8c030d6e18a5321"
+                "reference": "6b713bcbb9c20a3bdad76f9477458c9b4ae0773b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/e722267df7a0c0e6e05831d2c8c030d6e18a5321",
-                "reference": "e722267df7a0c0e6e05831d2c8c030d6e18a5321",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/6b713bcbb9c20a3bdad76f9477458c9b4ae0773b",
+                "reference": "6b713bcbb9c20a3bdad76f9477458c9b4ae0773b",
                 "shasum": ""
             },
             "require": {
@@ -75,6 +75,7 @@
             },
             "require-dev": {
                 "jakub-onderka/php-parallel-lint": "0.9.*",
+                "mikey179/vfsstream": "~1.6",
                 "phpunit/phpunit": "~4.1"
             },
             "type": "library",
@@ -88,7 +89,7 @@
                 "codesniffer",
                 "mediawiki"
             ],
-            "time": "2016-05-06 19:53:37"
+            "time": "2016-05-28 01:08:59"
         },
         {
             "name": "squizlabs/php_codesniffer",

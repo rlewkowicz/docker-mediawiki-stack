@@ -19,7 +19,7 @@ class VisualEditorDataModule extends ResourceLoaderModule {
 
 	public function getScript( ResourceLoaderContext $context ) {
 		$msgInfo = $this->getMessageInfo( $context );
-		$parsedMessages = [];
+		$parsedMessages = $msgInfo['parsed'];
 		$textMessages = [];
 		foreach ( $msgInfo['parse'] as $msgKey => $msgObj ) {
 			$parsedMessages[ $msgKey ] = $msgObj->parse();
@@ -49,33 +49,30 @@ class VisualEditorDataModule extends ResourceLoaderModule {
 			'visualeditor-wikitext-warning' => $context->msg( 'visualeditor-wikitext-warning' ),
 		];
 
-		// Copyright warning (based on EditPage::getCopyrightWarning)
-		$rightsText = $this->config->get( 'RightsText' );
-		if ( $rightsText ) {
-			$copywarnMsgArgs = [ 'copyrightwarning',
-				'[[' . $context->msg( 'copyrightpage' )->inContentLanguage()->text() . ']]',
-				$rightsText ];
-		} else {
-			$copywarnMsgArgs = [ 'copyrightwarning2',
-				'[[' . $context->msg( 'copyrightpage' )->inContentLanguage()->text() . ']]' ];
-		}
-		// EditPage supports customisation based on title, we can't support that
-		$title = Title::newFromText( 'Dwimmerlaik' );
-		Hooks::run( 'EditPageCopyrightWarning', [ $title, &$copywarnMsgArgs ] );
-		// Normalise to 'copyrightwarning' so we have a consistent key in the front-end
-		$parseMsgs[ 'copyrightwarning' ] = call_user_func_array(
-			[ $context, 'msg' ],
-			$copywarnMsgArgs
-		);
+		// Copyright warning (already parsed)
+		$parsedMsgs = [
+			'copyrightwarning' => EditPage::getCopyrightWarning(
+				// Use a dummy title
+				Title::newFromText( 'Dwimmerlaik' ),
+				'parse',
+				$context->getLanguage()
+			),
+		];
 
 		// Messages to be exported as text
 		$textMsgs = [
-			'visualeditor-feedback-link' => $context->msg( 'visualeditor-feedback-link' )
+			'visualeditor-feedback-link' =>
+				$context->msg( 'visualeditor-feedback-link' )
+				->inContentLanguage(),
+			'visualeditor-quick-access-characters.json' =>
+				$context->msg( 'visualeditor-quick-access-characters.json' )
 				->inContentLanguage(),
 		];
 
 		return [
 			'parse' => $parseMsgs,
+			// Already parsed
+			'parsed' => $parsedMsgs,
 			'text' => $textMsgs,
 		];
 	}

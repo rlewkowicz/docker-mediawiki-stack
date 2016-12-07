@@ -4,9 +4,8 @@
  * @copyright 2011-2016 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
-/*csslint regex-selectors:false, overqualified-elements:false */
 
 /* Override paragraph margins inside of captions */
 .ve-ce-mwBlockImageNode figcaption p {
-	margin: 0 !important;
+	margin: 0 !important; /* stylelint-disable-line declaration-no-important */
 }

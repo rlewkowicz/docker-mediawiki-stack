@@ -20,9 +20,14 @@
 	opacity: 0.4;
 }
 
+.ve-ui-mwInternalLinkContextItem-hasImage {
+	background-color: transparent;
+	background-size: cover; /* stylelint-disable-line no-unsupported-browser-features */
+}
+
 .ve-ui-mwInternalLinkContextItem-withImage .ve-ui-mwInternalLinkContextItem-hasImage {
 	border: 0;
-	background-size: cover;
+	background-size: cover; /* stylelint-disable-line no-unsupported-browser-features */
 	opacity: 1;
 	width: 4.75em;
 	height: 4.75em;
@@ -45,9 +50,4 @@
 
 .ve-ui-mwInternalLinkContextItem-withDescription .ve-ui-mwInternalLinkContextItem-link {
 	font-weight: bold;
-}
-
-.ve-ui-mwInternalLinkContextItem-hasImage {
-	background-color: transparent;
-	background-size: cover;
 }

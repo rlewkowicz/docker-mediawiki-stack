@@ -15,7 +15,7 @@
  * @param {ve.dm.BranchNode} model Model to observe
  * @param {Object} [config] Configuration options
  */
-ve.ce.ContentBranchNode = function VeCeContentBranchNode( model, config ) {
+ve.ce.ContentBranchNode = function VeCeContentBranchNode() {
 	// Properties
 	this.lastTransaction = null;
 	// Parent constructor calls renderContents, so this must be set first
@@ -24,7 +24,7 @@ ve.ce.ContentBranchNode = function VeCeContentBranchNode( model, config ) {
 	this.unicorns = null;
 
 	// Parent constructor
-	ve.ce.BranchNode.call( this, model, config );
+	ve.ce.ContentBranchNode.super.apply( this, arguments );
 
 	this.onClickHandler = this.onClick.bind( this );
 
@@ -33,6 +33,7 @@ ve.ce.ContentBranchNode = function VeCeContentBranchNode( model, config ) {
 
 	// Events
 	this.connect( this, { childUpdate: 'onChildUpdate' } );
+	this.model.connect( this, { detach: 'onModelDetach' } );
 	// Some browsers allow clicking links inside contenteditable, such as in iOS Safari when the
 	// keyboard is closed
 	this.$element.on( 'click', this.onClickHandler );
@@ -137,7 +138,7 @@ ve.ce.ContentBranchNode.prototype.onChildUpdate = function ( transaction ) {
  */
 ve.ce.ContentBranchNode.prototype.onSplice = function ( index, howmany ) {
 	// Parent method
-	ve.ce.BranchNode.prototype.onSplice.apply( this, arguments );
+	ve.ce.ContentBranchNode.super.prototype.onSplice.apply( this, arguments );
 
 	// FIXME T126025: adjust slugNodes indexes if isRenderingLocked. This should be
 	// sufficient to keep this.slugNodes valid - only text changes can occur, which
@@ -165,7 +166,8 @@ ve.ce.ContentBranchNode.prototype.setupBlockSlugs = function () {
 	) {
 		return;
 	}
-	ve.ce.BranchNode.prototype.setupBlockSlugs.apply( this, arguments );
+	// Parent method
+	ve.ce.ContentBranchNode.super.prototype.setupBlockSlugs.apply( this, arguments );
 };
 
 /**
@@ -206,6 +208,7 @@ ve.ce.ContentBranchNode.prototype.getRenderedContents = function () {
 			buffer = '';
 		}
 		// Create a new DOM node and descend into it
+		annotation.store = store;
 		ann = ve.ce.annotationFactory.create( annotation.getType(), annotation, node );
 		ann.appendTo( current );
 		annotationStack.push( ann );
@@ -352,6 +355,12 @@ ve.ce.ContentBranchNode.prototype.getRenderedContents = function () {
 	return wrapper;
 };
 
+ve.ce.ContentBranchNode.prototype.onModelDetach = function () {
+	if ( this.root instanceof ve.ce.DocumentNode ) {
+		this.root.getSurface().setContentBranchNodeChanged();
+	}
+};
+
 /**
  * Render contents.
  *
@@ -454,7 +463,7 @@ ve.ce.ContentBranchNode.prototype.onTeardown = function () {
 	var ceSurface = this.getRoot().getSurface();
 
 	// Parent method
-	ve.ce.BranchNode.prototype.onTeardown.call( this );
+	ve.ce.ContentBranchNode.super.prototype.onTeardown.call( this );
 
 	ceSurface.setNotUnicorning( this );
 };

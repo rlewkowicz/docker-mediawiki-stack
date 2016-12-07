@@ -17,6 +17,7 @@
  * @cfg {jQuery} [$scrollContainer] The scroll container of the surface
  * @cfg {ve.ui.CommandRegistry} [commandRegistry] Command registry to use
  * @cfg {ve.ui.SequenceRegistry} [sequenceRegistry] Sequence registry to use
+ * @cfg {ve.ui.DataTransferHandlerFactory} [dataTransferHandlerFactory] Data transfer handler factory to use
  * @cfg {string[]|null} [includeCommands] List of commands to include, null for all registered commands
  * @cfg {string[]} [excludeCommands] List of commands to exclude
  * @cfg {Object} [importRules] Import rules
@@ -41,8 +42,9 @@ ve.ui.Surface = function VeUiSurface( dataOrDoc, config ) {
 	this.$controls = $( '<div>' );
 	this.$menus = $( '<div>' );
 	this.$placeholder = $( '<div>' ).addClass( 've-ui-surface-placeholder' );
-	this.commandRegistry = config.commandRegistry || ve.init.target.commandRegistry;
-	this.sequenceRegistry = config.sequenceRegistry || ve.init.target.sequenceRegistry;
+	this.commandRegistry = config.commandRegistry || ve.ui.commandRegistry;
+	this.sequenceRegistry = config.sequenceRegistry || ve.ui.sequenceRegistry;
+	this.dataTransferHandlerFactory = config.dataTransferHandlerFactory || ve.ui.dataTransferHandlerFactory;
 	this.commands = OO.simpleArrayDifference(
 		config.includeCommands || this.commandRegistry.getNames(), config.excludeCommands || []
 	);
@@ -244,7 +246,7 @@ ve.ui.Surface.prototype.isMobile = function () {
  */
 ve.ui.Surface.prototype.setupDebugBar = function () {
 	this.debugBar = new ve.ui.DebugBar( this );
-	this.debugBar.$element.insertAfter( this.$element );
+	this.$element.append( this.debugBar.$element );
 };
 
 /**
@@ -577,13 +579,15 @@ ve.ui.Surface.prototype.setToolbarHeight = function ( toolbarHeight ) {
  *
  * @param {jQuery.Promise} progressCompletePromise Promise which resolves when the progress action is complete
  * @param {jQuery|string|Function} label Progress bar label
+ * @param {boolean} nonCancellable Progress item can't be cancelled
  * @return {jQuery.Promise} Promise which resolves with a progress bar widget and a promise which fails if cancelled
  */
-ve.ui.Surface.prototype.createProgress = function ( progressCompletePromise, label ) {
+ve.ui.Surface.prototype.createProgress = function ( progressCompletePromise, label, nonCancellable ) {
 	var progressBarDeferred = $.Deferred();
 
 	this.progresses.push( {
 		label: label,
+		cancellable: !nonCancellable,
 		progressCompletePromise: progressCompletePromise,
 		progressBarDeferred: progressBarDeferred
 	} );

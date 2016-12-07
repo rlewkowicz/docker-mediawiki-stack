@@ -17,7 +17,8 @@
 			"Marwan Mohamad",
 			"Amire80",
 			"Macofe",
-			"Mirws"
+			"Mirws",
+			"Rachmat.Wahidi"
 		]
 	},
 	"apihelp-visualeditor-description": "Mengembalikan HTML5 untuk halaman yang berasal dari layanan parsoid.",
@@ -228,8 +229,7 @@
 	"visualeditor-mweditmodesource-warning-cancel": "Batal",
 	"visualeditor-mweditmodesource-warning-switch": "Pertahankan perubahan",
 	"visualeditor-mweditmodesource-warning-switch-discard": "Buang perubahan",
-	"visualeditor-mwgalleryinspector-placeholder": "Contoh.jpg|Takarir gambar",
-	"visualeditor-mwgalleryinspector-title": "Galeri",
+	"visualeditor-mwgallerydialog-title": "Galeri",
 	"visualeditor-pagemenu-tooltip": "Opsi halaman",
 	"visualeditor-pagetranslationwarning": "Anda sedang menyunting sebuah halaman yang dapat diterjemahkan. Menyunting halaman seperti ini melalui editor ini belum didukung secara resmi.",
 	"visualeditor-parameter-input-placeholder": "Nama bidang",
@@ -274,6 +274,6 @@
 	"visualeditor-viewpage-savewarning-discard": "Buang suntingan",
 	"visualeditor-viewpage-savewarning-keep": "Lanjutkan penyuntingan",
 	"visualeditor-viewpage-savewarning-title": "Apakah Anda yakin?",
-	"visualeditor-wikitext-warning": "Anda menggunakan editor visual - [[{{MediaWiki:visualeditor-wikitext-warning-link}}|teks wiki]] tidak berfungsi di sini. Untuk beralih kembali ke penyuntingan sumber tanpa kehilangan perubahan Anda kapan pun, buka menu turun bawah di samping \"{{int:visualeditor-toolbar-savedialog}}\" lalu pilih \"{{int:visualeditor-mweditmodesource-tool}}\".",
+	"visualeditor-wikitext-warning": "Anda menggunakan editor visual - [[{{MediaWiki:visualeditor-wikitext-warning-link}}|teks wiki]] tidak berfungsi di sini. Untuk beralih kembali ke penyuntingan sumber tanpa kehilangan perubahan Anda, klik tombol alih.",
 	"visualeditor-wikitext-warning-title": "Markah teks wiki terdeteksi"
 }

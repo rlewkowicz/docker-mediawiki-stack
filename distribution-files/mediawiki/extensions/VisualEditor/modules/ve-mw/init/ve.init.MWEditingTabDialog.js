@@ -7,7 +7,7 @@
 
 mw.libs.ve = mw.libs.ve || {};
 /**
- * Dialog for allowing new users to change editing tab preferences to VisualEditor.
+ * Dialog for allowing new users to change editing tab preferences.
  *
  * @class
  * @extends OO.ui.MessageDialog
@@ -28,7 +28,7 @@ OO.inheritClass( mw.libs.ve.EditingTabDialog, OO.ui.MessageDialog );
 
 mw.libs.ve.EditingTabDialog.static.name = 'editingtab';
 
-mw.libs.ve.EditingTabDialog.static.size = 'small';
+mw.libs.ve.EditingTabDialog.static.size = 'medium';
 
 mw.libs.ve.EditingTabDialog.static.verbose = true;
 

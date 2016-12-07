@@ -35,6 +35,7 @@
 		<link rel=stylesheet href="../../src/ce/styles/nodes/ve.ce.DocumentNode.css" class="stylesheet-ve">
 		<link rel=stylesheet href="../../src/ce/styles/nodes/ve.ce.GeneratedContentNode.css" class="stylesheet-ve">
 		<link rel=stylesheet href="../../src/ce/styles/nodes/ve.ce.HorizontalRuleNode.css" class="stylesheet-ve">
+		<link rel=stylesheet href="../../src/ce/styles/nodes/ve.ce.CommentNode.css" class="stylesheet-ve">
 		<link rel=stylesheet href="../../src/ce/styles/annotations/ve.ce.LanguageAnnotation.css" class="stylesheet-ve">
 		<link rel=stylesheet href="../../src/ce/styles/annotations/ve.ce.LinkAnnotation.css" class="stylesheet-ve">
 		<link rel=stylesheet href="../../src/ce/styles/nodes/ve.ce.ResizableNode.css" class="stylesheet-ve">
@@ -152,6 +153,9 @@
 		<!-- rangefix -->
 		<script src="../../lib/rangefix/rangefix.js"></script>
 
+		<!-- spark-md5 -->
+		<script src="../../lib/spark-md5/spark-md5.js"></script>
+
 		<!-- dom-classlist-shim -->
 		<script src="../../lib/classList/classList.js"></script>
 
@@ -214,6 +218,7 @@
 		<script src="../../src/dm/ve.dm.Selection.js"></script>
 		<script src="../../src/dm/ve.dm.Surface.js"></script>
 		<script src="../../src/dm/ve.dm.SurfaceFragment.js"></script>
+		<script src="../../src/dm/ve.dm.SourceSurfaceFragment.js"></script>
 		<script src="../../src/dm/ve.dm.DataString.js"></script>
 		<script src="../../src/dm/ve.dm.Document.js"></script>
 		<script src="../../src/dm/ve.dm.DocumentSlice.js"></script>
@@ -261,6 +266,7 @@
 		<script src="../../src/dm/annotations/ve.dm.LinkAnnotation.js"></script>
 		<script src="../../src/dm/annotations/ve.dm.TextStyleAnnotation.js"></script>
 		<script src="../../src/dm/annotations/ve.dm.AbbreviationAnnotation.js"></script>
+		<script src="../../src/dm/annotations/ve.dm.BidiAnnotation.js"></script>
 		<script src="../../src/dm/annotations/ve.dm.BigAnnotation.js"></script>
 		<script src="../../src/dm/annotations/ve.dm.BoldAnnotation.js"></script>
 		<script src="../../src/dm/annotations/ve.dm.CodeSampleAnnotation.js"></script>
@@ -351,6 +357,7 @@
 		<script src="../../src/ce/annotations/ve.ce.LinkAnnotation.js"></script>
 		<script src="../../src/ce/annotations/ve.ce.TextStyleAnnotation.js"></script>
 		<script src="../../src/ce/annotations/ve.ce.AbbreviationAnnotation.js"></script>
+		<script src="../../src/ce/annotations/ve.ce.BidiAnnotation.js"></script>
 		<script src="../../src/ce/annotations/ve.ce.BigAnnotation.js"></script>
 		<script src="../../src/ce/annotations/ve.ce.BoldAnnotation.js"></script>
 		<script src="../../src/ce/annotations/ve.ce.CodeAnnotation.js"></script>
@@ -410,6 +417,7 @@
 		<script src="../../src/ui/ve.ui.DataTransferItem.js"></script>
 		<script src="../../src/ui/ve.ui.WindowManager.js"></script>
 		<script src="../../src/ui/ve.ui.NodeWindow.js"></script>
+		<script src="../../src/ui/ve.ui.TabIndexScope.js"></script>
 		<script src="../../src/ui/windowmanagers/ve.ui.SurfaceWindowManager.js"></script>
 		<script src="../../src/ui/actions/ve.ui.AnnotationAction.js"></script>
 		<script src="../../src/ui/actions/ve.ui.ContentAction.js"></script>
@@ -483,7 +491,7 @@
 
 		<script>
 			ve.messagePaths = ["../../i18n/","../../lib/oojs-ui/i18n/"];
-			ve.availableLanguages = ["ace","af","am","ang","ar","arc","arq","as","ast","av","az","azb","ba","bcc","bcl","be-tarask","be","bg","bn","br","bs","ca","cdo","ce","cjy-hant","ckb","co","cs","cu","cy","da","de","diq","dsb","dty","egl","el","eml","en-ca","en-gb","en","eo","es","et","eu","fa","fi","fo","fr","frp","frr","fur","fy","ga","gd","gl","glk","gn","gsw","gu","gv","he","hi","hr","hrx","hsb","hu-formal","hu","hy","ia","id","ie","ilo","inh","is","it","ja","jv","ka","khw","kk-cyrl","km","kn","ko","krc","kri","krl","ksh","ku-latn","kw","ky","la","lb","lez","li","lki","lmo","lrc","lt","luz","lv","lzh","lzz","mg","min","mk","ml","mn","mr","ms","mt","nan","nap","nb","nds-nl","nds","ne","nl","nn","oc","olo","om","or","os","pa","pam","pfl","pl","pms","ps","pt-br","pt","qqq","qu","rm","ro","roa-tara","ru","rue","sa","sah","sc","scn","sco","sd","sgs","sh","shn","si","sk","sl","sq","sr-ec","sr-el","su","sv","sw","ta","te","tg-cyrl","th","tl","tr","tt-cyrl","tyv","tzm","ug-arab","uk","ur","uz","vec","vep","vi","vo","war","wuu","xmf","yi","yue","zh-hans","zh-hant","ace","af","am","ar","arc","arq","as","ast","awa","az","azb","ba","bcc","bcl","be-tarask","be","bg","bn","br","bs","ca","cdo","ce","ckb","co","crh-cyrl","crh-latn","cs","cu","cy","da","de","diq","dsb","dty","egl","el","eml","en-ca","en","eo","es","et","eu","fa","fi","fo","fr","frr","fur","fy","gd","gl","glk","gu","he","hi","hr","hrx","hsb","hu-formal","hu","hy","ia","id","ie","ilo","is","it","ja","jv","ka","khw","kk-cyrl","km","kn","ko","krc","krl","ksh","ku-latn","kw","ky","la","lb","li","lki","lmo","lt","luz","lv","lzh","mg","min","mk","ml","mn","mr","ms","nan","nap","nb","nds-nl","nds","ne","nl","nn","oc","olo","om","or","pa","pfl","pl","pms","ps","pt-br","pt","qqq","qu","ro","roa-tara","ru","sa","sah","scn","sco","sd","sh","si","sk","sl","sq","sr-ec","sr-el","su","sv","sw","ta","te","tg-cyrl","th","tl","tr","tt-cyrl","ug-arab","uk","uz","vec","vep","vi","vo","war","wuu","xmf","yi","yo","yue","zh-hans","zh-hant"];
+			ve.availableLanguages = ["ace","af","am","ang","ar","arc","arq","as","ast","av","az","azb","ba","bcc","bcl","be-tarask","be","bg","bho","bn","br","bs","ca","cdo","ce","cjy-hant","ckb","co","cs","cu","cy","da","de","diq","dsb","dty","egl","el","eml","en-ca","en-gb","en","eo","es","et","eu","fa","fi","fo","fr","frp","frr","fur","fy","ga","gd","gl","glk","gn","gom-latn","gor","gsw","gu","gv","he","hi","hr","hrx","hsb","hu-formal","hu","hy","ia","id","ie","ilo","inh","is","it","ja","jv","ka","khw","kk-cyrl","km","kn","ko","krc","kri","krl","ksh","ku-latn","kw","ky","la","lb","lez","li","lki","lmo","lrc","lt","luz","lv","lzh","lzz","mg","min","mk","ml","mn","mr","ms","mt","nan","nap","nb","nds-nl","nds","ne","nl","nn","oc","olo","om","or","os","pa","pam","pfl","pl","pms","ps","pt-br","pt","qqq","qu","rm","ro","roa-tara","ru","rue","sa","sah","sc","scn","sco","sd","sgs","sh","shn","si","sk","sl","sq","sr-ec","sr-el","su","sv","sw","ta","te","tg-cyrl","th","tl","tr","tt-cyrl","tyv","tzm","ug-arab","uk","ur","uz","vec","vep","vi","vo","war","wuu","xmf","yi","yue","zh-hans","zh-hant","ace","af","am","ar","arc","arq","as","ast","awa","az","azb","ba","bcc","bcl","be-tarask","be","bg","bho","bn","br","bs","ca","cdo","ce","ckb","co","crh-cyrl","crh-latn","cs","cu","cy","da","de","diq","dsb","dty","egl","el","eml","en-ca","en","eo","es","et","eu","fa","fi","fo","fr","frr","fur","fy","gd","gl","glk","gom-latn","gor","gu","he","hi","hr","hrx","hsb","hu-formal","hu","hy","ia","id","ie","ilo","inh","is","it","ja","jv","ka","khw","kk-cyrl","km","kn","ko","krc","krl","ksh","ku-latn","kw","ky","la","lb","li","lki","lmo","lt","luz","lv","lzh","mg","min","mk","ml","mn","mr","ms","nan","nap","nb","nds-nl","nds","ne","nl","nn","oc","olo","om","or","pa","pfl","pl","pms","pnb","ps","pt-br","pt","qqq","qu","ro","roa-tara","ru","sa","sah","scn","sco","sd","sh","shn","si","sk","sl","sq","sr-ec","sr-el","su","sv","sw","ta","te","tg-cyrl","th","tl","tr","tt-cyrl","ug-arab","uk","ur","uz","vec","vep","vi","vo","war","wuu","xmf","yi","yo","yue","zh-hans","zh-hant"];
 			ve.demoPages = {"aliens":"pages/aliens.html","comments":"pages/comments.html","complex":"pages/complex.html","empty":"pages/empty.html","h1":"pages/h1.html","image":"pages/image.html","isolation":"pages/isolation.html","long":"pages/long.html","rtl":"pages/rtl.html","sections":"pages/sections.html","simple":"pages/simple.html","slugs":"pages/slugs.html","tables":"pages/tables.html"};
 		</script>
 

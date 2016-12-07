@@ -24,7 +24,9 @@
 	"tag-visualeditor": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|VisualEditor]]",
 	"tag-visualeditor-description": "Edycja z wykorzystaniem [[{{MediaWiki:visualeditor-descriptionpagelink}}|edytora wizualnego]]",
 	"tag-visualeditor-needcheck": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|VisualEditor: do sprawdzenia]]",
-	"tag-visualeditor-needcheck-description": "Edycja wykonana z wykorzystaniem [[{{MediaWiki:visualeditor-descriptionpagelink}}|edytora wizulanego]], w której system wykrył prawdopodobnie niezamierzone uszkodzenie kodu źródłowego.",
+	"tag-visualeditor-needcheck-description": "Edycja wykonana z wykorzystaniem [[{{MediaWiki:visualeditor-descriptionpagelink}}|edytora wizualnego]], w której system wykrył prawdopodobnie niezamierzone uszkodzenie kodu źródłowego.",
+	"tag-visualeditor-wikitext": "edytor kodu źródłowego 2017",
+	"tag-visualeditor-wikitext-description": "Edycja dokonana za pomocą edytora wikitekstu 2017",
 	"tag-visualeditor-switched": "[[{{MediaWiki:visualeditor-descriptionpagelink}}|VisualEditor: przełączono]]",
 	"tag-visualeditor-switched-description": "Użytkownik rozpoczął edycję używając edytora wizualnego, a w jej trakcie przełączył się na edytor kodu źródłowego.",
 	"visualeditor-feedback-link": "Project:VisualEditor/Opinie",
@@ -36,5 +38,6 @@
 	"visualeditor-welcomedialog-content": "Każdy może edytować, a każda poprawka się liczy.",
 	"visualeditor-welcomedialog-content-thanks": "Dziękujemy, że pomagasz światu odkrywać wiedzę!",
 	"visualeditor-welcomedialog-switch": "Przełącz na edytor kodu źródłowego",
+	"visualeditor-welcomedialog-switch-ve": "Przełącz na edytor wizualny",
 	"visualeditor-welcomedialog-title": "{{GENDER:$1|Witaj}} w {{GRAMMAR:MS.lp|$2}}"
 }

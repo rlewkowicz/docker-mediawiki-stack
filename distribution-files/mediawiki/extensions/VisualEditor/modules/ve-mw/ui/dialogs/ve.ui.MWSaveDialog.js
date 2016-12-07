@@ -48,7 +48,8 @@ ve.ui.MWSaveDialog.static.title =
 ve.ui.MWSaveDialog.static.actions = [
 	{
 		action: 'save',
-		label: OO.ui.deferMsg( 'visualeditor-savedialog-label-save' ),
+		// May be overridden by config.saveButtonLabel
+		label: OO.ui.deferMsg( 'visualeditor-savedialog-label-review' ),
 		flags: [ 'primary', 'constructive' ],
 		modes: [ 'save', 'review' ],
 		accessKey: 's'
@@ -56,17 +57,22 @@ ve.ui.MWSaveDialog.static.actions = [
 	{
 		label: OO.ui.deferMsg( 'visualeditor-savedialog-label-resume-editing' ),
 		flags: [ 'safe', 'back' ],
-		modes: [ 'save', 'review', 'conflict' ]
+		modes: [ 'save', 'review', 'preview', 'conflict' ]
 	},
 	{
 		action: 'review',
 		label: OO.ui.deferMsg( 'visualeditor-savedialog-label-review' ),
-		modes: 'save'
+		modes: [ 'save', 'preview' ]
+	},
+	{
+		action: 'preview',
+		label: OO.ui.deferMsg( 'showpreview' ),
+		modes: [ 'save', 'review' ]
 	},
 	{
 		action: 'approve',
 		label: OO.ui.deferMsg( 'visualeditor-savedialog-label-review-good' ),
-		modes: 'review'
+		modes: [ 'review', 'preview' ]
 	},
 	{
 		action: 'resolve',
@@ -88,6 +94,11 @@ ve.ui.MWSaveDialog.static.actions = [
 /**
  * @event review
  * Emitted when the user clicks the review changes button
+ */
+
+/**
+ * @event preview
+ * Emitted when the user clicks the show preview button
  */
 
 /**
@@ -115,10 +126,23 @@ ve.ui.MWSaveDialog.prototype.setDiffAndReview = function ( content ) {
 };
 
 /**
+ * Set preview content and show preview panel.
+ *
+ * @param {string} content Preview HTML
+ */
+ve.ui.MWSaveDialog.prototype.showPreview = function ( content ) {
+	this.$previewViewer.html( content );
+	mw.hook( 'wikipage.content' ).fire( this.$previewViewer );
+	this.actions.setAbilities( { approve: true } );
+	this.popPending();
+	this.swapPanel( 'preview' );
+};
+
+/**
  * @inheritdoc
  */
 ve.ui.MWSaveDialog.prototype.pushPending = function () {
-	this.getActions().setAbilities( { review: false } );
+	this.getActions().setAbilities( { review: false, preview: false } );
 	return ve.ui.MWSaveDialog.super.prototype.pushPending.call( this );
 };
 
@@ -128,7 +152,7 @@ ve.ui.MWSaveDialog.prototype.pushPending = function () {
 ve.ui.MWSaveDialog.prototype.popPending = function () {
 	var ret = ve.ui.MWSaveDialog.super.prototype.popPending.call( this );
 	if ( !this.isPending() ) {
-		this.getActions().setAbilities( { review: true } );
+		this.getActions().setAbilities( { review: true, preview: true } );
 	}
 	return ret;
 };
@@ -138,6 +162,7 @@ ve.ui.MWSaveDialog.prototype.popPending = function () {
  */
 ve.ui.MWSaveDialog.prototype.clearDiff = function () {
 	this.$reviewViewer.empty();
+	this.$previewViewer.empty();
 };
 
 /**
@@ -153,16 +178,17 @@ ve.ui.MWSaveDialog.prototype.swapPanel = function ( panel ) {
 		dialog = this,
 		panelObj = dialog[ panel + 'Panel' ];
 
-	if ( ( [ 'save', 'review', 'conflict', 'nochanges' ].indexOf( panel ) ) === -1 ) {
+	if ( ( [ 'save', 'review', 'preview', 'conflict', 'nochanges' ].indexOf( panel ) ) === -1 ) {
 		throw new Error( 'Unknown saveDialog panel: ' + panel );
 	}
 
 	// Update the window title
 	// The following messages can be used here:
-	// visualeditor-savedialog-title-save
-	// visualeditor-savedialog-title-reviews
 	// visualeditor-savedialog-title-conflict
 	// visualeditor-savedialog-title-nochanges
+	// visualeditor-savedialog-title-preview
+	// visualeditor-savedialog-title-review
+	// visualeditor-savedialog-title-save
 	this.title.setLabel( ve.msg( 'visualeditor-savedialog-title-' + panel ) );
 
 	// Reset save button if we disabled it for e.g. unrecoverable spam error
@@ -184,6 +210,10 @@ ve.ui.MWSaveDialog.prototype.swapPanel = function ( panel ) {
 			this.actions
 				.setAbilities( { save: false } )
 				.setMode( 'conflict' );
+			break;
+		case 'preview':
+			this.actions.setMode( 'preview' );
+			size = 'full';
 			break;
 		case 'review':
 			size = 'larger';
@@ -224,6 +254,11 @@ ve.ui.MWSaveDialog.prototype.swapPanel = function ( panel ) {
 			this.actions.setMode( 'review' );
 			break;
 	}
+
+	// Only show preview in source mode
+	this.actions.forEach( { actions: 'preview' }, function ( action ) {
+		action.toggle( ve.init.target.mode === 'source' );
+	} );
 
 	// Show the target panel
 	this.panels.setItem( panelObj );
@@ -301,8 +336,7 @@ ve.ui.MWSaveDialog.prototype.reset = function () {
 	if ( this.checkboxesByName.wpMinoredit ) {
 		this.checkboxesByName.wpMinoredit.setSelected( false );
 	}
-	// Clear the diff
-	this.$reviewViewer.empty();
+	this.clearDiff();
 };
 
 /**
@@ -431,6 +465,15 @@ ve.ui.MWSaveDialog.prototype.initialize = function () {
 		this.$reviewActions
 	);
 
+	// Preview panel
+	this.previewPanel = new OO.ui.PanelLayout( {
+		expanded: false,
+		scrollable: true,
+		padded: true
+	} );
+	this.$previewViewer = $( '<div>' ).addClass( 'mw-body-content mw-content-' + mw.config.get( 'wgVisualEditor' ).pageLanguageDir );
+	this.previewPanel.$element.append( this.$previewViewer );
+
 	// Conflict panel
 	this.conflictPanel = new OO.ui.PanelLayout( {
 		expanded: false,
@@ -457,6 +500,7 @@ ve.ui.MWSaveDialog.prototype.initialize = function () {
 	this.panels.addItems( [
 		this.savePanel,
 		this.reviewPanel,
+		this.previewPanel,
 		this.conflictPanel,
 		this.nochangesPanel
 	] );
@@ -477,11 +521,12 @@ ve.ui.MWSaveDialog.prototype.initialize = function () {
 
 /**
  * @inheritdoc
+ * @param {Object} [data]
+ * @param {Function|string} [data.saveButtonLabel] Label for the save button
  */
 ve.ui.MWSaveDialog.prototype.getSetupProcess = function ( data ) {
 	return ve.ui.MWSaveDialog.super.prototype.getSetupProcess.call( this, data )
 		.next( function () {
-			this.target = data.target;
 			if ( !this.changedEditSummary ) {
 				this.setEditSummary( data.editSummary );
 			}
@@ -491,17 +536,11 @@ ve.ui.MWSaveDialog.prototype.getSetupProcess = function ( data ) {
 			this.clearAllMessages();
 			this.swapPanel( 'save' );
 			// Update save button label
-			this.actions.forEach( { actions: 'save' }, function ( action ) {
-				action.setLabel(
-					ve.msg(
-						// TODO: Actually populate this.restoring with information. Right now it is
-						// always false because of an oversight when migrating this code from init.
-						// Possible messages:
-						// visualeditor-savedialog-label-restore, visualeditor-savedialog-label-save
-						'visualeditor-savedialog-label-' + ( this.restoring ? 'restore' : 'save' )
-					)
-				);
-			} );
+			if ( data.saveButtonLabel ) {
+				this.actions.forEach( { actions: 'save' }, function ( action ) {
+					action.setLabel( data.saveButtonLabel );
+				} );
+			}
 		}, this );
 };
 
@@ -538,7 +577,7 @@ ve.ui.MWSaveDialog.prototype.getActionProcess = function ( action ) {
 			return saveDeferred.promise();
 		}, this );
 	}
-	if ( action === 'review' || action === 'resolve' ) {
+	if ( action === 'review' || action === 'preview' || action === 'resolve' ) {
 		return new OO.ui.Process( function () {
 			this.emit( action );
 		}, this );

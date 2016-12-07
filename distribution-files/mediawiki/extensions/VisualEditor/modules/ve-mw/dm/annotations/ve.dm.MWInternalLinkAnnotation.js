@@ -17,9 +17,9 @@
  * @constructor
  * @param {Object} element
  */
-ve.dm.MWInternalLinkAnnotation = function VeDmMWInternalLinkAnnotation( element ) {
+ve.dm.MWInternalLinkAnnotation = function VeDmMWInternalLinkAnnotation() {
 	// Parent constructor
-	ve.dm.LinkAnnotation.call( this, element );
+	ve.dm.MWInternalLinkAnnotation.super.apply( this, arguments );
 };
 
 /* Inheritance */
@@ -42,10 +42,10 @@ ve.dm.MWInternalLinkAnnotation.static.toDataElement = function ( domElements, co
 		type: this.name,
 		attributes: {
 			hrefPrefix: targetData.hrefPrefix,
-			title: ve.safeDecodeURIComponent( targetData.title ).replace( /_/g, ' ' ),
+			title: targetData.title,
 			normalizedTitle: this.normalizeTitle( targetData.title ),
 			lookupTitle: this.getLookupTitle( targetData.title ),
-			origTitle: targetData.title
+			origTitle: targetData.rawTitle
 		}
 	};
 };
@@ -66,6 +66,9 @@ ve.dm.MWInternalLinkAnnotation.static.newFromTitle = function ( title ) {
 		// rather than an image inclusion or categorization
 		target = ':' + target;
 	}
+	if ( title.getFragment() ) {
+		target += '#' + title.getFragment();
+	}
 
 	return new ve.dm.MWInternalLinkAnnotation( {
 		type: 'link/mwInternal',
@@ -85,6 +88,8 @@ ve.dm.MWInternalLinkAnnotation.static.newFromTitle = function ( title ) {
  * @return {Object} Information about the given href
  * @return {string} return.title
  *    The title of the internal link, else the original href if href is external
+ * @return {string} return.rawTitle
+ *    The title without URL decoding and underscore normalization applied
  * @return {string} return.hrefPrefix
  *    Any ./ or ../ prefixes on a relative link
  * @return {boolean} return.isInternal
@@ -117,7 +122,16 @@ ve.dm.MWInternalLinkAnnotation.static.getTargetDataFromHref = function ( href, d
 	// in which case it's preceded by one or more instances of "./" or "../", so strip those
 	matches = href.match( /^((?:\.\.?\/)*)(.*)$/ );
 
-	return { title: matches[ 2 ], hrefPrefix: matches[ 1 ], isInternal: isInternal };
+	// Percent-encoded characters are forbidden in titles... but if we're
+	// copy/pasting URLs around, they're likely to wind up encoded at this
+	// point. So decode them, otherwise this is going to cause failures
+	// elsewhere.
+	return {
+		title: ve.decodeURIComponentIntoArticleTitle( matches[ 2 ] ),
+		rawTitle: matches[ 2 ],
+		hrefPrefix: matches[ 1 ],
+		isInternal: isInternal
+	};
 };
 
 ve.dm.MWInternalLinkAnnotation.static.toDomElements = function () {
@@ -130,7 +144,7 @@ ve.dm.MWInternalLinkAnnotation.static.getHref = function ( dataElement ) {
 	var href,
 		title = dataElement.attributes.title,
 		origTitle = dataElement.attributes.origTitle;
-	if ( origTitle !== undefined && ve.safeDecodeURIComponent( origTitle ).replace( /_/g, ' ' ) === title ) {
+	if ( origTitle !== undefined && ve.decodeURIComponentIntoArticleTitle( origTitle ) === title ) {
 		// Restore href from origTitle
 		href = origTitle;
 		// Only use hrefPrefix if restoring from origTitle
@@ -139,7 +153,13 @@ ve.dm.MWInternalLinkAnnotation.static.getHref = function ( dataElement ) {
 		}
 	} else {
 		// Don't escape slashes in the title; they represent subpages.
-		href = title.split( '/' ).map( encodeURIComponent ).join( '/' );
+		href = title.split( /(\/|#)/ ).map( function ( part ) {
+			if ( part === '/' || part === '#' ) {
+				return part;
+			} else {
+				return encodeURIComponent( part );
+			}
+		} ).join( '' );
 	}
 	return href;
 };

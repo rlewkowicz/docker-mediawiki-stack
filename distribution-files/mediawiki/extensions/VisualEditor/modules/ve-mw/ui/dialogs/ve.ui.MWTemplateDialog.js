@@ -78,8 +78,11 @@ ve.ui.MWTemplateDialog.static.bookletLayoutConfig = {
  * Handle the transclusion being ready to use.
  */
 ve.ui.MWTemplateDialog.prototype.onTransclusionReady = function () {
+	// Add missing required and suggested parameters to each transclusion.
+	this.transclusionModel.addPromptedParameters();
 	this.loaded = true;
 	this.$element.addClass( 've-ui-mwTemplateDialog-ready' );
+	this.$body.append( this.bookletLayout.$element );
 	this.popPending();
 	this.bookletLayout.focus( 1 );
 };
@@ -347,13 +350,11 @@ ve.ui.MWTemplateDialog.prototype.initialize = function () {
 	ve.ui.MWTemplateDialog.super.prototype.initialize.call( this );
 
 	// Properties
-	this.panels = new OO.ui.StackLayout();
 	this.bookletLayout = new OO.ui.BookletLayout( this.constructor.static.bookletLayoutConfig );
 
 	// Initialization
 	this.$content.addClass( 've-ui-mwTemplateDialog' );
-	this.$body.append( this.panels.$element );
-	this.panels.addItems( [ this.bookletLayout ] );
+	// bookletLayout is appended after the form has been built in onTransclusionReady for performance
 };
 
 /**
@@ -415,19 +416,25 @@ ve.ui.MWTemplateDialog.prototype.getActionProcess = function ( action ) {
 		return new OO.ui.Process( function () {
 			var deferred = $.Deferred();
 			dialog.checkRequiredParameters().done( function () {
-				var surfaceModel = dialog.getFragment().getSurface(),
+				var modelPromise,
+					surfaceModel = dialog.getFragment().getSurface(),
 					obj = dialog.transclusionModel.getPlainObject();
+
+				dialog.pushPending();
 
 				if ( dialog.selectedNode instanceof ve.dm.MWTransclusionNode ) {
 					dialog.transclusionModel.updateTransclusionNode( surfaceModel, dialog.selectedNode );
+					// TODO: updating the node could result in the inline/block state change
+					modelPromise = $.Deferred().resolve().promise();
 				} else if ( obj !== null ) {
 					// Collapse returns a new fragment, so update dialog.fragment
 					dialog.fragment = dialog.getFragment().collapseToEnd();
-					dialog.transclusionModel.insertTransclusionNode( dialog.getFragment() );
+					modelPromise = dialog.transclusionModel.insertTransclusionNode( dialog.getFragment() );
 				}
 
-				dialog.pushPending();
-				dialog.close( { action: action } ).always( dialog.popPending.bind( dialog ) );
+				return modelPromise.then( function () {
+					dialog.close( { action: action } ).always( dialog.popPending.bind( dialog ) );
+				} );
 			} ).always( deferred.resolve );
 
 			return deferred;
@@ -456,6 +463,9 @@ ve.ui.MWTemplateDialog.prototype.getSetupProcess = function ( data ) {
 				replace: 'onReplacePart',
 				change: 'onTransclusionModelChange'
 			} );
+
+			// Detach the form while building for performance
+			this.bookletLayout.$element.detach();
 
 			// Initialization
 			if ( !this.selectedNode ) {

@@ -12,9 +12,9 @@
  * @constructor
  * @param {ve.ui.Surface} surface Surface to act on
  */
-ve.ui.WindowAction = function VeUiWindowAction( surface ) {
+ve.ui.WindowAction = function VeUiWindowAction() {
 	// Parent constructor
-	ve.ui.Action.call( this, surface );
+	ve.ui.WindowAction.super.apply( this, arguments );
 };
 
 /* Inheritance */
@@ -91,7 +91,11 @@ ve.ui.WindowAction.prototype.open = function ( name, data, action ) {
 					if ( !win.constructor.static.activeSurface ) {
 						surface.getView().activate();
 					}
-					closed.then( function () {
+					closed.then( function ( closedData ) {
+						// Sequence-triggered window closed without action, undo
+						if ( data.strippedSequence && !( closedData && closedData.action ) ) {
+							surface.getModel().undo();
+						}
 						surface.getView().emit( 'position' );
 					} );
 				} );

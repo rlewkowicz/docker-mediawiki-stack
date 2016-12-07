@@ -17,7 +17,7 @@
  */
 ve.dm.Node = function VeDmNode( element ) {
 	// Parent constructor
-	ve.dm.Model.call( this, element );
+	ve.dm.Node.super.apply( this, arguments );
 
 	// Mixin constructors
 	ve.Node.call( this );
@@ -26,7 +26,6 @@ ve.dm.Node = function VeDmNode( element ) {
 	// Properties
 	this.length = 0;
 	this.element = element;
-	this.doc = undefined;
 };
 
 /**
@@ -247,21 +246,6 @@ ve.dm.Node.static.sanitize = function () {
 };
 
 /**
- * Remap the store indexes stored in a linear model data element.
- *
- * The default implementation is empty. Nodes should override this if they store store indexes in
- * attributes. To remap, do something like
- * dataElement.attributes.foo = mapping[dataElement.attributes.foo];
- *
- * @static
- * @inheritable
- * @param {Object} dataElement Data element (opening) to remap. Will be modified.
- * @param {Object} mapping Object mapping old store indexes to new store indexes
- */
-ve.dm.Node.static.remapStoreIndexes = function () {
-};
-
-/**
  * Remap the internal list indexes stored in a linear model data element.
  *
  * The default implementation is empty. Nodes should override this if they store internal list
@@ -330,15 +314,38 @@ ve.dm.Node.static.isHybridInline = function ( domElements, converter ) {
  *
  * @static
  * @param {Object} element Element object
+ * @param {ve.dm.IndexValueStore} store Index-value store used by element
  * @param {boolean} preserveGenerated Preserve internal.generated property of element
  * @return {Object} Cloned element object
  */
-ve.dm.Node.static.cloneElement = function ( element, preserveGenerated ) {
-	var clone = ve.copy( element );
+ve.dm.Node.static.cloneElement = function ( element, store, preserveGenerated ) {
+	var about, originalDomElements, domElements,
+		modified = false,
+		clone = ve.copy( element );
+
 	if ( !preserveGenerated && clone.internal ) {
 		delete clone.internal.generated;
 		if ( ve.isEmptyObject( clone.internal ) ) {
 			delete clone.internal;
+		}
+	}
+	originalDomElements = store.value( clone.originalDomElementsIndex );
+	// Generate a new about attribute to prevent about grouping of cloned nodes
+	if ( originalDomElements ) {
+		// TODO: The '#mwtNNN' is required by Parsoid. Make the name used here
+		// more generic and specify the #mwt pattern in MW code.
+		about = '#mwt' + Math.floor( 1000000000 * Math.random() );
+		domElements = originalDomElements.map( function ( el ) {
+			var elClone = el.cloneNode( true );
+			// Check for hasAttribute as comments don't have them
+			if ( elClone.hasAttribute && elClone.hasAttribute( 'about' ) ) {
+				elClone.setAttribute( 'about', about );
+				modified = true;
+			}
+			return elClone;
+		} );
+		if ( modified ) {
+			clone.originalDomElementsIndex = store.index( domElements, domElements.map( ve.getNodeHtml ).join( '' ) );
 		}
 	}
 	return clone;
@@ -347,12 +354,25 @@ ve.dm.Node.static.cloneElement = function ( element, preserveGenerated ) {
 /* Methods */
 
 /**
+ * @inheritdoc
+ */
+ve.dm.Node.prototype.getStore = function () {
+	return this.doc && this.doc.store;
+};
+
+/**
  * @see #static-cloneElement
+ * Implementations should override the static method, not this one
+ *
  * @param {boolean} preserveGenerated Preserve internal.generated property of element
  * @return {Object} Cloned element object
  */
 ve.dm.Node.prototype.getClonedElement = function ( preserveGenerated ) {
-	return this.constructor.static.cloneElement( this.element, preserveGenerated );
+	var store = this.getStore();
+	if ( !store ) {
+		throw new Error( 'Node must be attached to the document to be cloned.' );
+	}
+	return this.constructor.static.cloneElement( this.element, store, preserveGenerated );
 };
 
 /**
@@ -499,6 +519,8 @@ ve.dm.Node.prototype.shouldIgnoreChildren = function () {
  * Check if the node has an ancestor with matching type and attribute values.
  *
  * @method
+ * @param {string} type Node type to match
+ * @param {Object} [attributes] Node attributes to match
  * @return {boolean} Node has an ancestor with matching type and attribute values
  */
 ve.dm.Node.prototype.hasMatchingAncestor = function ( type, attributes ) {
@@ -518,6 +540,8 @@ ve.dm.Node.prototype.hasMatchingAncestor = function ( type, attributes ) {
  * Check if the node matches type and attribute values.
  *
  * @method
+ * @param {string} type Node type to match
+ * @param {Object} [attributes] Node attributes to match
  * @return {boolean} Node matches type and attribute values
  */
 ve.dm.Node.prototype.matches = function ( type, attributes ) {

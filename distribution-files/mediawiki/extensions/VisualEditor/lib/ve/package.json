@@ -17,30 +17,30 @@
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://git.wikimedia.org/blob/VisualEditor%2FVisualEditor.git/master/LICENSE.txt"
+      "url": "https://phabricator.wikimedia.org/diffusion/GVED/browse/master/LICENSE.txt"
     }
   ],
   "devDependencies": {
     "grunt": "1.0.1",
-    "grunt-cli": "1.2.0",
     "grunt-banana-checker": "0.5.0",
     "grunt-contrib-clean": "1.0.0",
     "grunt-contrib-concat": "1.0.1",
     "grunt-contrib-copy": "1.0.0",
-    "grunt-contrib-csslint": "1.0.0",
     "grunt-contrib-jshint": "1.0.0",
     "grunt-contrib-watch": "1.0.0",
     "grunt-css-url-embed": "1.6.1",
     "grunt-cssjanus": "0.3.2",
     "grunt-jscs": "2.8.0",
-    "grunt-jsonlint": "1.0.7",
-    "grunt-karma": "0.12.2",
+    "grunt-jsonlint": "1.1.0",
+    "grunt-karma": "2.0.0",
+    "grunt-stylelint": "0.6.0",
     "grunt-tyops": "0.1.0",
-    "karma-chrome-launcher": "0.2.3",
-    "karma-coverage": "0.5.5",
-    "karma-firefox-launcher": "0.1.7",
-    "karma-qunit": "0.1.9",
-    "karma": "0.13.22",
-    "qunitjs": "1.23.1"
+    "karma": "1.1.2",
+    "karma-chrome-launcher": "1.0.1",
+    "karma-coverage": "1.1.1",
+    "karma-firefox-launcher": "1.0.0",
+    "karma-qunit": "1.0.0",
+    "qunitjs": "1.23.1",
+    "stylelint-config-wikimedia": "0.3.0"
   }
 }

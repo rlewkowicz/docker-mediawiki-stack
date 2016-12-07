@@ -224,7 +224,7 @@ ve.supportsSplice = ( function () {
  * Includes a replacement for broken implementations of Array.prototype.splice().
  *
  * @param {Array|ve.dm.BranchNode} arr Target object (must have `splice` method, object will be modified)
- * @param {number} offset Offset in arr to splice at. This may NOT be negative, unlike the
+ * @param {number} offset Offset in arr to splice at. This MUST NOT be negative, unlike the
  *  'index' parameter in Array#splice.
  * @param {number} remove Number of elements to remove at the offset. May be zero
  * @param {Array} data Array of items to insert at the offset. Must be non-empty if remove=0
@@ -287,6 +287,56 @@ ve.batchSplice = function ( arr, offset, remove, data ) {
 };
 
 /**
+ * Splice one array into another, replicating any holes
+ *
+ * Similar to arr.splice.apply( arr, [ offset, remove ].concat( data ) ), except holes in
+ * data remain holes in arr. Optimized for length changes that are negative, zero, or
+ * fairly small positive.
+ *
+ * @param {Array} arr Array to modify
+ * @param {number} offset Offset in arr to splice at. This MUST NOT be negative, unlike the
+ *  'index' parameter in Array#splice.
+ * @param {number} remove Number of elements to remove at the offset. May be zero
+ * @param {Array} data Array of items to insert at the offset
+ * @return {Array} Array of items removed, with holes preserved
+ */
+ve.sparseSplice = function ( arr, offset, remove, data ) {
+	var i,
+		removed = [],
+		endOffset = offset + remove,
+		diff = data.length - remove;
+	if ( data === arr ) {
+		// Pathological case: arr and data are reference-identical
+		data = data.slice();
+	}
+	// Remove content without adjusting length
+	arr.slice( offset, endOffset ).forEach( function ( item, i ) {
+		removed[ i ] = item;
+		delete arr[ offset + i ];
+	} );
+	// Adjust length
+	if ( diff > 0 ) {
+		// Grow with undefined values, then delete. (This is optimised for diff
+		// comparatively small: otherwise, it would sometimes be quicker to relocate
+		// each element of arr that lies above offset).
+		ve.batchSplice( arr, endOffset, 0, new Array( diff ) );
+		for ( i = endOffset + diff - 1; i >= endOffset; i-- ) {
+			delete arr[ i ];
+		}
+	} else if ( diff < 0 ) {
+		// Shrink
+		arr.splice( offset, -diff );
+	}
+	// Insert new content
+	data.forEach( function ( item, i ) {
+		arr[ offset + i ] = item;
+	} );
+	// Set removed.length in case there are holes at the end
+	removed.length = remove;
+	return removed;
+};
+
+/**
  * Insert one array into another.
  *
  * Shortcut for `ve.batchSplice( arr, offset, 0, src )`.
@@ -316,6 +366,10 @@ ve.batchPush = function ( arr, data ) {
 	var length,
 		index = 0,
 		batchSize = 1024;
+	if ( batchSize >= data.length ) {
+		// Avoid slicing for small lists
+		return arr.push.apply( arr, data );
+	}
 	while ( index < data.length ) {
 		// Call arr.push( i0, i1, i2, ..., i1023 );
 		length = arr.push.apply(
@@ -605,6 +659,23 @@ ve.setDomAttributes = function ( element, attributes, whitelist ) {
 		} else {
 			element.setAttribute( key, attributes[ key ] );
 		}
+	}
+};
+
+/**
+ * Get an HTML representation of a DOM element node, text node or comment node
+ *
+ * @param {Node} node The DOM node
+ * @return {string} HTML representation of the node
+ */
+ve.getNodeHtml = function ( node ) {
+	var div;
+	if ( node.nodeType === Node.ELEMENT_NODE ) {
+		return node.outerHTML;
+	} else {
+		div = document.createElement( 'div' );
+		div.appendChild( node.cloneNode( true ) );
+		return div.innerHTML;
 	}
 };
 
@@ -1171,6 +1242,17 @@ ve.parseXhtml = function ( html ) {
  * @return {string} Serialized HTML string
  */
 ve.serializeXhtml = function ( doc ) {
+	return ve.serializeXhtmlElement( doc.documentElement );
+};
+
+/**
+ * Serialize an HTML element created with #parseXhtml back to an HTML string, unmasking any
+ * attributes that were masked.
+ *
+ * @param {HTMLElement} element HTML element
+ * @return {string} Serialized HTML string
+ */
+ve.serializeXhtmlElement = function ( element ) {
 	var xml;
 	// Support: IE
 	// Feature-detect style attribute breakage in IE
@@ -1180,10 +1262,10 @@ ve.serializeXhtml = function ( doc ) {
 	if ( !ve.isStyleAttributeBroken ) {
 		// Use outerHTML if possible because in Firefox, XMLSerializer URL-encodes
 		// hrefs but outerHTML doesn't
-		return ve.properOuterHtml( doc.documentElement );
+		return ve.properOuterHtml( element );
 	}
 
-	xml = new XMLSerializer().serializeToString( ve.fixupPreBug( doc.documentElement ) );
+	xml = new XMLSerializer().serializeToString( ve.fixupPreBug( element ) );
 	// FIXME T126035: This strips out xmlns as a quick hack
 	xml = xml.replace( '<html xmlns="http://www.w3.org/1999/xhtml"', '<html' );
 	return ve.transformStyleAttributes( xml, true );
@@ -1304,6 +1386,38 @@ ve.getStartAndEndRects = function ( rects ) {
 		start: startRect,
 		end: endRect
 	};
+};
+
+/**
+ * Find the length of the common start sequence of one or more sequences
+ *
+ *
+ * @param {Array} sequences Array of sequences (arrays, strings etc)
+ * @return {number} Common start sequence length
+ */
+ve.getCommonStartSequenceLength = function ( sequences ) {
+	var i, len, val,
+		commonLength = 0;
+	if ( sequences.length === 0 ) {
+		throw new Error( 'Need at least one sequence' );
+	}
+	commonLengthLoop:
+	while ( true ) {
+		if ( commonLength >= sequences[ 0 ].length ) {
+			break;
+		}
+		val = sequences[ 0 ][ commonLength ];
+		for ( i = 1, len = sequences.length; i < len; i++ ) {
+			if (
+				sequences[ i ].length < commonLength ||
+				sequences[ i ][ commonLength ] !== val
+			) {
+				break commonLengthLoop;
+			}
+		}
+		commonLength++;
+	}
+	return commonLength;
 };
 
 /**
@@ -1679,4 +1793,14 @@ ve.countEdgeMatches = function ( before, after, equals ) {
  */
 ve.repeatString = function ( str, n ) {
 	return new Array( n + 1 ).join( str );
+};
+
+/**
+ * Check whether a jQuery event represents a plain left click, without any modifiers
+ *
+ * @param {jQuery.Event} e The jQuery event object
+ * @return {boolean} Whether it was an unmodified left click
+ */
+ve.isUnmodifiedLeftClick = function ( e ) {
+	return e && e.which && e.which === OO.ui.MouseButtons.LEFT && !( e.shiftKey || e.altKey || e.ctrlKey || e.metaKey );
 };

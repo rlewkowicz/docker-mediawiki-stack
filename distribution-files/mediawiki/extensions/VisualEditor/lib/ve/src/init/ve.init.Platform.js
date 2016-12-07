@@ -72,9 +72,6 @@ ve.init.Platform.static.getSystemPlatform = function () {
 /**
  * Check whether we are running in Internet Explorer.
  *
- * FIXME T126026: This should not be needed, and it should eventually be removed.
- * If this hasn't died in a fire by the end of September 2015, Roan has failed.
- *
  * @static
  * @method
  * @inheritable
@@ -82,6 +79,18 @@ ve.init.Platform.static.getSystemPlatform = function () {
  */
 ve.init.Platform.static.isInternetExplorer = function () {
 	return $.client.profile().name === 'msie';
+};
+
+/**
+ * Check whether we are running in Edge.
+ *
+ * @static
+ * @method
+ * @inheritable
+ * @return {boolean} We are in Edge
+ */
+ve.init.Platform.static.isEdge = function () {
+	return $.client.profile().name === 'edge';
 };
 
 /**
@@ -117,6 +126,17 @@ ve.init.Platform.prototype.getExternalLinkUrlProtocolsRegExp = null;
  * @return {RegExp} Regular expression object
  */
 ve.init.Platform.prototype.getUnanchoredExternalLinkUrlProtocolsRegExp = null;
+
+/**
+ * Get a regular expression that matches IDs used only for linking document
+ * data to metadata. Use null if your document format does not have such IDs.
+ *
+ * @method
+ * @return {RegExp|null} Regular expression object
+ */
+ve.init.Platform.prototype.getMetadataIdRegExp = function () {
+	return null;
+};
 
 /**
  * Get a platform config value

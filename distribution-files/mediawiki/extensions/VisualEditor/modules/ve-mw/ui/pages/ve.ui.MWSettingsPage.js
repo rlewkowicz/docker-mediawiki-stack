@@ -20,7 +20,7 @@ ve.ui.MWSettingsPage = function VeUiMWSettingsPage( name, config ) {
 	var settingsPage = this;
 
 	// Parent constructor
-	OO.ui.PageLayout.call( this, name, config );
+	ve.ui.MWSettingsPage.super.apply( this, arguments );
 
 	// Properties
 	this.metaList = null;
@@ -167,9 +167,9 @@ ve.ui.MWSettingsPage.static.addMetaCheckbox = function ( metaName, label ) {
 /**
  * @inheritdoc
  */
-ve.ui.MWSettingsPage.prototype.setOutlineItem = function ( outlineItem ) {
+ve.ui.MWSettingsPage.prototype.setOutlineItem = function () {
 	// Parent method
-	OO.ui.PageLayout.prototype.setOutlineItem.call( this, outlineItem );
+	ve.ui.MWSettingsPage.super.prototype.setOutlineItem.apply( this, arguments );
 
 	if ( this.outlineItem ) {
 		this.outlineItem
@@ -195,10 +195,24 @@ ve.ui.MWSettingsPage.prototype.onTableOfContentsFieldChange = function () {
  * @param {boolean} value Whether a redirect is to be set for this page
  */
 ve.ui.MWSettingsPage.prototype.onEnableRedirectChange = function ( value ) {
+	var page = this;
 	this.redirectTargetInput.setDisabled( !value );
 	this.enableStaticRedirectInput.setDisabled( !value );
 	if ( value ) {
-		this.redirectTargetInput.focus();
+		/*
+		 * HACK: When editing a page which has a redirect, the meta dialog
+		 * automatically opens with the settings page's redirect field focused.
+		 * When this happens, we don't want the lookup dropdown to appear until
+		 * the user actually does something.
+		 * Using setTimeout because we need to defer this until after the
+		 * dialog has opened - otherwise its internal lookupDisabled logic will
+		 * fail to have any effect during the actual focusing and calling of
+		 * OO.ui.LookupElement#onLookupInputFocus/OO.ui.LookupElement#populateLookupMenu.
+		 * https://phabricator.wikimedia.org/T137309
+		 */
+		setTimeout( function () {
+			page.redirectTargetInput.focus();
+		} );
 	} else {
 		this.redirectTargetInput.setValue( '' );
 		this.enableStaticRedirectInput.setSelected( false );

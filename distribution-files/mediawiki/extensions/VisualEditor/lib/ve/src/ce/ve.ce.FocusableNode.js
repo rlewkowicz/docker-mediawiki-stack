@@ -38,7 +38,7 @@ ve.ce.FocusableNode = function VeCeFocusableNode( $focusable, config ) {
 	this.rects = null;
 	this.boundingRect = null;
 	this.startAndEndRects = null;
-	this.icon = null;
+	this.$icon = null;
 	this.touchMoved = false;
 
 	if ( Array.isArray( config.classes ) ) {
@@ -119,6 +119,8 @@ ve.ce.FocusableNode.prototype.createHighlight = function () {
  * @method
  */
 ve.ce.FocusableNode.prototype.onFocusableSetup = function () {
+	var rAF = window.requestAnimationFrame || setTimeout;
+
 	// Exit if already setup or not attached
 	if ( this.isFocusableSetup || !this.root ) {
 		return;
@@ -156,7 +158,7 @@ ve.ce.FocusableNode.prototype.onFocusableSetup = function () {
 			.find( 'img:not([width]),img:not([height])' )
 			.addBack( 'img:not([width]),img:not([height])' )
 			.on( 'load', this.updateInvisibleIcon.bind( this ) );
-		this.updateInvisibleIcon();
+		rAF( this.updateInvisibleIcon.bind( this ) );
 	}
 
 	this.isFocusableSetup = true;
@@ -176,21 +178,31 @@ ve.ce.FocusableNode.prototype.updateInvisibleIcon = function () {
 		return;
 	}
 	if ( !this.hasRendering() ) {
-		if ( !this.icon ) {
-			this.icon = new OO.ui.IconWidget( {
-				classes: [ 've-ce-focusableNode-invisibleIcon' ],
-				icon: this.constructor.static.iconWhenInvisible
-			} );
-			// Add em space for selection highlighting
-			this.icon.$element.text( '\u2003' );
+		if ( !this.$icon ) {
+			this.$icon = this.createInvisibleIcon();
 		}
 		this.$element.first()
 			.addClass( 've-ce-focusableNode-invisible' )
-			.prepend( this.icon.$element );
-	} else if ( this.icon ) {
+			.prepend( this.$icon );
+	} else if ( this.$icon ) {
 		this.$element.first().removeClass( 've-ce-focusableNode-invisible' );
-		this.icon.$element.detach();
+		this.$icon.detach();
 	}
+};
+
+/**
+ * Create a element to show if the node is invisible
+ *
+ * @return {jQuery} Element to show
+ */
+ve.ce.FocusableNode.prototype.createInvisibleIcon = function () {
+	var icon = new OO.ui.IconWidget( {
+		classes: [ 've-ce-focusableNode-invisibleIcon' ],
+		icon: this.constructor.static.iconWhenInvisible
+	} );
+	// Add em space for selection highlighting
+	icon.$element.text( '\u2003' );
+	return icon.$element;
 };
 
 /**
@@ -241,7 +253,7 @@ ve.ce.FocusableNode.prototype.onFocusableMouseDown = function ( e ) {
 		return;
 	}
 
-	if ( e.which === 3 ) {
+	if ( e.which === OO.ui.MouseButtons.RIGHT ) {
 		// Hide images, and select spans so context menu shows 'copy', but not 'copy image'
 		this.$highlights.addClass( 've-ce-focusableNode-highlights-contextOpen' );
 		// Make ce=true so we get cut/paste options in context menu

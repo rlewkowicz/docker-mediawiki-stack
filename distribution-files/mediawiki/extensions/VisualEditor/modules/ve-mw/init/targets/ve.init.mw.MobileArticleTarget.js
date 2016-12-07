@@ -113,17 +113,18 @@ ve.init.mw.MobileArticleTarget.prototype.onSurfaceFocus = function () {
  * @inheritdoc
  */
 ve.init.mw.MobileArticleTarget.prototype.createSurface = function ( dmDoc, config ) {
-	return new ve.ui.MobileSurface( dmDoc, config );
+	return new ve.ui.MobileSurface( dmDoc, this.getSurfaceConfig( config ) );
 };
 
 /**
  * @inheritdoc
  */
-ve.init.mw.MobileArticleTarget.prototype.setupToolbarSaveButton = function () {
-	// Parent method
-	ve.init.mw.MobileArticleTarget.super.prototype.setupToolbarSaveButton.call( this, {
-		label: ve.msg( 'visualeditor-toolbar-savedialog-short' )
-	} );
+ve.init.mw.MobileArticleTarget.prototype.getSaveButtonLabel = function () {
+	if ( mw.config.get( 'wgEditSubmitButtonLabelPublish' ) ) {
+		return OO.ui.deferMsg( 'visualeditor-savedialog-label-publish-short' );
+	}
+
+	return OO.ui.deferMsg( 'visualeditor-savedialog-label-save-short' );
 };
 
 /**

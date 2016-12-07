@@ -5,10 +5,13 @@
  */
 
 .ve-ui-commandHelpDialog-container {
+	/* TODO: IE9 doesn't support column layouts T135379 */
+	/* stylelint-disable no-unsupported-browser-features */
 	-ms-column-count: 3;
 	-moz-column-count: 3;
 	-webkit-column-count: 3;
 	column-count: 3;
+	/* stylelint-enable no-unsupported-browser-features */
 }
 
 .ve-ui-commandHelpDialog-section {
@@ -74,23 +77,23 @@
 	line-height: 1.4;
 	padding: 0.1em 0.4em;
 	margin: -0.1em 0.3em 0;
-	text-shadow: 0 1px 0 #fff;
+	text-shadow: 0 1px 0 #fff; /* stylelint-disable-line no-unsupported-browser-features */
 	text-transform: uppercase;
 	text-align: center;
 }
 
-.ve-ui-commandHelpDialog-list dt kbd[ data-label ]::before {
+.ve-ui-commandHelpDialog-list dt kbd[ data-label ]:before {
 	content: attr( data-label );
 	font-weight: normal;
 	font-style: italic;
 	padding-right: 3px;
 }
 
-.ve-ui-commandHelpDialog-sequence kbd:not( [ data-key="space" ] ) {
+.ve-ui-commandHelpDialog-sequence kbd:not( [ data-key='space' ] ) {
 	box-shadow: none;
 	text-transform: none;
 }
-.ve-ui-commandHelpDialog-sequence kbd:not( [ data-key="space" ] ) + kbd:not( [ data-key="space" ] ) {
+.ve-ui-commandHelpDialog-sequence kbd:not( [ data-key='space' ] ) + kbd:not( [ data-key='space' ] ) {
 	margin-left: -0.5em;
 	padding-left: 0;
 	border-left: 0;

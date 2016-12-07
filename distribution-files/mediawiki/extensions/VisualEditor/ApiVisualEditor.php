@@ -9,12 +9,6 @@
  */
 
 class ApiVisualEditor extends ApiBase {
-	// These are safe even if VE is not enabled on the page.
-	// This is intended for other VE interfaces, such as Flow's.
-	protected static $SAFE_ACTIONS = [
-		'parsefragment',
-	];
-
 	/**
 	 * @var Config
 	 */
@@ -76,7 +70,7 @@ class ApiVisualEditor extends ApiBase {
 			$params = array_merge( $vrs['global'], $params );
 		}
 		// set up cookie forwarding
-		if ( $params['forwardCookies'] && !User::isEveryoneAllowed( 'read' ) ) {
+		if ( $params['forwardCookies'] ) {
 			$params['forwardCookies'] = RequestContext::getMain()->getRequest()->getHeader( 'Cookie' );
 		} else {
 			$params['forwardCookies'] = false;
@@ -85,7 +79,7 @@ class ApiVisualEditor extends ApiBase {
 		return new $class( $params );
 	}
 
-	private function requestRestbase( $method, $path, $params, $reqheaders = [] ) {
+	protected function requestRestbase( $method, $path, $params, $reqheaders = [] ) {
 		global $wgVersion;
 		$request = [
 			'method' => $method,
@@ -121,58 +115,6 @@ class ApiVisualEditor extends ApiBase {
 		return $response['body'];
 	}
 
-	protected function storeInSerializationCache( $title, $oldid, $html, $etag ) {
-		global $wgMemc;
-
-		// Convert the VE HTML to wikitext
-		$text = $this->postHTML( $title, $html, [ 'oldid' => $oldid ], $etag );
-		if ( $text === false ) {
-			return false;
-		}
-
-		// Store the corresponding wikitext, referenceable by a new key
-		$hash = md5( $text );
-		$key = wfMemcKey( 'visualeditor', 'serialization', $hash );
-		$wgMemc->set( $key, $text,
-			$this->veConfig->get( 'VisualEditorSerializationCacheTimeout' ) );
-
-		// Also parse and prepare the edit in case it might be saved later
-		$page = WikiPage::factory( $title );
-		$content = ContentHandler::makeContent( $text, $title, CONTENT_MODEL_WIKITEXT );
-
-		$res = ApiStashEdit::parseAndStash( $page, $content, $this->getUser() );
-		if ( $res === ApiStashEdit::ERROR_NONE ) {
-			wfDebugLog( 'StashEdit', "Cached parser output for VE content key '$key'." );
-		}
-
-		return $hash;
-	}
-
-	protected function trySerializationCache( $hash ) {
-		global $wgMemc;
-		$key = wfMemcKey( 'visualeditor', 'serialization', $hash );
-		return $wgMemc->get( $key );
-	}
-
-	protected function postHTML( $title, $html, $parserParams, $etag ) {
-		if ( $parserParams['oldid'] === 0 ) {
-			$parserParams['oldid'] = '';
-		}
-		$path = 'transform/html/to/wikitext/' . urlencode( $title->getPrefixedDBkey() );
-		if ( $parserParams['oldid'] ) {
-			$path .= '/' . $parserParams['oldid'];
-		}
-		return $this->requestRestbase(
-			'POST',
-			$path,
-			[
-				'html' => $html,
-				'scrub_wikitext' => 1,
-			],
-			[ 'If-Match' => $etag ]
-		);
-	}
-
 	protected function pstWikitext( $title, $wikitext ) {
 		return ContentHandler::makeContent( $wikitext, $title, CONTENT_MODEL_WIKITEXT )
 			->preSaveTransform(
@@ -194,59 +136,12 @@ class ApiVisualEditor extends ApiBase {
 		);
 	}
 
-	protected function diffWikitext( $title, $wikitext ) {
-		$apiParams = [
-			'action' => 'query',
-			'prop' => 'revisions',
-			'titles' => $title->getPrefixedDBkey(),
-			'rvdifftotext' => $this->pstWikitext( $title, $wikitext )
-		];
-		$api = new ApiMain(
-			new DerivativeRequest(
-				$this->getRequest(),
-				$apiParams,
-				false // was posted?
-			),
-			false // enable write?
-		);
-		$api->execute();
-		if ( defined( 'ApiResult::META_CONTENT' ) ) {
-			$result = $api->getResult()->getResultData( null, [
-				'BC' => [], // Transform content nodes to '*'
-				'Types' => [], // Add back-compat subelements
-			] );
-		} else {
-			$result = $api->getResultData();
-		}
-		if ( !isset( $result['query']['pages'][$title->getArticleID()]['revisions'][0]['diff']['*'] ) ) {
-			return [ 'result' => 'fail' ];
-		}
-		$diffRows = $result['query']['pages'][$title->getArticleID()]['revisions'][0]['diff']['*'];
-
-		if ( $diffRows !== '' ) {
-			$context = new DerivativeContext( $this->getContext() );
-			$context->setTitle( $title );
-			$engine = new DifferenceEngine( $context );
-			return [
-				'result' => 'success',
-				'diff' => $engine->addHeader(
-					$diffRows,
-					$context->msg( 'currentrev' )->parse(),
-					$context->msg( 'yourtext' )->parse()
-				)
-			];
-		} else {
-			return [ 'result' => 'nochanges' ];
-		}
-	}
-
 	protected function getLangLinks( $title ) {
 		$apiParams = [
 			'action' => 'query',
 			'prop' => 'langlinks',
 			'lllimit' => 500,
 			'titles' => $title->getPrefixedDBkey(),
-			'indexpageids' => 1,
 		];
 		$api = new ApiMain(
 			new DerivativeRequest(
@@ -258,19 +153,19 @@ class ApiVisualEditor extends ApiBase {
 		);
 
 		$api->execute();
-		if ( defined( 'ApiResult::META_CONTENT' ) ) {
-			$result = $api->getResult()->getResultData( null, [
-				'BC' => [], // Backwards-compatible structure transformations
-				'Types' => [], // Backwards-compatible structure transformations
-				'Strip' => 'all', // Remove any metadata keys from the langlinks array
-			] );
-		} else {
-			$result = $api->getResultData();
-		}
-		if ( !isset( $result['query']['pages'][$title->getArticleID()]['langlinks'] ) ) {
+		$result = $api->getResult()->getResultData( null, [
+			'BC' => [], // Backwards-compatible structure transformations
+			'Types' => [], // Backwards-compatible structure transformations
+			'Strip' => 'all', // Remove any metadata keys from the langlinks array
+		] );
+		if ( !isset( $result['query']['pages'][$title->getArticleID()] ) ) {
 			return false;
 		}
-		$langlinks = $result['query']['pages'][$title->getArticleID()]['langlinks'];
+		$page = $result['query']['pages'][$title->getArticleID()];
+		if ( !isset( $page['langlinks'] ) ) {
+			return [];
+		}
+		$langlinks = $page['langlinks'];
 		$langnames = Language::fetchLanguageNames();
 		foreach ( $langlinks as $i => $lang ) {
 			$langlinks[$i]['langname'] = $langnames[$langlinks[$i]['lang']];
@@ -287,31 +182,15 @@ class ApiVisualEditor extends ApiBase {
 			$this->dieUsageMsg( 'invalidtitle', $params['page'] );
 		}
 
-		$isSafeAction = in_array( $params['paction'], self::$SAFE_ACTIONS, true );
-
-		if ( !$isSafeAction ) {
-			$this->checkAllowedNamespace( $title->getNamespace() );
-		}
-
 		$parserParams = [];
 		if ( isset( $params['oldid'] ) ) {
 			$parserParams['oldid'] = $params['oldid'];
 		}
 
-		$html = $params['html'];
-		if ( substr( $html, 0, 11 ) === 'rawdeflate,' ) {
-			$deflated = base64_decode( substr( $html, 11 ) );
-			wfSuppressWarnings();
-			$html = gzinflate( $deflated );
-			wfRestoreWarnings();
-			if ( $deflated === $html || $html === false ) {
-				$this->dieUsage( "HTML provided is not properly deflated", 'invaliddeflate' );
-			}
-		}
-
 		wfDebugLog( 'visualeditor', "called on '$title' with paction: '{$params['paction']}'" );
 		switch ( $params['paction'] ) {
 			case 'parse':
+			case 'wikitext':
 			case 'metadata':
 				// Dirty hack to provide the correct context for edit notices
 				global $wgTitle; // FIXME NOOOOOOOOES
@@ -349,10 +228,43 @@ class ApiVisualEditor extends ApiBase {
 						if ( $content === false ) {
 							$this->dieUsage( 'Error contacting the document server', 'docserver' );
 						}
+					} elseif ( $params['paction'] === 'wikitext' ) {
+						$apiParams = [
+							'action' => 'query',
+							'titles' => $title->getPrefixedDBkey(),
+							'prop' => 'revisions',
+							'rvprop' => 'content'
+						];
+
+						if ( isset( $params['section'] ) ) {
+							$apiParams['rvsection'] = $params['section'];
+						}
+
+						$api = new ApiMain(
+							new DerivativeRequest(
+								$this->getRequest(),
+								$apiParams,
+								false // was posted?
+							),
+							true // enable write?
+						);
+						$api->execute();
+						$result = $api->getResult()->getResultData();
+						$pid = $title->getArticleID();
+						$content = isset( $result['query']['pages'][$pid]['revisions']['0']['content'] ) ?
+							$result['query']['pages'][$pid]['revisions']['0']['content'] :
+							false;
+						if ( $content === false ) {
+							$this->dieUsage( 'Error contacting the document server', 'docserver' );
+						}
 					}
 
 				} else {
 					$content = '';
+					Hooks::run( 'EditFormPreloadText', [ &$content, &$title ] );
+					if ( $content !== '' ) {
+						$content = $this->parseWikitextFragment( $title, $content );
+					}
 					$baseTimestamp = wfTimestampNow();
 					$oldid = 0;
 					$restoring = false;
@@ -432,7 +344,7 @@ class ApiVisualEditor extends ApiBase {
 				}
 
 				// Permission notice
-				$permErrors = $title->getUserPermissionsErrors( 'create', $user );
+				$permErrors = $title->getUserPermissionsErrors( 'create', $user, 'quick' );
 				if ( $permErrors && !$title->exists() ) {
 					$notices[] = $this->msg(
 						'permissionserrorstext-withaction', 1, $this->msg( 'action-createpage' )
@@ -454,7 +366,8 @@ class ApiVisualEditor extends ApiBase {
 						$notices[] = "<div class=\"mw-userpage-userdoesnotexist error\">\n" .
 							$this->msg( 'userpage-userdoesnotexist', wfEscapeWikiText( $targetUsername ) ) .
 							"\n</div>";
-					} elseif ( $targetUser->isBlocked() ) { // Show log extract if the user is currently blocked
+					} elseif ( $targetUser->isBlocked() ) {
+						// Show log extract if the user is currently blocked
 						$notices[] = $this->msg(
 							'blocked-notice-logextract',
 							$targetUser->getName() // Support GENDER in notice
@@ -463,7 +376,10 @@ class ApiVisualEditor extends ApiBase {
 				}
 
 				// Blocked user notice
-				if ( $user->isBlockedFrom( $title ) && $user->getBlock()->prevents( 'edit' ) !== false ) {
+				if (
+					$user->isBlockedFrom( $title, true ) &&
+					$user->getBlock()->prevents( 'edit' ) !== false
+				) {
 					$notices[] = call_user_func_array(
 						[ $this, 'msg' ],
 						$user->getBlock()->getPermissionsError( $this->getContext() )
@@ -540,7 +456,7 @@ class ApiVisualEditor extends ApiBase {
 					'oldid' => $oldid,
 
 				];
-				if ( $params['paction'] === 'parse' ) {
+				if ( $params['paction'] === 'parse' || $params['paction'] === 'wikitext' ) {
 					$result['content'] = $content;
 				}
 				break;
@@ -561,58 +477,6 @@ class ApiVisualEditor extends ApiBase {
 				}
 				break;
 
-			case 'serialize':
-				if ( $params['cachekey'] !== null ) {
-					$content = $this->trySerializationCache( $params['cachekey'] );
-					if ( !is_string( $content ) ) {
-						$this->dieUsage( 'No cached serialization found with that key', 'badcachekey' );
-					}
-				} else {
-					if ( $params['html'] === null ) {
-						$this->dieUsageMsg( 'missingparam', 'html' );
-					}
-					$content = $this->postHTML( $title, $html, $parserParams, $params['etag'] );
-					if ( $content === false ) {
-						$this->dieUsage( 'Error contacting the document server', 'docserver' );
-					}
-				}
-				$result = [ 'result' => 'success', 'content' => $content ];
-				break;
-
-			case 'diff':
-				if ( $params['cachekey'] !== null ) {
-					$wikitext = $this->trySerializationCache( $params['cachekey'] );
-					if ( !is_string( $wikitext ) ) {
-						$this->dieUsage( 'No cached serialization found with that key', 'badcachekey' );
-					}
-				} else {
-					$wikitext = $this->postHTML( $title, $html, $parserParams, $params['etag'] );
-					if ( $wikitext === false ) {
-						$this->dieUsage( 'Error contacting the document server', 'docserver' );
-					}
-				}
-
-				$diff = $this->diffWikitext( $title, $wikitext );
-				if ( $diff['result'] === 'fail' ) {
-					$this->dieUsage( 'Diff failed', 'difffailed' );
-				}
-				$result = $diff;
-
-				break;
-
-			case 'serializeforcache':
-				if ( !isset( $parserParams['oldid'] ) ) {
-					$parserParams['oldid'] = Revision::newFromTitle( $title )->getId();
-				}
-				$key = $this->storeInSerializationCache(
-					$title,
-					$parserParams['oldid'],
-					$html,
-					$params['etag']
-				);
-				$result = [ 'result' => 'success', 'cachekey' => $key ];
-				break;
-
 			case 'getlanglinks':
 				$langlinks = $this->getLangLinks( $title );
 				if ( $langlinks === false ) {
@@ -627,19 +491,6 @@ class ApiVisualEditor extends ApiBase {
 	}
 
 	/**
-	 * Check if the request is allowed to proceed in the current namespace, and abort if not
-	 *
-	 * @param int $namespaceId Namespace ID
-	 */
-	public function checkAllowedNamespace( $namespaceId ) {
-		if ( !self::isAllowedNamespace( $this->veConfig, $namespaceId ) ) {
-			$this->dieUsage( "VisualEditor is not enabled in '" .
-				MWNamespace::getCanonicalName( $namespaceId ) . "' namespace ",
-			'novenamespace' );
-		}
-	}
-
-	/**
 	 * Check if the configured allowed namespaces include the specified namespace
 	 *
 	 * @param Config $config Configuration object
@@ -647,11 +498,44 @@ class ApiVisualEditor extends ApiBase {
 	 * @return boolean
 	 */
 	public static function isAllowedNamespace( Config $config, $namespaceId ) {
-		$availableNamespaces = $config->get( 'VisualEditorAvailableNamespaces' );
-		$canonicalName = MWNamespace::getCanonicalName( $namespaceId );
-		return ( isset( $availableNamespaces[$namespaceId] ) && $availableNamespaces[$namespaceId] ) ||
-			 ( isset( $availableNamespaces[$canonicalName] ) && $availableNamespaces[$canonicalName] );
+		$availableNamespaces = self::getAvailableNamespaceIds( $config );
+		return in_array( $namespaceId, $availableNamespaces );
+	}
 
+	/**
+	 * Get a list of allowed namespace IDs
+	 *
+	 * @param Config $config Configuration object
+	 * @return array
+	 */
+	public static function getAvailableNamespaceIds( Config $config ) {
+		$availableNamespaces =
+			// Note: existing numeric keys might exist, and so array_merge cannot be used
+			(array) $config->get( 'VisualEditorAvailableNamespaces' ) +
+			(array) ExtensionRegistry::getInstance()->getAttribute( 'VisualEditorAvailableNamespaces' );
+		return array_values( array_unique( array_map( function ( $namespace ) {
+			// Convert canonical namespace names to IDs
+			return is_numeric( $namespace ) ?
+				$namespace :
+				MWNamespace::getCanonicalIndex( strtolower( $namespace ) );
+		}, array_keys( array_filter( $availableNamespaces ) ) ) ) );
+	}
+
+	/**
+	 * Check if the configured allowed content models include the specified content model
+	 *
+	 * @param Config $config Configuration object
+	 * @param string $contentModel Content model ID
+	 * @return boolean
+	 */
+	public static function isAllowedContentType( Config $config, $contentModel ) {
+		$availableContentModels = array_merge(
+			ExtensionRegistry::getInstance()->getAttribute( 'VisualEditorAvailableContentModels' ),
+			$config->get( 'VisualEditorAvailableContentModels' )
+		);
+		return
+			isset( $availableContentModels[ $contentModel ] ) &&
+			$availableContentModels[ $contentModel ];
 	}
 
 	/**
@@ -695,18 +579,14 @@ class ApiVisualEditor extends ApiBase {
 				ApiBase::PARAM_TYPE => [
 					'parse',
 					'metadata',
+					'wikitext',
 					'parsefragment',
-					'serialize',
-					'serializeforcache',
-					'diff',
 					'getlanglinks',
 				],
 			],
 			'wikitext' => null,
+			'section' => null,
 			'oldid' => null,
-			'html' => null,
-			'etag' => null,
-			'cachekey' => null,
 			'pst' => false,
 		];
 	}

@@ -185,6 +185,7 @@ ve.ui.PositionedTargetToolbar.prototype.isFloatable = function () {
  */
 ve.ui.PositionedTargetToolbar.prototype.onToolbarDialogsOpeningOrClosing = function ( win, openingOrClosing ) {
 	var width,
+		transitionDuration = OO.ui.theme.getDialogTransitionDuration(),
 		toolbar = this;
 
 	// win.isOpened before promise means we are closing
@@ -215,7 +216,7 @@ ve.ui.PositionedTargetToolbar.prototype.onToolbarDialogsOpeningOrClosing = funct
 			setTimeout( function () {
 				toolbar.onViewportResize();
 				toolbar.getSurface().getView().emit( 'position' );
-			}, 250 );
+			}, transitionDuration );
 			toolbar.getSurface().getView().emit( 'position' );
 		}
 		// Wait for window transition
@@ -225,7 +226,7 @@ ve.ui.PositionedTargetToolbar.prototype.onToolbarDialogsOpeningOrClosing = funct
 				toolbar.unfloat();
 				toolbar.float();
 			}
-		}, 250 );
+		}, transitionDuration );
 	} );
 };
 
@@ -233,9 +234,14 @@ ve.ui.PositionedTargetToolbar.prototype.onToolbarDialogsOpeningOrClosing = funct
  * Handle the visible part of the surface viewport change dimensions
  */
 ve.ui.PositionedTargetToolbar.prototype.onViewportResize = function () {
-	var viewportDimensions,
-		surface = this.getSurface(),
-		win = surface.getToolbarDialogs().getCurrentWindow();
+	var win, viewportDimensions,
+		surface = this.getSurface();
+
+	if ( !surface ) {
+		return;
+	}
+
+	win = surface.getToolbarDialogs().getCurrentWindow();
 
 	if ( win && win.constructor.static.position === 'side' ) {
 		viewportDimensions = surface.getViewportDimensions();
