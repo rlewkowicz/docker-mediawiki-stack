@@ -4,7 +4,7 @@ services:
     image: rlewkowicz/php-fpm:latest
     volumes:
     - "./distribution-files/etc:/usr/local/etc"
-    - "./distribution-files/mediawiki:/var/www/mediawiki"
+    - "./distribution-files/mwcore/mediawiki:/var/www/mediawiki"
     - "/etc/passwd:/etc/passwd:ro"
     - "/etc/shadow:/etc/shadow:ro"
     - "/etc/group:/etc/group:ro"
@@ -15,7 +15,7 @@ services:
     - "443:443"
     volumes:
     - "./distribution-files/nginx:/etc/nginx"
-    - "./distribution-files/mediawiki:/var/www/mediawiki"
+    - "./distribution-files/mwcore/mediawiki:/var/www/mediawiki"
     - "/etc/passwd:/etc/passwd:ro"
     - "/etc/shadow:/etc/shadow:ro"
     - "/etc/group:/etc/group:ro"

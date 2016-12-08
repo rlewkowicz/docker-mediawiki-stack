@@ -3,7 +3,7 @@ Containerized Mediawiki
 [![Build Status](http://jenkins.binaryoasis.com/buildStatus/icon?job=mediawiki-docker-stack)](http://jenkins.binaryoasis.com/job/mediawiki-docker-stack/)
 
 ###TLDR:
-Master is development. REL branches are inline with their respective branches
+Master is my development (not mw dev). REL branches are inline with their respective (mw) branches
 
 Docker requires a 64-bit OS and version 3.10 or higher of the Linux kernel. To check: uname -r
 
@@ -13,19 +13,12 @@ I recommend running the runfirst.bash. It does work for you with setting visual 
 ```
 git clone https://github.com/rlewkowicz/docker-mediawiki-stack.git
 cd docker-mediawiki-stack
+git submodule update --init --recursive
 ./runfirst.bash
 docker-compose up [-d] [--force-recreate]
 ```
 
 You're now running the world’s largest enterprise wiki platform.
-
-To update it at anytime (this will become a submodules folder at somepoint):
-```
-git add -A
-git commit . -m '.'
-git pull --rebase -X ours
-```
-
 
 Project Compendium
 http://binaryoasis.com:8000
