@@ -3,7 +3,7 @@ Containerized Mediawiki
 [![Build Status](http://jenkins.binaryoasis.com/buildStatus/icon?job=mediawiki-docker-stack)](http://jenkins.binaryoasis.com/job/mediawiki-docker-stack/)
 
 ###TLDR:
-Master is development. REL branches are inline with their respective branches
+Master is my development (not mw dev). REL branches are inline with their respective (mw) branches
 
 Docker requires a 64-bit OS and version 3.10 or higher of the Linux kernel. To check: uname -r
 
