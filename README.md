@@ -14,7 +14,7 @@ I recommend running the runfirst.bash. It does work for you with setting visual 
 git clone https://github.com/rlewkowicz/docker-mediawiki-stack.git
 cd docker-mediawiki-stack
 git checkout REL1_27
-git submodule update --init --recursive
+git submodule update --init --recursive --remote
 ./runfirst.bash
 docker-compose up [-d] [--force-recreate]
 ```
