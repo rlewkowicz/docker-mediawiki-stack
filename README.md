@@ -13,19 +13,12 @@ I recommend running the runfirst.bash. It does work for you with setting visual 
 ```
 git clone https://github.com/rlewkowicz/docker-mediawiki-stack.git
 cd docker-mediawiki-stack
+git submodule update --init --recursive
 ./runfirst.bash
 docker-compose up [-d] [--force-recreate]
 ```
 
 You're now running the world’s largest enterprise wiki platform.
-
-To update it at anytime (this will become a submodules folder at somepoint):
-```
-git add -A
-git commit . -m '.'
-git pull --rebase -X ours
-```
-
 
 Project Compendium
 http://binaryoasis.com:8000
