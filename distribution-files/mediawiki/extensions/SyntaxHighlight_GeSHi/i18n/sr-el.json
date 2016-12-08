@@ -1,9 +1,0 @@
-{
-	"@metadata": {
-		"authors": [
-			"MaxSem",
-			"Michaello"
-		]
-	},
-	"syntaxhighlight-desc": "Omogućava vizuelno označavanje sintakse <code>&lt;syntaxhighlight&gt;</code> korišćenjem [http://pygments.org/ GeSHi hajlajtera]."
-}

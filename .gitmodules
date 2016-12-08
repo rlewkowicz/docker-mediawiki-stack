@@ -1,0 +1,3 @@
+[submodule "distribution-files/mwcore"]
+	path = distribution-files/mwcore
+	url = https://github.com/rlewkowicz/docker-mediawiki-core.git
