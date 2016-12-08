@@ -11,8 +11,8 @@ command -v pip >/dev/null 2>&1 || { \curl -L https://bootstrap.pypa.io/get-pip.p
 command -v docker-compose >/dev/null 2>&1 || { pip install docker-compose; }
 getent passwd www-data >/dev/null 2>&1 || { useradd www-data; }
 rm -f $DIR/mediawiki/includes/installer/LocalSettingsGenerator.php
-\cp $DIR/distribution-files/LocalSettingsGenerator.php $DIR/distribution-files/mediawiki/includes/installer/LocalSettingsGenerator.php
-sed -i "s#wgDBserver.*localhost#wgDBserver \= \'mysql#g" $DIR/distribution-files/mediawiki/includes/DefaultSettings.php
-find $DIR/distribution-files/mediawiki -type d -exec chmod 755 {} +
-find $DIR/distribution-files/mediawiki -type f -exec chmod 644 {} +
-chown -R www-data.www-data $DIR/distribution-files/mediawiki
+\cp $DIR/distribution-files/LocalSettingsGenerator.php $DIR/distribution-files/mwcore/mediawiki/includes/installer/LocalSettingsGenerator.php
+sed -i "s#wgDBserver.*localhost#wgDBserver \= \'mysql#g" $DIR/distribution-files/mwcore/mediawiki/includes/DefaultSettings.php
+find $DIR/distribution-files/mwcore/mediawiki -type d -exec chmod 755 {} +
+find $DIR/distribution-files/mwcore/mediawiki -type f -exec chmod 644 {} +
+chown -R www-data.www-data $DIR/distribution-files/mwcore/mediawiki
