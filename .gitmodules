@@ -1,4 +1,5 @@
-[submodule "distribution-files/mwcore"]
-	path = distribution-files/mwcore
-	url = https://github.com/rlewkowicz/docker-mediawiki-core.git
+[submodule "docker-mediawiki-core"]
 	branch = REL1_28
+        url = https://github.com/rlewkowicz/docker-mediawiki-core.git
+        branch = REL1_28
+
