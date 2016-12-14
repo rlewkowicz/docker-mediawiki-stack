@@ -13,7 +13,7 @@ I recommend running the runfirst.bash. It does work for you with setting visual 
 ```
 git clone https://github.com/rlewkowicz/docker-mediawiki-stack.git
 cd docker-mediawiki-stack
-git checkout REL1_28
+git checkout -B origin/REL1_28
 git submodule update --init --remote --merge
 ./runfirst.bash
 docker-compose up [-d] [--force-recreate]
