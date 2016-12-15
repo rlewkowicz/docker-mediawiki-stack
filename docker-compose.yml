@@ -13,6 +13,7 @@ services:
     ports:
     - "80:80"
     - "443:443"
+    - "8000:8000"
     volumes:
     - "./distribution-files/nginx:/etc/nginx"
     - "./distribution-files/mwcore/mediawiki:/var/www/mediawiki"
@@ -45,3 +46,10 @@ services:
     - PMA_HOST=mysql
     depends_on:
     - mysql
+  cassandra:
+    image: cassandra:3
+    volumes:
+    - "./distribution-files/cassandra_data:/var/lib/cassandra"
+    - "./distribution-files/cassandra_conf/cassandra.yaml:/etc/cassandra/cassandra.yaml"
+    environment:
+    - PMA_HOST=mysql
