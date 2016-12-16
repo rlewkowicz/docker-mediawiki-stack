@@ -170,7 +170,7 @@ class LocalSettingsGenerator {
           fwrite($handle, $localSettings);
         }
       }
-    
+
     return $localSettings;
   }
 
@@ -443,7 +443,7 @@ $wgVirtualRestConfig['modules']['parsoid'] = array(
   // URL to the Parsoid instance
   // Use port 8142 if you use the Debian package
   'url' => 'http://nginx:8000',
-  'domain' => 'nginx',
+  'domain' => 'wiki',
   'forwardCookies' => true
 );
 
