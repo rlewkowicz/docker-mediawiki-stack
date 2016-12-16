@@ -1,0 +1,67 @@
+# RESTBase config for small wiki installs
+#
+# - sqlite backend
+# - parsoid at http://localhost:8142
+# - wiki at http://localhost/w/api.php
+#
+# Quick setup:
+# - npm install
+#   If you see errors about sqlite, you might have to `apt-get install
+#   libsqlite3-dev`.
+# - cp config.example.yaml config.yaml
+# - double-check and possibly modify lines marked with XXX, then start restbase with
+#
+#   node server
+#
+# - If all went well, http://localhost:7231/localhost/v1/page/html/Main_Page
+# should show your wiki's [[Main Page]].
+
+services:
+  - name: restbase
+    module: hyperswitch
+    conf:
+      port: 7231
+      salt: secret
+      default_page_size: 125
+      user_agent: RESTBase
+      ui_name: RESTBase
+      ui_url: https://www.mediawiki.org/wiki/RESTBase
+      ui_title: RESTBase docs
+      spec:
+        x-request-filters:
+          - path: lib/security_response_header_filter.js
+        x-sub-request-filters:
+          - type: default
+            name: http
+            options:
+            allow:
+              - pattern: http://nginx/api.php
+                forward_headers: true
+              - pattern: http://parsoid:8000
+                forward_headers: true
+              - pattern: /^https?:\/\//
+        paths:
+          /{domain:wiki}:
+            x-modules:
+              - path: projects/example.yaml
+                options:
+                  action:
+                    apiUriTemplate: http://nginx/api.php
+                    baseUriTemplate: "{{'http://restbase:7231/wiki/v1'}}"
+                  parsoid:
+                    host: http://parsoid:8000
+                  table:
+                    backend: cassandra
+                    hosts: [cassandra]
+                    keyspace: system
+                    username: cassandra
+                    password: cassandra
+                    defaultConsistency: one # or 'localQuorum' for production
+
+# Finally, a standard service-runner config.
+info:
+  name: restbase
+
+logging:
+  name: restbase
+  level: info
