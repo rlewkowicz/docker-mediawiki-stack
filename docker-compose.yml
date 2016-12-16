@@ -54,5 +54,4 @@ services:
   restbase:
     image: rlewkowicz/restbase:latest
     volumes:
-    - "./distribution-files/cassandra_data:/var/lib/cassandra"
     - "./distribution-files/restbase/config.yaml:/usr/local/lib/node_modules/restbase/config.yaml"
