@@ -439,13 +439,14 @@ $wgHiddenPrefs[] = 'visualeditor-enable';
 // OPTIONAL: Enable VisualEditor's experimental code features
 $wgDefaultUserOptions['visualeditor-enable-experimental'] = 1;
 
-$wgVirtualRestConfig['modules']['parsoid'] = array(
-  // URL to the Parsoid instance
-  // Use port 8142 if you use the Debian package
-  'url' => 'http://nginx:8000',
-  'domain' => 'wiki',
-  'forwardCookies' => true
+$wgVirtualRestConfig['modules']['restbase'] = array(
+	'url' => 'http://restbase:7231',
+	'domain' => 'wiki', # matches the "domain" used above
+	'forwardCookies' => true,
+	'parsoidCompat' => false
 );
+
+$wgVisualEditorRestbaseURL = 'http://restbase:7231/wiki/v1/page/html/';
 
 $wgSessionsInObjectCache = true;
 

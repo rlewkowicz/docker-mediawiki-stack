@@ -52,8 +52,8 @@ services:
                     host: http://parsoid:8000
                   table:
                     backend: cassandra
-                    hosts: [cassandra]
-                    keyspace: system
+                    hosts: [cass]
+                    keyspace: dootdoot
                     username: cassandra
                     password: cassandra
                     defaultConsistency: one # or 'localQuorum' for production

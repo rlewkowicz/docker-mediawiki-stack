@@ -49,9 +49,13 @@ services:
   cass:
     image: cassandra:3
     volumes:
-    - "./distribution-files/cassandra_data:/var/lib/cassandra"
-    - "./distribution-files/cassandra_conf/cassandra.yaml:/etc/cassandra/cassandra.yaml"
+     - "./distribution-files/cassandra_data:/var/lib/cassandra"
+     - "./distribution-files/cassandra_conf/cassandra.yaml:/etc/cassandra/cassandra.yaml"
+     - "./distribution-files/cassandra_conf/docker-entrypoint.sh:/docker-entrypoint.sh"
+    hostname: cass
   restbase:
     image: rlewkowicz/restbase:latest
+    depends_on:
+    - cass
     volumes:
     - "./distribution-files/restbase/config.yaml:/usr/local/lib/node_modules/restbase/config.yaml"
