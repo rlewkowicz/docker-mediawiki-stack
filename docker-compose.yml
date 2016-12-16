@@ -46,10 +46,13 @@ services:
     - PMA_HOST=mysql
     depends_on:
     - mysql
-  cassandra:
+  cass:
     image: cassandra:3
     volumes:
     - "./distribution-files/cassandra_data:/var/lib/cassandra"
     - "./distribution-files/cassandra_conf/cassandra.yaml:/etc/cassandra/cassandra.yaml"
-    environment:
-    - PMA_HOST=mysql
+  restbase:
+    image: rlewkowicz/restbase:latest
+    volumes:
+    - "./distribution-files/cassandra_data:/var/lib/cassandra"
+    - "./distribution-files/restbase/config.yaml:/usr/local/lib/node_modules/restbase/config.yaml"
