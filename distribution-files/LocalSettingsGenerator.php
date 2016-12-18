@@ -170,7 +170,7 @@ class LocalSettingsGenerator {
           fwrite($handle, $localSettings);
         }
       }
-    
+
     return $localSettings;
   }
 
@@ -442,8 +442,8 @@ $wgDefaultUserOptions['visualeditor-enable-experimental'] = 1;
 $wgVirtualRestConfig['modules']['parsoid'] = array(
   // URL to the Parsoid instance
   // Use port 8142 if you use the Debian package
-  'url' => 'http://nginx:8000',
-  'domain' => 'nginx',
+  'url' => 'https://nginx:8000',
+  'domain' => 'wiki',
   'forwardCookies' => true
 );
 
