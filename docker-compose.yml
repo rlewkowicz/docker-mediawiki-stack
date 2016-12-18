@@ -1,7 +1,7 @@
 version: '2'
 services:
   phpfpm:
-    image: rlewkowicz/php-fpm:latest
+    image: rlewkowicz/php-fpm:7.0.13
     volumes:
     - "./distribution-files/etc:/usr/local/etc"
     - "./distribution-files/mwcore/mediawiki:/var/www/mediawiki"
