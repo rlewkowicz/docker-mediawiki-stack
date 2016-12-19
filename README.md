@@ -6,7 +6,8 @@ Containerized Mediawiki
 So mediawiki is a lot like hearding cats. There's a lot of little pieces moving around, and bringing it together in an agnostic way thus far is impossible. Mediawiki was not made with docker in mind so there's caveats here and there to be aware of. For parsoid and nginx you should really set your hostname (uri). Also, you should be using a deployment platform of some sort (chef/chef solo, ansible, salt, puppet, some other cool thing I don't know about) to deploy this (Unless you're just looking for the core platform, then no biggie). I'd say that the containers are production ready, some of the confs may not be. There's still a lot of shuffle going on in this project.  
 
 ##Known Issues and Todos:
-* My Jenkins Jobs are all outta wack. I need to do readme templetes and jobs to update them. A couple of them need to be setup for multi branch. 
+* My Jenkins Jobs are all outta wack. A couple of them need to be setup for multi branch. 
+* I need to do readme templetes and jobs to update them.
 * I added restbase. Looks like they have it as an entry point in their diagram. Mine's like sideloaded. I don't know if it's working as intended yet. 
 * I did sub module mediawiki. It was a good call. It's nice to manage it independently. 
 
