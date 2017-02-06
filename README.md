@@ -18,7 +18,7 @@ git clone https://github.com/rlewkowicz/docker-mediawiki-stack.git
 cd docker-mediawiki-stack
 git checkout REL1_28
 git submodule update --init --remote --merge
-sudo ./runfirst.bash
+sudo ./runfirst.bash && \
 docker-compose up [-d] [--force-recreate]
 ```
 
