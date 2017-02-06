@@ -1,6 +1,6 @@
 Containerized Mediawiki
 =======================
-<!---[![Build Status](http://jenkins.binaryoasis.com/buildStatus/icon?job=mediawiki-docker-stack)](http://jenkins.binaryoasis.com/job/mediawiki-docker-stack/)--->
+[![Build Status](http://jenkins.binaryoasis.com/buildStatus/icon?job=mediawiki-docker-stack)](http://jenkins.binaryoasis.com/job/mediawiki-docker-stack/)
 
 ###TLDR:
 Master is my development (not mw dev). REL branches are inline with their respective (mw) branches
