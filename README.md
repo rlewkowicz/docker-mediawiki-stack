@@ -2,8 +2,6 @@ Containerized Mediawiki
 =======================
 [![Build Status](http://jenkins.binaryoasis.com/buildStatus/icon?job=mediawiki-docker-stack)](http://jenkins.binaryoasis.com/job/mediawiki-docker-stack/)
 
-#READ THIS
-So mediawiki is a lot like hearding cats. There's a lot of little pieces moving around, and bringing it together in an agnostic way thus far is impossible. Mediawiki was not made with docker in mind so there's caveats here and there to be aware of. For parsoid and nginx you should really set your hostname (uri). Also, you should be using a deployment platform of some sort (chef/chef solo, ansible, salt, puppet, some other cool thing I don't know about) to deploy this. I'd say that the containers are production ready, some of the confs may not be. There's still a lot of shuffle going on in this project.
 
 ###TLDR:
 Master is my development (not mw dev). REL branches are inline with their respective (mw) branches
