@@ -3,7 +3,7 @@ Containerized Mediawiki
 [![Build Status](http://jenkins.binaryoasis.com/buildStatus/icon?job=mediawiki-docker-stack)](http://jenkins.binaryoasis.com/job/mediawiki-docker-stack/)
 
 
-###TLDR:
+### TLDR:
 Master is my development (not mw dev). REL branches are inline with their respective (mw) branches
 
 Docker requires a 64-bit OS and version 3.10 or higher of the Linux kernel. To check: uname -r
@@ -26,17 +26,17 @@ Project Compendium
 http://binaryoasis.com:8000
 
 
-###Known Issues and Todos:
+### Known Issues and Todos:
 * Architecturally the platform should be sound. There’s basic tests for most of the jenkins jobs, but the whole thing has not undergone extensive testing yet.   
 * Programmatically things need to be tightened and cleaned.
 * Every once in awhile the database will not give remote permissions to all containers. I think this has to do with at time initialization of mariadb and whether or not name resolution has been completed within docker. I think I resolved this.
 
 
-###The Sauce
+### The Sauce
 Installing mediawiki is a bit of a pain (especially with the visual editor). The directions are sometimes unclear on which packages are required for the php compile. At the very least in a platform agnostic manner. As it stands it should work with either debian or redhat based systems that docker supports.
 
 
-###Why it's better than the mediawiki sponsored docker setup.
+### Why it's better than the mediawiki sponsored docker setup.
 The official mediawiki docker image doesn’t really subscribe to the docker ideology. It’s all blob’d into one container. This follows the one service per container concept and is built in a way that that allows for agnostic immutable system setup. I’ll touch on this in the setup section.
 
 
@@ -64,19 +64,19 @@ Usage and Common Tasks
 docker stop CONTAINER_NAME; docker start CONTAINER_NAME
 
 
-####Accessing Daemon Logs
+#### Accessing Daemon Logs
 
 
 docker logs [ -f ] CONTAINER_NAME
 
 
-####Accessing a Shell
+#### Accessing a Shell
 
 
 docker exec -ti CONTAINER_NAME /bin/sh
 
 
-####Managing the Database
+#### Managing the Database
 
 
 docker exec -ti MYSQL_CONTAINER mysql
