@@ -58,7 +58,7 @@ This is nice, because now your system can be truly ephemeral and your data can l
 
 Usage and Common Tasks
 =======================
-####Starting and Stopping Services
+#### Starting and Stopping Services
 
 
 docker stop CONTAINER_NAME; docker start CONTAINER_NAME
