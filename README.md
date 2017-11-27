@@ -2,6 +2,9 @@ Containerized Mediawiki
 =======================
 [![Build Status](http://jenkins.binaryoasis.com/buildStatus/icon?job=mediawiki-docker-stack)](http://jenkins.binaryoasis.com/job/mediawiki-docker-stack/)
 
+As a quick heads up, I have not been maintaining this well. However, thats the glory of docker right? It's all immutable and agnostic. It all should still be working just fine, but in mwcore under distribution files you'll want to run: regenmediawiki. 
+
+You might even just go grab the latest tarball from the mediawiki downloads although idk how nice parsoid will play with that. This is all due for a rebuild before too long
 
 ### TLDR:
 Master is my development (not mw dev). REL branches are inline with their respective (mw) branches
