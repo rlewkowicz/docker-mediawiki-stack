@@ -15,4 +15,4 @@ rm -f $DIR/mediawiki/includes/installer/LocalSettingsGenerator.php
 sed -i "s#wgDBserver.*localhost#wgDBserver \= \'mysql#g" $DIR/distribution-files/mwcore/mediawiki/includes/DefaultSettings.php
 find $DIR/distribution-files/mwcore/mediawiki -type d -exec chmod 755 {} +
 find $DIR/distribution-files/mwcore/mediawiki -type f -exec chmod 644 {} +
-chown -R www-data.www-data $DIR/distribution-files/mwcore/mediawiki
+chown -R www-data $DIR/distribution-files/mwcore/mediawiki
