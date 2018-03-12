@@ -1,0 +1,74 @@
+version: '2'
+services:
+  phpfpm:
+    build:
+      context: ./php-fpm
+      args:
+        - INSTALL_XDEBUG="true"
+        - INSTALL_BLACKFIRE="true"
+        - INSTALL_SOAP="true"
+        - INSTALL_IMAP="true"
+        - INSTALL_MONGO="true"
+        - INSTALL_AMQP="true"
+        - INSTALL_MSSQL="true"
+        - INSTALL_ZIP_ARCHIVE="true"
+        - INSTALL_BCMATH="true"
+        - INSTALL_GMP="true"
+        - INSTALL_PHPREDIS="true"
+        - INSTALL_MEMCACHED="true"
+        - INSTALL_OPCACHE="true"
+        - INSTALL_EXIF="true"
+        - INSTALL_AEROSPIKE="true"
+        - INSTALL_MYSQLI="true"
+        - INSTALL_PGSQL="true"
+        - INSTALL_PG_CLIENT="true"
+        - INSTALL_TOKENIZER="true"
+        - INSTALL_INTL="true"
+        - INSTALL_GHOSTSCRIPT="true"
+        - INSTALL_LDAP="true"
+        - INSTALL_SWOOLE="true"
+        - INSTALL_IMAGE_OPTIMIZERS="true"
+        - INSTALL_IMAGEMAGICK="true"
+      dockerfile: "Dockerfile-72"
+    volumes:
+    - "./distribution-files/mediawiki:/var/www/mediawiki"
+    - "/etc/passwd:/etc/passwd:ro"
+    - "/etc/shadow:/etc/shadow:ro"
+    - "/etc/group:/etc/group:ro"
+  nginx:
+    image: nginx:1.10
+    ports:
+    - "80:80"
+    - "443:443"
+    volumes:
+    - "./distribution-files/nginx:/etc/nginx"
+    - "./distribution-files/mwcore/mediawiki:/var/www/mediawiki"
+    - "/etc/passwd:/etc/passwd:ro"
+    - "/etc/shadow:/etc/shadow:ro"
+    - "/etc/group:/etc/group:ro"
+    depends_on:
+    - phpfpm
+    - parsoid
+  mysql:
+    image: mariadb:10.0
+    volumes:
+    - "./distribution-files/mysql:/var/lib/mysql"
+    environment:
+    - MYSQL_ROOT_PASSWORD=@6gRzU2k8%
+    - MYSQL_USER=root@myadmin
+    - MYSQL_PASSWORD=@6gRzU2k8%
+    depends_on:
+    - nginx
+  parsoid:
+    image: rlewkowicz/parsoid:latest
+    volumes:
+    - "./distribution-files/parsoid/config.yaml:/usr/local/lib/node_modules/parsoid/config.yaml"
+    hostname: parsoid
+  myadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+    - "8080:80"
+    environment:
+    - PMA_HOST=mysql
+    depends_on:
+    - mysql
