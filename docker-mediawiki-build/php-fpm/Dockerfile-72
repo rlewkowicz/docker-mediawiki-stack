@@ -376,6 +376,27 @@ RUN if [ ${INSTALL_IMAP} = true ]; then \
     docker-php-ext-install imap \
 ;fi
 
+
+#####################################
+# Git:
+#####################################
+ARG INSTALL_GIT=true
+ENV INSTALL_GIT ${INSTALL_GIT}
+RUN if [ ${INSTALL_GIT} = true ]; then \
+    apt-get update && \
+    apt-get install -y git && \
+    rm -r /var/lib/apt/lists/*
+;fi
+
+#####################################
+# COMPOSER:
+#####################################
+RUN if [ true == true ]; then \
+  php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
+  php composer-setup.php --install-dir=bin --filename=composer && \
+  php -r "unlink('composer-setup.php');"
+;fi
+
 #####################################
 # Check PHP version:
 #####################################
