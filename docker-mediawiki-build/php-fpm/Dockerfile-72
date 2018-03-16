@@ -385,23 +385,44 @@ ENV INSTALL_GIT ${INSTALL_GIT}
 RUN if [ ${INSTALL_GIT} = true ]; then \
     apt-get update && \
     apt-get install -y git && \
-    rm -r /var/lib/apt/lists/*
+    rm -r /var/lib/apt/lists/* \
 ;fi
+
 
 #####################################
 # COMPOSER:
 #####################################
-RUN if [ true == true ]; then \
+RUN if [ true = true ]; then \
   php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
-  php composer-setup.php --install-dir=bin --filename=composer && \
-  php -r "unlink('composer-setup.php');"
+  php composer-setup.php --install-dir=/bin --filename=composer && \
+  php -r "unlink('composer-setup.php');" \
 ;fi
+
+
+#####################################
+# Python:
+#####################################
+RUN if [ true = true ]; then \
+  apt-get update && \
+  apt-get install -y python && \
+  rm -r /var/lib/apt/lists/* \
+;fi
+
+
+#####################################
+# Pygments:
+#####################################
+ADD https://bootstrap.pypa.io/get-pip.py /
+RUN python /get-pip.py && \
+pip install Pygments
+
 
 #####################################
 # Check PHP version:
 #####################################
 
 RUN php -v | head -n 1 | grep -q "PHP 7.2."
+
 
 #
 #--------------------------------------------------------------------------

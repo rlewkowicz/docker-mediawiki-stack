@@ -5,20 +5,20 @@ services:
       context: ./docker-mediawiki-build/php-fpm
       args:
         - INSTALL_XDEBUG=true
-        - INSTALL_BLACKFIRE=true
+        - INSTALL_BLACKFIRE=false
         - INSTALL_SOAP=true
         - INSTALL_IMAP=true
-        - INSTALL_MONGO=true
-        - INSTALL_AMQP=true
+        - INSTALL_MONGO=false
+        - INSTALL_AMQP=false
         - INSTALL_MSSQL=true
         - INSTALL_ZIP_ARCHIVE=true
         - INSTALL_BCMATH=true
         - INSTALL_GMP=true
-        - INSTALL_PHPREDIS=true
+        - INSTALL_PHPREDIS=false
         - INSTALL_MEMCACHED=true
         - INSTALL_OPCACHE=true
         - INSTALL_EXIF=true
-        - INSTALL_AEROSPIKE=true
+        - INSTALL_AEROSPIKE=false
         - INSTALL_MYSQLI=true
         - INSTALL_PGSQL=true
         - INSTALL_PG_CLIENT=true
@@ -26,7 +26,7 @@ services:
         - INSTALL_INTL=true
         - INSTALL_GHOSTSCRIPT=true
         - INSTALL_LDAP=true
-        - INSTALL_SWOOLE=true
+        - INSTALL_SWOOLE=false
         - INSTALL_IMAGE_OPTIMIZERS=true
         - INSTALL_IMAGEMAGICK=true
       dockerfile: "Dockerfile-72"
@@ -60,9 +60,8 @@ services:
     depends_on:
     - nginx
   parsoid:
-    image: rlewkowicz/parsoid:latest
-    volumes:
-    - "./distribution-files/parsoid/config.yaml:/usr/local/lib/node_modules/parsoid/config.yaml"
+    build:
+      context: ./docker-mediawiki-build/parsoid
     hostname: parsoid
   myadmin:
     image: phpmyadmin/phpmyadmin
