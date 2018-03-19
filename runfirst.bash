@@ -5,7 +5,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-MEDIAWIKIVERSION="1.30"
+MEDIAWIKIVERSION="1.27"
 
 #system prep
 command -v docker >/dev/null 2>&1 || { curl -s https://get.docker.com/ | bash; }
@@ -15,8 +15,7 @@ getent passwd www-data >/dev/null 2>&1 || { useradd www-data; }
 
 #Get Software
 if [[ -d "$DIR/distribution-files/mediawiki" ]]; then
-   echo "Mediawiki has already been initialized. Please remove $DIR/distribution-files/mediawiki if you would like to reninitialze the platform"
-   echo
+   printf "\nMediawiki has already been initialized. Please remove $DIR/distribution-files/mediawiki if you would like to reninitialze the platform \n\n"
    exit 1
 fi
 
@@ -37,7 +36,68 @@ VEXTENTION=$(curl -s https://extdist.wmflabs.org/dist/extensions/ | grep VisualE
 
 wget -qO- https://extdist.wmflabs.org/dist/extensions/$VEXTENTION | tar xvz -C $DIR/distribution-files/mediawiki/extensions/
 
+clear
+printf "\nWiki Initialized \n\n"
+
 #Perms
 find $DIR/distribution-files/mediawiki -type d -exec chmod 755 {} +
 find $DIR/distribution-files/mediawiki -type f -exec chmod 644 {} +
 chown -R www-data $DIR/distribution-files/mediawiki
+
+#I don't want to distribute a file anymore. So patching will take place on the fly. VE, mysql host, and Local settings placement will be covered here.
+
+#VE settings
+cat > $DIR/tmpfile <<HEREDOC
+\$localSettings .= <<<'EOD'
+
+#Pygments
+\$wgPygmentizePath = '/usr/local/bin/pygmentize';
+
+#URL OVERRIDE
+\$wgScriptPath       = "";
+\$wgArticlePath      = "/\$1";
+\$wgUsePathInfo      = true;
+\$wgScriptExtension  = ".php";
+
+#VISUAL EDITOR
+
+# Enable Visual editor
+require_once "\$IP/extensions/VisualEditor/VisualEditor.php";
+
+// Enable by default for everybody
+\$wgDefaultUserOptions['visualeditor-enable'] = 1;
+
+// Don't allow users to disable it
+\$wgHiddenPrefs[] = 'visualeditor-enable';
+
+// OPTIONAL: Enable VisualEditor's experimental code features
+\$wgDefaultUserOptions['visualeditor-enable-experimental'] = 1;
+
+\$wgVirtualRestConfig['modules']['parsoid'] = array(
+  // URL to the Parsoid instance
+  // Use port 8142 if you use the Debian package
+  'url' => 'parsoid:8000',
+  'domain' => 'wiki',
+  'forwardCookies' => true
+);
+
+\$wgSessionsInObjectCache = true;
+
+EOD;
+
+\$file = "/var/www/mediawiki/LocalSettings.php";
+if (!file_exists(\$file)) {
+  if (is_writable("/var/www/mediawiki/")) {
+    \$handle = fopen(\$file, 'w') or die('Cannot open file:  '.\$file);
+    fwrite(\$handle, \$localSettings);
+  }
+}
+
+return \$localSettings;
+HEREDOC
+
+sed -i "/return \$localSettings/ {
+   r $DIR/tmpfile
+   d
+ }" $DIR/distribution-files/mediawiki/includes/installer/LocalSettingsGenerator.php
+rm $DIR/tmpfile
