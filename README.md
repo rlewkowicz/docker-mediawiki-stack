@@ -1,14 +1,18 @@
 Containerized Mediawiki
 =======================
+[![Build Status](http://jenkins.binaryoasis.com/buildStatus/icon?job=mediawiki-docker-stack)](http://jenkins.binaryoasis.com/job/mediawiki-docker-stack/)
 
-# I'm rebuilding the project right now. Branch 1_28 is going to be the most functional if you need a working wiki.
+Project Compendium: http://binaryoasis.com:8000 (Not quite reflective of the rebuild)
 
-## Considerations for the current rebuild
+## Freshly re-engineered!
+I just rebuilt everything to be a little less static. The upside is it's easier to pick your version and I have a lot less to maintain, the down side is that it's a little less "wow" factor and probably more prone to code rot. Still better than just time/feature rot I suppose.
 
-First, things that need to be built - PHP and Parsoid in particular need a more central repository. I did pretty ok with it in the current implementation but multiple poorly maintained forks of official docker repos makes collaboration difficult. I like the way laradock does it, but I still will have to fork that because I need features it's not going to have like the syntax highlighting for code blocks. I could go look at the contribution guidelines, but I think I'm just going to poach their structure and adapt it to this project.
+## Whats Changed?
 
-If you look at some of the other projects out there, they have env variables that allow you to programmatically launch your wiki. At the same time though many of these repos don't have binary isolation. They just lump stuff into a container. If that's the trade, it's one I don't want to make. I'm making this more for personal wiki's and internal small business. I'm not too worried about being able to deploy 20 of them.
+* PHP and Parsoid are now runtime builds
+* These builds are now located in this repo at docker-mediawiki-build
+* Wiki initialization can be programmatic via environment variables
 
-I have some quality of life stuff that I do like auto placement of the localsettings file at wiki initialization. I gotta bail on that because it's not maintainable I don't think. But we'll see. I need some sort of like, patch applier that is code aware. I have what, 15-20 lines that inject into the mediawiki code. Provided nothing major changes I'd like to just keep injecting that, but I don't want it to break because someone added a single line of code. Then I need a bunch of tests etc etc. Maybe I'll look into something like travis so I don't have to maintain so much.
+The PHP image is based on laradock's php (Like, pretty aggressively. I added a few things, but I need to go trim the fat). The build file is for PHP 7.2. This shouldn't be a problem for mediawiki core, I think they backported 7.2 support to the 27 branch but don't quote me on that. If you run into issues open a bug and I can fix it a lot quicker now that I adopted (poached?) laradocks build structure. Or feel free to go grab a build file right from laradock and submit a pull after the needed adjustments.
 
-Mediawiki files, and composer deps. You would be surprised how not easy it is to grab the latest stable release of mediawiki. Their latest is a nightly build and since their github is a clone it doesn't support the "latest" api endpoint. Ultimately I need to decouple the project from mediawiki it's self. That just gets tricky, because of their development schemes. Parsoid does not play well with certain versions of mediawiki and the error messages are often esoteric, obfuscated, or non existent. As the project is now, a year later it all still works. It's pretty resistant to code rot because it's all pre built for the most part.
+## Doot

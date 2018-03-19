@@ -5,7 +5,22 @@ if [[ $EUID -ne 0 ]]; then
 fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-MEDIAWIKIVERSION="1.27"
+MEDIAWIKIVERSION="1.30"
+
+#Auto Install Variables
+SERVERURL="http://localhost/" #No Trailing slash
+WIKINAME="My Wiki"
+DBNAME="mediawiki"
+#NOTE: Due to interpolation, may have issues with special charecters on passwords.
+#NOTE: This Will override the password set in the docker-compose file
+DBPASS="HC51qp6xYIK"
+ADMINUSER="Admin"
+ADMINPASSWORD="EDI917VJb30" #Due to interpolation, may have issues with special charecters
+
+sed -i "s/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD=$DBPASS/g" $DIR/docker-compose.yml
+sed -i "s/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD=$DBPASS/g" $DIR/autoinstall.yml
+sed -i "s/MYSQL_PASSWORD=.*/MYSQL_PASSWORD=$DBPASS/g" $DIR/docker-compose.yml
+sed -i "s/MYSQL_PASSWORD=.*/MYSQL_PASSWORD=$DBPASS/g" $DIR/autoinstall.yml
 
 #system prep
 command -v docker >/dev/null 2>&1 || { curl -s https://get.docker.com/ | bash; }
@@ -32,7 +47,8 @@ mv $DIR/distribution-files/$(sed 's/.tar.gz//g' <(echo $MEDIAWIKISEMVAR)) $DIR/d
 
 #And again, but now with the extension
 MEDIAWIKIREL=$(sed 's/\./_/g' <(echo $MEDIAWIKIVERSION))
-VEXTENTION=$(curl -s https://extdist.wmflabs.org/dist/extensions/ | grep VisualEditor | grep $MEDIAWIKIREL | grep -o \>Visual.*.tar.gz | sed 's/>//g')
+#Their website randomly stopped playing nice with curl after working all day. Had to add cruft to make it work. 
+VEXTENTION=$(curl -s 'https://extdist.wmflabs.org/dist/extensions/' -H 'dnt: 1' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: en-US,en;q=0.9' -H 'upgrade-insecure-requests: 1' -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36' -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8' -H 'cache-control: max-age=0' -H 'authority: extdist.wmflabs.org' --compressed | grep VisualEditor | grep $MEDIAWIKIREL | grep -o \>Visual.*.tar.gz | sed 's/>//g')
 
 wget -qO- https://extdist.wmflabs.org/dist/extensions/$VEXTENTION | tar xvz -C $DIR/distribution-files/mediawiki/extensions/
 
@@ -101,3 +117,18 @@ sed -i "/return \$localSettings/ {
    d
  }" $DIR/distribution-files/mediawiki/includes/installer/LocalSettingsGenerator.php
 rm $DIR/tmpfile
+
+docker-compose -f $DIR/autoinstall.yml up -d --force-recreate
+
+echo "sleeping 15 for mysql init"
+secs=15
+while [ $secs -gt 0 ]; do
+   echo -ne "$secs\033[0K\r"
+   sleep 1
+   : $((secs--))
+done
+
+docker exec -ti no-one-else-should-be-using-this-name php mediawiki/maintenance/install.php --dbuser="root" --dbpass="$DBPASS" --dbname="$DBNAME" --dbserver="mysql" --installdbuser="root" --installdbpass="$DBPASS" --server="$SERVERURL" --lang=en --pass="$ADMINPASSWORD" "$WIKINAME" "$ADMINUSER"
+
+docker rm -f no-one-else-should-be-using-this-name
+docker rm -f no-one-else-should-be-using-this-name-or-this

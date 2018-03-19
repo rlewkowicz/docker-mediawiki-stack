@@ -1,6 +1,7 @@
 version: '2'
 services:
   phpfpm:
+    container_name: no-one-else-should-be-using-this-name
     build:
       context: ./docker-mediawiki-build/php-fpm
       args:
@@ -35,31 +36,19 @@ services:
     - "/etc/passwd:/etc/passwd:ro"
     - "/etc/shadow:/etc/shadow:ro"
     - "/etc/group:/etc/group:ro"
-  nginx:
-    image: nginx:1.10
-    ports:
-    - "80:80"
-    - "443:443"
-    volumes:
-    - "./distribution-files/nginx:/etc/nginx"
-    - "./distribution-files/mediawiki:/var/www/mediawiki"
-    - "/etc/passwd:/etc/passwd:ro"
-    - "/etc/shadow:/etc/shadow:ro"
-    - "/etc/group:/etc/group:ro"
     depends_on:
-    - phpfpm
-    - parsoid
+    - mysql
+    entrypoint:
+    - sh
+    - -c
+    - 'sleep 100000'
+
   mysql:
+    container_name: no-one-else-should-be-using-this-name-or-this
     image: mariadb:10.0
     volumes:
     - "./distribution-files/mysql:/var/lib/mysql"
     environment:
-    - MYSQL_ROOT_PASSWORD=HC51qp6xYIK
-    - MYSQL_USER=root@%
-    - MYSQL_PASSWORD=HC51qp6xYIK
-    depends_on:
-    - nginx
-  parsoid:
-    build:
-      context: ./docker-mediawiki-build/parsoid
-    hostname: parsoid
+      - MYSQL_ROOT_PASSWORD=HC51qp6xYIK
+      - MYSQL_USER=root@%
+      - MYSQL_PASSWORD=HC51qp6xYIK
