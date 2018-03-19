@@ -4,7 +4,8 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-MEDIAWIKIVERSION="1.29"
+
+MEDIAWIKIVERSION="1.30"
 
 #system prep
 command -v docker >/dev/null 2>&1 || { curl -s https://get.docker.com/ | bash; }
@@ -14,7 +15,7 @@ getent passwd www-data >/dev/null 2>&1 || { useradd www-data; }
 
 #Get Software
 if [[ -d "$DIR/distribution-files/mediawiki" ]]; then
-   echo "Mediawiki has already been initialized. Please remove $DIR/distribution-files/mediawiki if you would like to reninitialze the platform" 
+   echo "Mediawiki has already been initialized. Please remove $DIR/distribution-files/mediawiki if you would like to reninitialze the platform"
    echo
    exit 1
 fi
@@ -30,8 +31,13 @@ wget -qO- https://releases.wikimedia.org/mediawiki/$MEDIAWIKIVERSION/$MEDIAWIKIS
 
 mv $DIR/distribution-files/$(sed 's/.tar.gz//g' <(echo $MEDIAWIKISEMVAR)) $DIR/distribution-files/mediawiki
 
+#And again, but now with the extension
+MEDIAWIKIREL=$(sed 's/\./_/g' <(echo $MEDIAWIKIVERSION))
+VEXTENTION=$(curl -s https://extdist.wmflabs.org/dist/extensions/ | grep VisualEditor | grep $MEDIAWIKIREL | grep -o \>Visual.*.tar.gz | sed 's/>//g')
 
+wget -qO- https://extdist.wmflabs.org/dist/extensions/$VEXTENTION | tar xvz -C $DIR/distribution-files/mediawiki/extensions/
 
+#Perms
 find $DIR/distribution-files/mediawiki -type d -exec chmod 755 {} +
 find $DIR/distribution-files/mediawiki -type f -exec chmod 644 {} +
 chown -R www-data $DIR/distribution-files/mediawiki
