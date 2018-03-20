@@ -6,6 +6,7 @@ Project Compendium: http://binaryoasis.com:8000 (Not quite reflective of the reb
 
 ## TLDR:
 Runs on linux (only) kernel 3.10+ - Only tested on ubuntu 16.04
+
 Set vars in `runfirst.bash` if you want auto install
 ```
 sudo ./runfirst.bash
