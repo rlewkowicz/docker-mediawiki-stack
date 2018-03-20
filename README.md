@@ -5,6 +5,7 @@ Containerized Mediawiki
 Project Compendium: http://binaryoasis.com:8000 (Not quite reflective of the rebuild)
 
 ## TLDR:
+Set vars in `runfirst.bash` if you want auto install
 ```
 sudo ./runfirst.bash
 sudo docker-compose up -d --force-recreate
@@ -25,7 +26,7 @@ The PHP image is based on laradock's php (Like, pretty aggressively. I added a f
 In the runfirst.bash file, there is a series of variables that are pretty self explanatory. AUTOINSTALL can be set to anything other than "false" and it will do the auto install. You could set it to "banana", and it would work. In fact, I hope you do. If you have not yet built your PHP image, it will build it at that time.
 
 ## Gotchas and stuff to be aware of
-First, if you do a manual install just remmber the host for mysql is the service name in compose, so "mysql" is the host when prompted. Also, you may want to change the password in the compose file.
+First, if you do a manual install just remember the host for mysql is the service name in compose, so "mysql" is the host when prompted. Also, you may want to change the password in the compose file.
 
 The old version of this repo was nice because everything was pre built and you knew it would work. It's worked for the last year without me touching it. This is a bit more of a who knows? Did parsoid get updated, did the "localsettings" variable get changed? Does version X of VE or Mediawiki play nice with PHP version Y? This is always going to grab updated code though, and it's all prepackaged by mediawiki. It's easier to maintain and update and with any luck people will join in and we can build a nice little project around this.
 
