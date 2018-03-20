@@ -53,7 +53,7 @@ VEXTENTION=$(curl -s 'https://extdist.wmflabs.org/dist/extensions/' -H 'dnt: 1' 
 
 wget -qO- https://extdist.wmflabs.org/dist/extensions/$VEXTENTION | tar xvz -C $DIR/distribution-files/mediawiki/extensions/
 
-if [[ $? -ne 0]]; then
+if [[ $? != 0 ]]; then
   clear
   printf "\nIssue with $VEXTENTION download \n\n"
   exit 1
