@@ -8,7 +8,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MEDIAWIKIVERSION="1.30"
 
 #Auto Install Variables
-AUTOINSTALL="false"
+AUTOINSTALL="false" #Does not auto install by default. Set to anything other than false
 SERVERURL="https://localhost" #No Trailing slash
 WIKINAME="My Wiki"
 DBNAME="mediawiki"
@@ -17,6 +17,8 @@ DBNAME="mediawiki"
 DBPASS="HC51qp6xYIK"
 ADMINUSER="Admin"
 ADMINPASSWORD="EDI917VJb30" #Due to interpolation, may have issues with special charecters
+
+#### Begin all the things you don't need to worry about ####
 
 sed -i "s/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD=$DBPASS/g" $DIR/docker-compose.yml
 sed -i "s/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD=$DBPASS/g" $DIR/autoinstall.yml
@@ -28,6 +30,9 @@ command -v docker >/dev/null 2>&1 || { curl -s https://get.docker.com/ | bash; }
 command -v pip >/dev/null 2>&1 || { \curl -L https://bootstrap.pypa.io/get-pip.py | python || \curl -L https://bootstrap.pypa.io/get-pip.py | python3; }
 command -v docker-compose >/dev/null 2>&1 || { pip install docker-compose; }
 getent passwd www-data >/dev/null 2>&1 || { useradd www-data; }
+#I don't want to add OS detection here. These will be on most systems, I think the docker install does curl at the least.
+command -v curl >/dev/null 2>&1 || { echo "please install curl and rerun this script"; exit 1; }
+command -v wget >/dev/null 2>&1 || { echo "please install wget and rerun this script"; exit 1; }
 
 #Get Software
 if [[ -d "$DIR/distribution-files/mediawiki" ]]; then
@@ -141,4 +146,7 @@ if [[ $AUTOINSTALL != "false" ]]; then
 
   docker rm -f no-one-else-should-be-using-this-name
   docker rm -f no-one-else-should-be-using-this-name-or-this
+
+  clear
+  printf "\nYour wiki has been created, now you can run:\ndocker-compose up [-d] [--force-recreate] \n\n"
 fi
