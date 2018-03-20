@@ -4,6 +4,12 @@ Containerized Mediawiki
 
 Project Compendium: http://binaryoasis.com:8000 (Not quite reflective of the rebuild)
 
+## TLDR:
+```
+sudo ./runfirst.bash
+sudo docker-compose up -d --force-recreate
+```
+
 ## Freshly re-engineered!
 I just rebuilt everything to be a little less static. The upside is it's easier to pick your version and I have a lot less to maintain, the down side is that it's a little less "wow" factor and probably more prone to code rot. Still better than just time/feature rot I suppose.
 
