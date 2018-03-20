@@ -8,7 +8,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MEDIAWIKIVERSION="1.30"
 
 #Auto Install Variables
-AUTOINSTALL=false
+AUTOINSTALL="false"
 SERVERURL="https://localhost" #No Trailing slash
 WIKINAME="My Wiki"
 DBNAME="mediawiki"
@@ -52,6 +52,12 @@ MEDIAWIKIREL=$(sed 's/\./_/g' <(echo $MEDIAWIKIVERSION))
 VEXTENTION=$(curl -s 'https://extdist.wmflabs.org/dist/extensions/' -H 'dnt: 1' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: en-US,en;q=0.9' -H 'upgrade-insecure-requests: 1' -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36' -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8' -H 'cache-control: max-age=0' -H 'authority: extdist.wmflabs.org' --compressed | grep VisualEditor | grep $MEDIAWIKIREL | grep -o \>Visual.*.tar.gz | sed 's/>//g')
 
 wget -qO- https://extdist.wmflabs.org/dist/extensions/$VEXTENTION | tar xvz -C $DIR/distribution-files/mediawiki/extensions/
+
+if [[ $? -ne 0]]; then
+  clear
+  printf "\nIssue with $VEXTENTION download \n\n"
+  exit 1
+fi
 
 clear
 printf "\nWiki Initialized \n\n"
@@ -120,7 +126,7 @@ sed -i "/return \$localSettings/ {
 rm $DIR/tmpfile
 
 
-if [[ $AUTOINSTALL -ne false ]]; then
+if [[ $AUTOINSTALL != "false" ]]; then
   docker-compose -f $DIR/autoinstall.yml up -d --force-recreate
 
   echo "sleeping 15 for mysql init"
