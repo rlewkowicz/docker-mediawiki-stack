@@ -1,1 +1,2 @@
-distribution-files/mediawiki/
+distribution-files/*
+.env

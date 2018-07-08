@@ -5,25 +5,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-MEDIAWIKIVERSION="1.30"
-
-#Auto Install Variables
-AUTOINSTALL="false" #Does not auto install by default. Set to anything other than false
-SERVERURL="https://localhost" #No Trailing slash
-WIKINAME="My Wiki"
-DBNAME="mediawiki"
-#NOTE: Due to interpolation, may have issues with special charecters on passwords.
-#NOTE: This Will override the password set in the docker-compose file
-DBPASS="HC51qp6xYIK"
-ADMINUSER="Admin"
-ADMINPASSWORD="EDI917VJb30" #Due to interpolation, may have issues with special charecters
-
-#### Begin all the things you don't need to worry about ####
-
-sed -i "s/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD=$DBPASS/g" $DIR/docker-compose.yml
-sed -i "s/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD=$DBPASS/g" $DIR/autoinstall.yml
-sed -i "s/MYSQL_PASSWORD=.*/MYSQL_PASSWORD=$DBPASS/g" $DIR/docker-compose.yml
-sed -i "s/MYSQL_PASSWORD=.*/MYSQL_PASSWORD=$DBPASS/g" $DIR/autoinstall.yml
+source .env
 
 #system prep
 command -v docker >/dev/null 2>&1 || { curl -s https://get.docker.com/ | bash; }
@@ -148,5 +130,5 @@ if [[ $AUTOINSTALL != "false" ]]; then
   docker rm -f no-one-else-should-be-using-this-name-or-this
 
   clear
-  printf "\nYour wiki has been created, now you can run:\ndocker-compose up [-d] [--force-recreate] \n\n"
+  printf "\nYour wiki has been created, now you can run:\nmake up \n\n"
 fi
