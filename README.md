@@ -22,7 +22,7 @@ I just rebuilt everything to be a little less static. The upside is it's easier 
 The PHP image is based on laradock's php (Like, pretty aggressively. I added a few things, but I need to go trim the fat). The build file is for PHP 7.2. This shouldn't be a problem for mediawiki core, I think they backported 7.2 support to the 27 branch but don't quote me on that. If you run into issues open a bug and I can fix it a lot quicker now that I adopted (poached?) laradocks build structure. Or feel free to go grab a build file right from laradock and submit a pull after the needed adjustments.
 
 ## Auto install and setting your version
-In the runfirst.bash file, there is a series of variables that are pretty self explanatory. AUTOINSTALL can be set to anything other than "false" and it will do the auto install. You could set it to "banana", and it would work. In fact, I hope you do. If you have not yet built your PHP image, it will build it at that time.
+In the .env file, there is a series of variables that are pretty self explanatory. AUTOINSTALL can be set to anything other than "false" and it will do the auto install. You could set it to "banana", and it would work. In fact, I hope you do. If you have not yet built your PHP image, it will build it at that time.
 
 ## Gotchas and stuff to be aware of
 First, if you do a manual install just remember the host for mysql is the service name in compose, so "mysql" is the host when prompted. Also, you may want to change the password in the compose file.
