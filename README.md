@@ -1,9 +1,5 @@
 Containerized Mediawiki
 =======================
-[![Build Status](http://jenkins.binaryoasis.com/buildStatus/icon?job=mediawiki-docker-stack)](http://jenkins.binaryoasis.com/job/mediawiki-docker-stack/)
-
-Project Compendium: http://binaryoasis.com:8000 (Not quite reflective of the rebuild)
-
 ## TLDR:
 Runs on linux (only) kernel 3.10+ - Only tested on ubuntu 16.04
 
