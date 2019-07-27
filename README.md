@@ -25,7 +25,7 @@ make reup
 
 To stop the container:
 ```
-make stop
+make down
 ```
 
 To destroy the container:
