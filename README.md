@@ -1,7 +1,7 @@
 Containerized Mediawiki
 =======================
-## TLDR:
-Runs on linux (only) kernel 3.10+ - Only tested on ubuntu 16.04
+
+Runs on Linux only. (kernel version 3.10+) - Only tested on Ubuntu 16.04
 
 ## Installation
 
