@@ -3,11 +3,34 @@ Containerized Mediawiki
 ## TLDR:
 Runs on linux (only) kernel 3.10+ - Only tested on ubuntu 16.04
 
-Set vars in `.env` if you want auto install (after `make init`)
+## Installation
+
+Run:
 ```
 make init
+```
+
+Set variables in `.env` if you want to customize your install. Then run:
+```
 make config
 make up
+```
+
+## Usage
+
+To restart the container, run:
+```
+make reup
+```
+
+To stop the container:
+```
+make stop
+```
+
+To destroy the container:
+```
+make destroy
 ```
 
 ## Freshly re-engineered!
