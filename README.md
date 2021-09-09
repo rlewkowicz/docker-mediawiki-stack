@@ -1,3 +1,11 @@
+READ THIS FIRST
+=======================
+I don't want to deptracte this, it probably still works just fine. There's really better options out there though. I'm not trying to shill my blog, but I don't know where else to put this:
+https://hireryan.today/2021/08/20/running-single-node-kubernetes-with-persistent-data/
+
+If you want a simple deployment paradigm with files you can access locally this is the way to go. I need to finish the series, but you can just use helm. 
+
+
 Containerized Mediawiki
 =======================
 
